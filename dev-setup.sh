@@ -1,0 +1,66 @@
+#!/bin/bash
+
+# Stop any running containers
+echo "Stopping any running containers..."
+docker-compose down
+
+# Make sure directories exist
+echo "Creating necessary directories..."
+mkdir -p backend/public
+
+# Create a test index file
+echo "Creating test index file..."
+cat > backend/public/index.html << 'EOL'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUH Application</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SUH Application</h1>
+        <p>The Docker development environment is running correctly!</p>
+        <p>This is a placeholder page. Your actual application will appear here when built.</p>
+    </div>
+</body>
+</html>
+EOL
+
+# Set proper permissions
+echo "Setting file permissions..."
+chmod -R 755 backend/public
+
+# Build and start the containers
+echo "Building and starting containers..."
+docker-compose up --build -d
+
+echo "Setup complete!"
+echo "You should now be able to access the application at http://localhost"
+echo "To view logs use: docker-compose logs -f" 
