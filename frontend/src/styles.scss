@@ -1,0 +1,1014 @@
+// Custom Theming for Angular Material
+// For more information: https://material.angular.io/guide/theming
+@use "@angular/material" as mat;
+// Plus imports for other components in your app.
+
+// Include the common styles for Angular Material. We include this here so that you only
+// have to load a single css file for Angular Material in your app.
+// Be sure that you only ever include this mixin once!
+@include mat.core();
+
+// Define the palettes for your theme using the Material Design palettes available in palette.scss
+// (imported above). For each palette, you can optionally specify a default, lighter, and darker
+// hue. Available color palettes: https://material.io/design/color/
+$trinta-primary: mat.define-palette(mat.$indigo-palette);
+$trinta-accent: mat.define-palette(mat.$pink-palette, A200, A100, A400);
+
+// The warn palette is optional (defaults to red).
+$trinta-warn: mat.define-palette(mat.$red-palette);
+
+// Create the theme object. A theme consists of configurations for individual
+// theming systems such as "color" or "typography".
+$trinta-theme: mat.define-light-theme((color: (primary: $trinta-primary,
+        accent: $trinta-accent,
+        warn: $trinta-warn,
+      ),
+    ));
+
+// Include theme styles for core and each component used in your app.
+// Alternatively, you can import and @include the theme mixins for each component
+// that you are using.
+@include mat.all-component-themes($trinta-theme);
+
+/* You can add global styles to this file, and also import other style files */
+:root {
+  --fontFamily: "Poppins", sans-serif;
+  --headingFontFamily: "Inter", sans-serif;
+  --primaryColor: #3761ee;
+  --dangerColor: #ee368c;
+  --infoColor: #2db6f5;
+  --warningColor: #ffb264;
+  --successColor: #2ed47e;
+  --darkColor: #262626;
+  --blackColor: #5b5b98;
+  --whiteColor: #ffffff;
+  --bodyColor: #a9a9c8;
+  --transition: 0.5s;
+  --fontSize: 14px;
+}
+
+* {
+  scrollbar-width: thin;
+  /* "auto" or "thin" */
+  scrollbar-color: rgb(184, 184, 184) rgb(251, 251, 251);
+  /* scroll thumb and track */
+}
+
+/* Works on Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(184, 184, 184) rgb(251, 251, 251);
+}
+
+/* Works on Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+  width: 12px;
+}
+
+*::-webkit-scrollbar-track {
+  background: rgb(251, 251, 251);
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: rgb(184, 184, 184);
+  border-radius: 20px;
+  border: 3px solid rgb(184, 184, 184) rgb(251, 251, 251);
+}
+
+// _Variable
+@import "./variable";
+
+// Utilities CSS
+@import "./utilities";
+
+*,
+::after,
+::before {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  letter-spacing: 0.15px;
+  color: var(--darkColor);
+  background-color: #f5f7fa;
+
+  font: {
+    weight: 400;
+    size: var(--fontSize);
+    family: var(--fontFamily);
+  }
+}
+
+app-authentication {
+  background-image: url("/assets/images/photos/authbg.jpg");
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.dark-theme app-authentication {
+  background-image: url("/assets/images/photos/adminbgnight.jpg") !important;
+}
+
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.display-1,
+.display-2,
+.display-3,
+.display-4,
+.display-5,
+.display-6 {
+  color: var(--darkColor);
+  letter-spacing: 0.18px;
+
+  margin: {
+    top: 0;
+    bottom: 15px;
+  }
+
+  font: {
+    family: var(--headingFontFamily);
+    weight: 600;
+  }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+a {
+  transition: var(--transition);
+  color: var(--darkColor);
+  text-decoration: none;
+  outline: 0 !important;
+
+  &:hover {
+    text-decoration: none;
+    color: var(--primaryColor);
+  }
+}
+
+p {
+  font-size: var(--fontSize);
+  color: var(--bodyColor);
+  line-height: 1.8;
+
+  margin: {
+    bottom: 15px;
+    top: 0;
+  }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.noHintsForField {
+  .mat-mdc-form-field-subscript-wrapper {
+    //display: none !important;
+  }
+}
+
+.customError {
+  font-size: 12px !important;
+}
+
+.fullWidth {
+  width: 100% !important;
+}
+
+.d-table {
+  width: 100%;
+  height: 100%;
+
+  &-cell {
+    vertical-align: middle;
+  }
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+.mb-25 {
+  margin-bottom: 25px !important;
+}
+
+input {
+  color: var(--blackColor);
+
+  font: {
+    weight: normal;
+    size: var(--fontSize);
+    family: var(--fontFamily);
+  }
+
+  &::placeholder {
+    color: var(--bodyColor);
+  }
+}
+
+:focus {
+  outline: 0 !important;
+}
+
+.heading-font-family {
+  font-family: var(--headingFontFamily) !important;
+}
+
+// Font Size
+.fs-14 {
+  font-size: 14px !important;
+}
+
+.fs-15 {
+  font-size: 15px !important;
+}
+
+.fs-16 {
+  font-size: 16px !important;
+}
+
+// UI Kit CSS
+@import "./ui-kit";
+
+// Dark CSS
+@import "./dark";
+
+/* Max width 767px */
+@media only screen and (max-width: 767px) {
+  body {
+    font-size: 13px;
+  }
+
+  p {
+    font-size: 13px;
+  }
+
+  .mb-25 {
+    margin-bottom: 20px !important;
+  }
+
+  input {
+    font-size: 13px;
+  }
+
+  // Font Size
+  .fs-14 {
+    font-size: 13px !important;
+  }
+
+  .fs-15 {
+    font-size: 14px !important;
+  }
+
+  .fs-16 {
+    font-size: 15px !important;
+  }
+}
+
+.rowTitle {
+  margin-top: 40px;
+}
+
+.mainPageButton {
+  position: absolute !important;
+  top: 0;
+  right: 0;
+  margin: 30px 25px;
+}
+
+.mat-mdc-table {
+  width: 100%;
+  overflow: hidden;
+  background-color: transparent !important;
+
+  .mat-mdc-header-row {
+    height: auto;
+    line-height: initial;
+    letter-spacing: 0.14px;
+    color: var(--darkColor);
+    background: transparent;
+
+    font: {
+      weight: 500;
+      size: var(--fontSize);
+      family: var(--fontFamily);
+    }
+
+    .mat-mdc-header-cell {
+      border: none;
+      overflow: unset;
+      text-align: start;
+      white-space: nowrap;
+      line-height: initial;
+      padding: 0 15px 15px;
+      letter-spacing: normal;
+      background: transparent;
+      border-bottom: 2px solid #edeff5;
+    }
+  }
+
+  .mat-mdc-row,
+  .mdc-data-table__content {
+    line-height: initial;
+    background: transparent;
+
+    font: {
+      weight: normal;
+      size: var(--fontSize);
+      family: var(--fontFamily);
+    }
+  }
+
+  .mat-mdc-row {
+    height: auto;
+    color: var(--blackColor);
+  }
+
+  .mat-mdc-cell {
+    border: none;
+    overflow: hidden;
+    text-align: start;
+    padding: 18px 15px;
+    white-space: nowrap;
+    line-height: initial;
+    letter-spacing: 0.14px;
+    background: transparent;
+    border-bottom: 1px solid #edeff5;
+
+    .user-info {
+      .image {
+        width: 53px;
+        height: 53px;
+        border-radius: 50%;
+        margin-right: 15px;
+
+        img {
+          border-radius: 50%;
+        }
+      }
+
+      .info {
+        h6 {
+          margin-bottom: 7px;
+          font-size: 15px;
+        }
+      }
+    }
+
+    .trinta-badge {
+      font-size: 12px;
+      color: #00b69b;
+      border-radius: 2px;
+      padding: 1.5px 7px;
+      letter-spacing: 1px;
+      background: rgba(0, 182, 155, 0.1);
+
+      &.deactive {
+        color: var(--dangerColor);
+        background: rgba(238, 54, 140, 0.1);
+      }
+
+      &.converted {
+        color: #ee8336;
+        background: rgba(238, 131, 54, 0.1);
+      }
+    }
+
+    .action {
+      .mat-mdc-button {
+        font-size: 18px;
+        color: #818093;
+        margin-right: 12px;
+
+        &:last-child {
+          margin-right: 0;
+        }
+      }
+    }
+  }
+}
+
+.mat-mdc-paginator {
+  padding-top: 15px;
+}
+
+.tableContainer {
+  margin-top: 25px;
+  padding: 18px 0px;
+}
+
+.flexi {
+  display: flex !important;
+}
+
+.gridi {
+  display: grid !important;
+}
+
+.mauto {
+  margin: auto !important;
+}
+
+.deleteIcon {
+  color: var(--dangerColor) !important;
+}
+
+.successIcon {
+  color: var(--successColor) !important;
+}
+
+.infoIcon {
+  color: var(--infoColor) !important;
+}
+
+.warningIcon {
+  color: var(--warningColor) !important;
+}
+
+mat-form-field:not(i-feather) {
+  //padding-left: 5px
+}
+
+.mat-mdc-dialog-container {
+  mat-card {
+    padding: 0px !important;
+    margin-bottom: 0px !important;
+  }
+}
+
+.dark-theme {
+
+  .mat-mdc-dialog-surface,
+  .mdc-dialog__surface {
+    background-color: #1b232d !important;
+  }
+
+  .mat-mdc-dialog-container,
+  .mdc-dialog__title {
+    color: white !important;
+  }
+
+  .searchInputContainer mat-selection-list {
+    box-shadow: 0px 4px 20px 0px rgba(0, 0, 0, 0.07) !important;
+    border: 1px solid #303030;
+  }
+}
+
+.mat-mdc-dialog-title {
+  font-size: 21px !important;
+  letter-spacing: 0.1px !important;
+  margin: 20px 0px 12px 0px !important;
+  font-weight: 500 !important;
+  color: rgb(56 54 89) !important;
+  font-family: var(--headingFontFamily) !important;
+}
+
+.noiconForm {
+  .mat-mdc-text-field-wrapper {
+    padding: 0 15px !important;
+  }
+}
+
+.dark-theme {
+  .avatarElementContainer {
+    .avatarElement {
+      order: 1px solid #a1a1a161 !important;
+    }
+  }
+}
+
+.avatarElementContainer {
+  display: flex !important;
+
+  .avatarElement {
+    order: 1px solid #a1a1a161 !important;
+  }
+
+  .avatarElement:not(:first-child) {
+    margin-left: -7px;
+  }
+}
+
+.gridy {
+  display: grid !important;
+}
+
+.mdc-dialog__title::before {
+  display: none !important;
+}
+
+mat-form-field .material-symbols-outlined {
+  top: 13.5px;
+  left: -40px;
+  width: 25px;
+  line-height: 1;
+  position: absolute;
+  color: var(--blackColor);
+
+  &.login {
+    left: 12px;
+  }
+}
+
+html:has(.dark-theme) {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(93, 93, 93) rgb(40, 40, 40);
+}
+
+mat-dialog-content {
+  padding-top: 0px !important;
+  padding-bottom: 0px !important;
+}
+
+.filtersContainer {
+  margin-bottom: 20px;
+  margin-top: 32px;
+
+  h6 {
+    font-size: 14px !important;
+    color: #646464;
+  }
+}
+
+.cardNoSidePadding {
+  padding-left: 0px !important;
+  padding-right: 0px !important;
+}
+
+.errorOption {
+  color: #c02121 !important;
+}
+
+.infoOption {
+  color: #294fbe !important;
+}
+
+.okOption {
+  color: #348e55 !important;
+}
+
+.dark-theme {
+  mat-list-option {
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+    border-bottom: 1px solid #3e3e3e;
+  }
+
+  .innerResetInputButton {
+    color: white !important;
+  }
+
+  mat-form-field .material-symbols-outlined {
+    color: white;
+  }
+
+  div.mat-mdc-select-panel {
+    background-color: #111111 !important;
+  }
+
+  .mat-pseudo-checkbox-full {
+    border-color: inherit !important;
+  }
+
+  textarea::placeholder {
+    color: #a4a3c0 !important;
+    --placeHolder-color: #a4a3c0 !important;
+  }
+
+  input::placeholder {
+    color: #a4a3c0 !important;
+    --placeHolder-color: #a4a3c0 !important;
+  }
+
+  * {
+    scrollbar-width: thin;
+    /* "auto" or "thin" */
+    scrollbar-color: rgb(93, 93, 93) rgb(40, 40, 40);
+    /* scroll thumb and track */
+  }
+
+  /* Works on Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(93, 93, 93) rgb(40, 40, 40);
+  }
+
+  /* Works on Chrome, Edge, and Safari */
+  *::-webkit-scrollbar {
+    width: 12px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: rgb(40, 40, 40);
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: rgb(93, 93, 93);
+    border-radius: 20px;
+    border: 3px solid rgb(40, 40, 40);
+  }
+}
+
+mat-list-option {
+  padding-top: 5px !important;
+  padding-bottom: 5px !important;
+  border-bottom: 1px solid #e2e2e2;
+}
+
+.searchInputContainer {
+  //margin-bottom: 22px;
+
+  .addSelectedElementsButton {
+    width: 100%;
+    margin-bottom: 23px;
+  }
+}
+
+.searchInputContainer mat-progress-bar {
+  margin-top: -24px;
+  margin-bottom: 22px;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.searchInputContainer mat-selection-list {
+  max-height: 210px;
+  overflow: auto;
+  margin-top: -22px !important;
+  box-shadow: 0px 4px 20px 0px rgb(0 0 0 / 7%) !important;
+  border: 1px solid #e0e0e0;
+}
+
+.selectedPrestadoresContainer .mat-mdc-list-item-unscoped-content {
+  display: flex !important;
+  height: 100%;
+}
+
+.listInfoContainer {
+  width: calc(100% - 48px);
+}
+
+.searchInputContainer mat-selection-list:not(:has(mat-list-option)) {
+  display: none;
+}
+
+.largeVerticalDialogContainer {
+  max-width: 1450px;
+  min-width: 79dvw;
+  min-height: 90vh;
+}
+
+mat-expansion-panel {
+  span.mat-content {
+    justify-content: space-between;
+  }
+
+  mat-panel-title {
+    flex-grow: initial !important;
+    flex-basis: initial !important;
+  }
+
+  mat-panel-description {
+    flex-grow: initial !important;
+    flex-basis: initial !important;
+  }
+}
+
+::ng-deep {
+  ng-scrollbar.scroll-event {
+    --scrollbar-size: 8px;
+    --scrollbar-thumb-color: gray;
+    --scrollbar-hover-size: 12px;
+    --scrollbar-track-color: rgba(0, 0, 0, 0.05);
+    --scrollbar-border-radius: 10px;
+
+    height: 200px;
+    max-height: 200px;
+    border-radius: 3px;
+    border: 2px solid rgba(0, 0, 0, 0.05);
+  }
+}
+
+.page-title {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  transition: 0.2s;
+  background: white;
+
+  h1 {
+    margin: 0;
+  }
+}
+
+/* Min width 576px to Max width 767px */
+@media only screen and (min-width: 300px) and (max-width: 767px) {
+  .mainPageButton {
+    position: relative !important;
+    margin: 15px 0px;
+  }
+
+  .mat-mdc-table {
+    .mat-mdc-header-row {
+      font-size: 13px;
+    }
+
+    .mat-mdc-row,
+    .mdc-data-table__content {
+      font-size: 13px;
+    }
+
+    .mat-mdc-cell {
+      padding: 15px;
+
+      .user-info {
+        .image {
+          margin-right: 12px;
+        }
+
+        .info {
+          h6 {
+            font-size: 13px;
+          }
+        }
+      }
+
+      .trinta-badge {
+        font-size: 11px;
+      }
+
+      .action {
+        .mat-mdc-button {
+          font-size: 15px;
+        }
+      }
+    }
+  }
+}
+
+/* Min width 768px to Max width 991px */
+@media only screen and (min-width: 768px) and (max-width: 991px) {
+  .mat-mdc-table {
+    .mat-mdc-cell {
+      padding: 15px;
+
+      .user-info {
+        .info {
+          h6 {
+            font-size: 14px;
+          }
+        }
+      }
+
+      .action {
+        .mat-mdc-button {
+          font-size: 17px;
+        }
+      }
+    }
+  }
+}
+
+/* Min width 992px to Max width 1199px */
+@media only screen and (min-width: 992px) and (max-width: 1199px) {}
+
+/* Min width 1200px to Max width 1399px */
+@media only screen and (min-width: 1200px) and (max-width: 1600px) {
+  .verticalDialogContainer {
+    max-width: 750px;
+  }
+
+  .mediumVerticalDialogContainer {
+    max-width: 850px;
+  }
+
+  .largeVerticalDialogContainer {
+    max-width: 1450px;
+    min-width: 79dvw;
+  }
+}
+
+.trinta-badge {
+  font-size: 12px;
+  color: #00b69b;
+  border-radius: 2px;
+  padding: 1.5px 7px;
+  letter-spacing: 1px;
+  background: rgba(0, 182, 155, 0.1);
+
+  &.deactive {
+    color: var(--dangerColor);
+    background: rgba(238, 54, 140, 0.1);
+  }
+
+  &.converted {
+    color: #ee8336;
+    background: rgba(238, 131, 54, 0.1);
+  }
+}
+
+.subtitle {
+  margin-top: 26px;
+  margin-bottom: 0px;
+  font-size: 18px;
+  color: #2438a9;
+  font-weight: 600;
+  color: #4452d0;
+}
+
+::ng-deep {
+  .sidebar-menu-link i-feater {
+    color: white !important;
+  }
+}
+
+footer {
+  background: #f5f7fa;
+}
+
+.dangerButton {
+  background-color: var(--dangerColor) !important;
+  color: white !important;
+}
+
+.successButton {
+  background-color: var(--successColor) !important;
+  color: white !important;
+}
+
+.infoButton {
+  background-color: var(--infoColor) !important;
+  color: white !important;
+}
+
+.warningButton {
+  background-color: var(--warningColor) !important;
+  color: white !important;
+}
+
+eco-fab-speed-dial-actions button {
+  display: flex !important;
+
+  box-shadow: rgba(21, 40, 22, 0.2) 0px 0px 9px 1px !important;
+  opacity: 1;
+
+  mat-icon {
+    margin: auto !important;
+  }
+
+  td & {
+    margin: auto !important;
+    margin-left: 10px !important;
+  }
+}
+
+eco-fab-speed-dial .eco-fab-speed-dial-container {
+  z-index: 4px;
+}
+
+.filterHeaderContainer {
+  .mat-mdc-form-field-subscript-wrapper {
+    display: none !important;
+  }
+
+  form>div>* {
+    margin-bottom: 15px;
+  }
+
+  .filterActionbutton {
+    margin-top: auto !important;
+    padding: 0px !important;
+    height: 30px !important;
+    width: 30px !important;
+    display: flex !important;
+
+    .material-symbols-outlined,
+    mat-icon {
+      margin: auto !important;
+    }
+  }
+}
+
+.rounded-circle.text-center {
+  font-size: large !important;
+}
+
+.tableContainer {
+  position: relative !important;
+}
+
+.loadingShade {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 56px;
+  right: 0;
+  background: rgba(0, 0, 0, 0.15);
+  z-index: 26;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 7px;
+}
+
+.viewComponentHeaderContainer {
+  background-color: var(--darkColor) !important;
+  position: relative !important;
+  margin-bottom: 30px !important;
+  padding: 30px 25px !important;
+  border-radius: 5px !important;
+
+  .description {
+    font-size: larger;
+
+    &:first-letter {
+      text-transform: uppercase !important;
+    }
+  }
+}
+
+.pageContainer {
+  position: relative !important;
+}
+
+.uppercased {
+  text-transform: uppercase !important;
+}
+
+.prestadoresColumn {
+  max-width: 250px;
+  white-space: break-spaces;
+}
+
+.avatarElementContainer {
+  display: table-cell !important;
+}
+
+eco-fab-speed-dial .mdc-button__label {
+  display: flex;
+}
+
+.regularText {
+  color: rgb(56, 54, 89) !important;
+
+  .dark-theme & {
+    color: var(--whiteColor) !important;
+  }
+}
+
+.centered {
+  text-align: center !important;
+}
+
+.selected-chips-container mat-chip {
+  border-radius: 5px !important;
+  background: #4461eb !important;
+
+  .mat-mdc-chip-action-label {
+    color: var(--whiteColor) !important;
+  }
+
+  i-feather {
+    color: var(--whiteColor) !important;
+  }
+}
+
+.gap-10 {
+  gap: 10px;
+}
+
+.tabContainer .mat-mdc-tab {
+  flex: 1 1 0px !important;
+}
+
+.tabBodyContainer {
+  >.mat-mdc-tab-header {
+    margin-bottom: 0px !important;
+
+    .mdc-tab.mat-mdc-tab.mdc-tab--active {
+      background-color: white !important;
+
+      .mdc-tab-indicator{
+        display: none !important;
+      }
+    }
+  }
+
+}

@@ -1,0 +1,161 @@
+<div class="mediumVerticalDialogContainer">
+    <h3 mat-dialog-title>
+        {{incomingData.data ? 'Editar' : 'Crear'}} Grupo de Semana
+    </h3>
+    <mat-dialog-content class="mat-typography">
+        <div *ngIf="incomingData.message" class="alert alert-bg-primary d-flex align-items-center" role="alert">
+            <span class="material-symbols-outlined mr-10">
+                info
+            </span>
+            <span [innerHTML]="incomingData?.message">
+
+            </span>
+        </div>
+        <mat-card class="trinta-card mb-25 bg-white border-none d-block">
+            <mat-card-content>
+                <form [formGroup]='myControl'>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <mat-form-field>
+                                <i-feather name="search"></i-feather>
+                                <mat-label>Nombre del Grupo</mat-label>
+                                <input matInput placeholder="Ejemplo: Grupo de Semana 1: EPS" formControlName="name">
+                                <mat-error *ngIf="myControl.controls.name.hasError('required')">
+                                    El campo es <strong>requerido</strong>.
+                                </mat-error>
+                                <mat-error *ngIf="myControl.controls.name.hasError('minlength')">
+                                    El campo debe tener mínimo <strong>6 caracteres</strong>.
+                                </mat-error>
+                                <mat-error *ngIf="myControl.controls.name.hasError('maxlength')">
+                                    El campo debe tener máximo <strong>50 caracteres</strong>.
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <mat-form-field>
+                                <i-feather name="user"></i-feather>
+                                <mat-label>Lider</mat-label>
+                                <mat-select name="lead" formControlName="lead">
+                                    @for (verificador of verificadores; track verificador) {
+                                    <mat-option [value]="verificador.id">{{verificador.name}} {{verificador.surname}}
+                                        {{verificador.lastname}}</mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+
+                        <div class="col-sm-12" [formGroup]="myControl">
+                            <select-custom [label]="'Miembros del Grupo'" [icon]="'users'"
+                                [incomingData]="incomingData.data?.members ? formatMembers(incomingData.data?.members) : []"
+                                [placeholder]="'Busca Miembros por Nombre...'" [options]="multipleverificadores"
+                                formControlName="members"/>
+                            <mat-error class="customError"
+                                *ngIf="myControl.controls.members.touched && myControl.controls.members.hasError('required')">
+                                El campo es <strong>requerido</strong>.
+                            </mat-error>
+                        </div>
+
+                        <p *ngIf="selectedVerificators.length > 0" class="subtitle">
+                            Verificadores para ésta visita:</p>
+                        <mat-list role="list">
+                            @for (selectedVerificator of selectedVerificators; track selectedVerificator) {
+                            <mat-list-item role="listitem" style="font-weight: 600;">
+                                <span  matListItemTitle>{{selectedVerificator.name || ''}} {{selectedVerificator.surname || ''}}
+                                    {{selectedVerificator.lastname || ''}}</span>
+                                <span matListItemLine>{{selectedVerificator.identification_number}} |
+                                    {{selectedVerificator.email}}</span>
+                            </mat-list-item>
+                            }
+                        </mat-list>
+
+                        <div class="searchInputContainer col-sm-12">
+                            <mat-form-field> 
+                                <mat-label>Prestadores a visitar</mat-label>
+                                <input matInput type="text" name="value" [(ngModel)]="value"
+                                    placeholder="Busca Prestadores por Código, Cédula o NIT en REPS..."
+                                    (keyup)="this.debouceInput.next($any($event.target).value)">
+                                @if (value) {
+                                <button matSuffix mat-icon-button class="innerResetInputButton" aria-label="Clear"
+                                    (click)="[value='', prestadores=[]]">
+                                    <mat-icon>close</mat-icon>
+                                </button>
+                                }
+                            </mat-form-field>
+                            <mat-progress-bar [hidden]="!searchingForPrestadores" mode="query"></mat-progress-bar>
+
+                            <mat-selection-list #prestadoresList [multiple]="true">
+                                @for (prestador of prestadores; track prestador) {
+                                <mat-list-option style=" height: 100px !important;"
+                                    [disabled]="selectedPrestadoresIds.includes(prestador['id'])" color="primary"
+                                    [value]="prestador">
+                                    <div matListItemTitle style="font-weight: 600; color: #3cab6f">
+                                        {{prestador.prestadorType.name}}</div>
+                                    <div matListItemTitle style="font-weight: 600;">{{prestador.nombreSede}}</div>
+                                    <div matListItemLine style="font-weight: 600; margin-bottom: 10;"><span>Código
+                                            Sede:</span>
+                                        {{prestador.codigoPrestador}} | <span style="font-weight: 600;">
+                                            Municipio:</span> {{prestador.municipioInicial}}</div>
+                                    <!--  <div matListItemLine>{{prestador.nombreprestador}} </div>
+                                    <div matListItemLine style="font-weight: 600;">{{prestador.direcci_nsede}}</div> -->
+                                </mat-list-option>
+                                }
+                            </mat-selection-list>
+                            <button class="addSelectedElementsButton" [hidden]="prestadores.length === 0"
+                                (click)="addSelectedElements(prestadoresList.selectedOptions.selected)"
+                                [disabled]="prestadoresList.selectedOptions.selected.length === 0" mat-raised-button
+                                mat-button color="accent" cdkFocusInitial>
+                                Agregar {{prestadoresList.selectedOptions.selected.length}}
+                                seleccionado{{prestadoresList.selectedOptions.selected.length > 1 ? 's' : ''}}
+                            </button>
+                        </div>
+
+                        <div class="col-sm-12" style="margin-bottom: 20px;">
+                            <mat-list [hidden]="selectedPrestadores.length === 0" role="list">
+                                <p style="padding-left: 15px; margin-bottom: 0px;">Listado de Prestadores a Visitar:</p>
+                                @for( selectedPrestador of selectedPrestadores; track selectedPrestador; let idx =
+                                $index) {
+                                <mat-list-item class="selectedPrestadoresContainer" role="listitem">
+                                    <div class="listInfoContainer">
+                                        <span matListItemTitle>{{selectedPrestador.prestadorType.name}}</span>
+                                        <span class="font-weight-bold" matListItemLine>{{selectedPrestador.nombreSede}}</span>
+                                        <span style="font-weight: 600;">
+                                            Municipio:</span> {{selectedPrestador.municipioInicial}} 
+                                    </div>
+                                    <div class="flexi">
+                                        <button class="mauto" [disabled]="selectedPrestador.weekGroupAgendaState === 'CONFIRMADA'" (click)="deletePrestadorFromSelectedPrestadores(idx)"
+                                            mat-icon-button color="warn">
+                                            <i-feather name="trash-2"></i-feather>
+                                        </button>
+                                    </div>
+
+                                </mat-list-item>
+                                }
+                            </mat-list>
+                        </div>
+
+                        <div class="col-sm-12">
+                            <mat-form-field class="textarea">
+                                <i-feather name="file-text"></i-feather>
+                                <mat-label>Descripción</mat-label>
+                                <textarea matInput formControlName="description"
+                                    placeholder="Agrega una descripción a ésta semana."></textarea>
+                            </mat-form-field>
+                        </div>
+                    </div>
+                </form>
+            </mat-card-content>
+        </mat-card>
+
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+        <button mat-button color="warn" mat-dialog-close>
+            Cancelar
+        </button>
+        <button mat-button (click)="submit()" [disabled]="myControl.invalid || selectedPrestadores.length === 0 || !myControl.dirty"
+            cdkFocusInitial>
+            <span *ngIf="!loading">{{incomingData?.data ? 'Editar' : 'Crear'}} Grupo de Semana</span>
+            <mat-spinner *ngIf="loading" diameter="20" mode="indeterminate"></mat-spinner>
+        </button>
+    </mat-dialog-actions>
+</div>

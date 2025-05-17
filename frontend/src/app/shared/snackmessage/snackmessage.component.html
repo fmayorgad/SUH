@@ -1,0 +1,26 @@
+<div class="snack">
+    <div [hidden]="data?.type !== 'detailed'">
+        <h4 style="margin-bottom: 6px;
+        font-size: large;
+        font-weight: 600;
+        color: white;">{{data?.title}}</h4>
+        <span matSnackBarActions class="snackContainer">
+            <span [innerHTML]="data?.message"></span>
+            <ul class="snackErrors">
+                <li *ngFor="let e of data.errors"><span [innerHTML]="e"></span></li>
+            </ul>
+            <button style="color: white" mat-button matSnackBarAction (click)="snackBarRef.dismissWithAction()">Cerrar</button>
+        </span>
+    </div>
+
+    <div [hidden]="data?.type !== 'simple'">
+        <div class="simpleSnackContainer">
+            <mat-icon class="snackIcon">{{data?.icon}}</mat-icon>
+            <p>{{data?.message}}</p>
+            <button mat-icon-button aria-label="close" class="snackCloseButton" matSnackBarAction
+                (click)="snackBarRef.dismissWithAction()">
+                <mat-icon>close</mat-icon>
+            </button>
+        </div>
+    </div>
+</div>

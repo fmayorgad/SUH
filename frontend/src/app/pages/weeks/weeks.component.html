@@ -1,0 +1,220 @@
+<mat-card class="trinta-card contacts-card mb-25 bg-white border-none d-block">
+
+
+    <mat-card-header>
+        <mat-card-title>
+            <h4 class="mt-0 mb-0">
+                Semanas
+            </h4>
+        </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+        <p>Listado de Semanas creadas en el sistema.</p>
+        <button routerLink="/semanas/crear" class="mainPageButton" mat-raised-button mat-button color="primary">CREAR
+            SEMANA</button>
+
+        <div class="filterHeaderContainer">
+            <form [formGroup]='filterForm'>
+
+                <div class="row mb-15">
+                    <div
+                        class="col-sm-12 col-md-{{!hideResetfilterButton ? '4' : '3'}} col-lg-{{!hideResetfilterButton ? '4' : '3'}}">
+                        <mat-form-field appearance="fill" class="w-100">
+                            <i-feather name="search"></i-feather>
+                            <mat-label>Buscar</mat-label>
+                            <input matInput placeholder="Buscar" formControlName="searchText">
+                        </mat-form-field>
+                    </div>
+
+                    <div class="col-sm-12 col-md-3 col-lg-3" [formGroup]="filterForm">
+                        <select-custom [label]="'Lider'" [icon]="'user'" [incomingData]="[]"
+                            [placeholder]="'Buscar usuarios...'" [options]="verificadores" formControlName="lead" />
+                    </div>
+
+                    <div class="col-sm-12 col-md-3 col-lg-3" [formGroup]="filterForm">
+                        <select-custom [label]="'Verificadores'" [icon]="'users'" [incomingData]="[]"
+                            [placeholder]="'Buscar usuarios...'" [options]="leads" formControlName="verificadores" />
+                    </div>
+
+                    <div class="col-sm-12 col-md-2 col-lg-2">
+                        <mat-form-field>
+                            <mat-label>Rango</mat-label>
+                            <mat-date-range-input [rangePicker]="picker">
+                                <input matStartDate formControlName="startDate" placeholder="Inicio">
+                                <input matEndDate formControlName="endDate" placeholder="Fin">
+                            </mat-date-range-input>
+                            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                            <mat-date-range-picker #picker></mat-date-range-picker>
+                        </mat-form-field>
+                    </div>
+
+                    <div class="col-sm-12 col-md-1 col-lg-1 flexi" *ngIf="hideResetfilterButton">
+                        <button (click)="onFilter()" matTooltip="Buscar" class="filterActionbutton mauto"
+                            mat-icon-button color="primary" aria-label="Example icon button with a delete icon">
+                            <mat-icon>search</mat-icon>
+                        </button>
+
+                        <button (click)="onResetFilter()" matTooltip="Reiniciar filtros"
+                            class="filterActionbutton mauto" mat-icon-button color="warn">
+                            <span class="material-symbols-outlined">
+                                reset_settings
+                            </span>
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+
+        <div class="tableContainer">
+            <app-veil [state]="loadingTableData" [message]="'Buscando Semanas...'"></app-veil>   
+            <div class="table-responsive">
+                <table mat-table [dataSource]="dataSource">
+                    <ng-container matColumnDef="actions">
+                        <th mat-header-cell *matHeaderCellDef class="pl-0 text-primary">
+
+                        </th>
+                        <td #tdaction (mouseleave)="myFab.open = false; $event.stopPropagation()"
+                            (mouseover)="myFab.open = true; $event.stopPropagation()"
+                            style="overflow: visible;     padding: inherit;" mat-cell *matCellDef="let element"
+                            class="pl-0 text-primary">
+
+                            <eco-fab-speed-dial #myFab [direction]="'right'">
+                                <eco-fab-speed-dial-trigger [style.display]="'flex'" [style.top]="'auto'">
+                                    <button class="actionsbutton" mat-fab><mat-icon fontIcon="menu" /></button>
+
+                                </eco-fab-speed-dial-trigger>
+
+                                <eco-fab-speed-dial-actions [style.display]="'flex'" [style.top]="'auto'"
+                                    [style.height]="getHeight(tdaction)+'px'">
+                                    <button *ngIf="element.week_state === 'ACTIVA'"
+                                        routerLink="/semanas/editar/{{element.id}}" mat-mini-fab class="successButton"
+                                        matTooltip="Editar"><mat-icon fontIcon="edit_note" /></button>
+                                    <button *ngIf="element.week_state === 'ACTIVA'" mat-mini-fab class="dangerbutton"
+                                        matTooltip="Eliminar"><mat-icon fontIcon="delete" /></button>
+                                    <button routerLink="/semanas/view/{{element.id}}" mat-mini-fab class="infoButton"
+                                        matTooltip="Ver Semana"><mat-icon fontIcon="visibility" /></button>
+                                </eco-fab-speed-dial-actions>
+                            </eco-fab-speed-dial>
+
+                        </td>
+                    </ng-container>
+
+                    <!-- ID Column -->
+                    <ng-container matColumnDef="name">
+                        <th mat-header-cell *matHeaderCellDef class="pl-0">
+                            Nombre
+                        </th>
+                        <td mat-cell *matCellDef="let element">
+
+                            <a class="pl-0 text-primary" style="text-transform: capitalize;"
+                                routerLink="view/{{element.id}}">{{element.name}}</a>
+
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="leads">
+                        <th mat-header-cell *matHeaderCellDef>
+                            Lideres de Semana
+                        </th>
+                        <td mat-cell class="avatarElementContainer" *matCellDef="let element">
+                            <div class="d-flex align-items-center">
+                                @for (lead of element.weekleadnotrepeated; track lead; let idx = $index) {
+                                @if(idx <= 2){ <div
+                                    [matTooltip]="lead.name + ' ' + lead.surname + ' ' + (lead.lastname || '')"
+                                    class="avatarElement bg{{lead.name[0]}} rounded-circle justify-content-center align-items-center d-flex fw-semibold text-center w-50 h-50">
+                                    {{lead.name[0]}}{{lead.surname[0]}}
+                            </div>
+                            }
+
+                            @if(idx > 2 && idx === element.weekGroups.length - 1){
+                            <div
+                                class="avatarElement bg{{lead.name[0]}} rounded-circle justify-content-center align-items-center d-flex fw-semibold text-center w-50 h-50">
+                                {{element.weekGroups.length - 2 + '+'}}
+                            </div>
+                            }
+                            }
+            </div>
+            </td>
+            </ng-container>
+
+
+            <!-- User Column -->
+            <ng-container matColumnDef="initDate">
+                <th mat-header-cell *matHeaderCellDef>
+                    Fecha de inicio
+                </th>
+                <td mat-cell *matCellDef="let element">
+                    {{element.startDate}}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="groups">
+                <th mat-header-cell *matHeaderCellDef>
+                    Cantidad de Grupos
+                </th>
+                <td mat-cell *matCellDef="let element">
+                    {{element.weekGroups.length}}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="prestadores">
+                <th mat-header-cell *matHeaderCellDef>
+                    Prestadores a Visitar
+                </th>
+                <td mat-cell *matCellDef="let element">
+                    {{ getTotalProviders(element.weekGroups) }}
+                </td>
+            </ng-container>
+
+            <!-- Status Column -->
+            <ng-container matColumnDef="state">
+                <th mat-header-cell *matHeaderCellDef>
+                    Estado
+                </th>
+                <td mat-cell *matCellDef="let element">
+                    <span class="trinta-badge fw-medium d-inline-block" *ngIf="element.week_state === 'ACTIVA'">
+                        ACTIVA
+                    </span>
+                    <span class="trinta-badge fw-medium deactive d-inline-block"
+                        *ngIf="element.week_state === 'CERRADA'">
+                        FINALIZADA
+                    </span>
+
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="endDate">
+                <th mat-header-cell *matHeaderCellDef>
+                    Fecha de finalización
+                </th>
+                <td mat-cell *matCellDef="let element">
+                    {{element.endDate}}
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+
+            <tr *matNoDataRow class="mat-row centered">
+                <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+                    No hay datos disponibles.
+                </td>
+            </tr>
+
+
+            </table>
+
+
+        </div>
+
+        <mat-paginator #paginator class="demo-paginator" [disabled]="loadingTableData"
+            (page)="handlePageEventChange($event)" [length]="length" [showFirstLastButtons]="showFirstLastButtons"
+            [pageSizeOptions]="showPageSizeOptions ? pageSizeOptions : []" [hidePageSize]="hidePageSize"
+            aria-label="Select page">
+        </mat-paginator>
+        </div>
+    </mat-card-content>
+</mat-card>
+<router-outlet />

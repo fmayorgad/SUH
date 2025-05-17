@@ -1,0 +1,10 @@
+::ng-deep {
+  .selectedPrestadoresContainer {
+    border-top: 1px solid #eaeaea;
+  }
+
+  mat-list-item:last-child {
+    border-bottom: 1px solid #eaeaea;
+    margin-bottom: 20px;
+  }
+}

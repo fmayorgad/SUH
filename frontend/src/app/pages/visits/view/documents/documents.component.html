@@ -1,0 +1,135 @@
+<mat-card class="trinta-card mb-25 bg-white border-none d-block">
+    <mat-card-header>
+        <mat-card-title>
+            <h4 class="mt-0 mb-0">
+                Documentación de la Visita
+            </h4>
+        </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+        <mat-stepper linear>
+            <!-- Step 1: Documentación previa -->
+            <mat-step label="Documentación previa" state="info" completed="false">
+                <ng-template matStepLabel>
+                    <div class="step-label">
+                        <span>Documentación previa</span>
+                        <div class="status-indicator">
+                            <span class="status-badge">{{ getStepStatus(1) }}</span>
+                        </div>
+                    </div>
+                </ng-template>
+                <ng-template matStepIcon="info">
+                    <mat-icon>info</mat-icon>
+                </ng-template>
+                
+                <!-- Content when visit has not been notified -->
+                <div *ngIf="!visitData?.notification_sended" class="step-content">
+                    <div class="alert alert-info mb-3">
+                        <mat-icon>notifications_active</mat-icon>
+                        <div>
+                            <h5 class="alert-heading">Información pendiente de envío</h5>
+                            <p>Se puede editar la información del comunicado de visita antes de enviarlo al prestador. Una vez enviado, no se podrá modificar.</p>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-center mt-4">
+                        <button mat-raised-button color="primary" (click)="openViewDocumentVisit()">
+                            <mat-icon>description</mat-icon> Ver y Editar Comunicado
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Content when visit has been notified -->
+                <div *ngIf="visitData?.notification_sended" class="step-content">
+                    <div class="alert alert-success mb-3">
+                        <mat-icon>check_circle</mat-icon>
+                        <div>
+                            <h5 class="alert-heading">Comunicado enviado</h5>
+                            <p>El comunicado de visita ya ha sido enviado al prestador y no puede ser modificado.</p>
+                            <p *ngIf="visitData?.notification_date" class="mb-0">
+                                <strong>Fecha de envío:</strong> {{ visitData?.notification_date | date:'dd/MM/yyyy HH:mm' }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-center mt-4">
+                        <button mat-raised-button color="primary" (click)="openViewDocumentVisit()">
+                            <mat-icon>visibility</mat-icon> Ver Comunicado
+                        </button>
+                    </div>
+                </div>
+            </mat-step>
+            
+            <!-- Step 2: Visita (Disabled) -->
+            <mat-step label="Visita" state="locked" editable="false">
+                <ng-template matStepLabel>
+                    <div class="step-label">
+                        <span>Visita</span>
+                        <div class="status-indicator">
+                            <span class="status-badge">{{ getStepStatus(2) }}</span>
+                        </div>
+                    </div>
+                </ng-template>
+                <ng-template matStepIcon="locked">
+                    <span class="material-symbols-outlined">lock_clock</span>
+                </ng-template>
+                <div class="step-content disabled-step">
+                    <div class="alert alert-warning">
+                        <mat-icon>lock</mat-icon>
+                        <div>
+                            <h5 class="alert-heading">Etapa bloqueada</h5>
+                            <p class="mb-0">Esta etapa estará disponible después de completar la documentación previa.</p>
+                        </div>
+                    </div>
+                </div>
+            </mat-step>
+            
+            <!-- Step 3: Informe de Visita (Disabled) -->
+            <mat-step label="Informe de Visita" state="locked" editable="false">
+                <ng-template matStepLabel>
+                    <div class="step-label">
+                        <span>Informe de Visita</span>
+                        <div class="status-indicator">
+                            <span class="status-badge">{{ getStepStatus(3) }}</span>
+                        </div>
+                    </div>
+                </ng-template>
+                <ng-template matStepIcon="locked">
+                    <span class="material-symbols-outlined">lock_clock</span>
+                </ng-template>
+                <div class="step-content disabled-step">
+                    <div class="alert alert-warning">
+                        <mat-icon>lock</mat-icon>
+                        <div>
+                            <h5 class="alert-heading">Etapa bloqueada</h5>
+                            <p class="mb-0">Esta etapa estará disponible después de completar la visita.</p>
+                        </div>
+                    </div>
+                </div>
+            </mat-step>
+            
+            <!-- Step 4: Acta final (Disabled) -->
+            <mat-step label="Acta final" state="locked" editable="false">
+                <ng-template matStepLabel>
+                    <div class="step-label">
+                        <span>Acta final</span>
+                        <div class="status-indicator">
+                            <span class="status-badge">{{ getStepStatus(4) }}</span>
+                        </div>
+                    </div>
+                </ng-template>
+                <ng-template matStepIcon="locked">
+                    <span class="material-symbols-outlined">lock_clock</span>
+                </ng-template>
+                <div class="step-content disabled-step">
+                    <div class="alert alert-warning">
+                        <mat-icon>lock</mat-icon>
+                        <div>
+                            <h5 class="alert-heading">Etapa bloqueada</h5>
+                            <p class="mb-0">Esta etapa estará disponible después de completar el informe de visita.</p>
+                        </div>
+                    </div>
+                </div>
+            </mat-step>
+        </mat-stepper>
+    </mat-card-content>
+</mat-card>
+

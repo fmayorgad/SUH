@@ -1,0 +1,307 @@
+<mat-card class="trinta-card course-details-card mb-25 bg-dark border-none d-block">
+    <app-veil [state]="gettingData" [message]="'Buscando Grupo de Semana...'"></app-veil>
+    <mat-card-content>
+        <div class="top  justify-content-between">
+            <h3 class="mb-0 text-white">
+                Grupo de Semana: {{weekGroupData?.name?.toUpperCase()}}
+            </h3>
+
+            <h6 class="text-white mt-15">Lider de Semana</h6>
+            <div class="d-flex align-items-center mt-15">
+                <div
+                    class="mr-15 border-radius justify-content-center bg-gray align-items-center d-flex fw-semibold fs-25 text-primary text-center w-70 h-70">
+                    {{(weekGroupData?.leadData?.name || '')[0]}}{{((weekGroupData?.leadData?.lastname ||
+                    weekGroupData?.leadData?.surname) || '')[0]}}
+                </div>
+                <h5 style="color: white;">{{weekGroupData?.leadData?.name}} {{weekGroupData?.leadData?.lastname || ''}}
+                    {{
+                    weekGroupData?.leadData?.surname || ''}}</h5>
+            </div>
+
+            <p class="mt-20">
+                {{weekGroupData?.description || 'No hay descripción disponible'}}
+            </p>
+
+            <div class="row">
+
+
+                <div class="col-md-6">
+                    <h6 class="text-white mt-15">Vérificadores del Grupo de Semana</h6>
+
+                    <div class="d-flex align-items-center" style="flex-wrap: wrap;">
+                        <div *ngFor="let member of groupMembers; let i = index"
+                            [matTooltip]="member.name + ' ' + member.surname + ' ' + (member.lastname || '')"
+                            class="mr-5 bg{{i}} avatarElement rounded-circle justify-content-center align-items-center d-flex fw-semibold text-center w-50 h-50">
+                            {{(member.name || '')[0]}}{{((member.lastname || member.surname) || '')[0]}}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 d-flex align-items-center" style="align-self: flex-end;flex-direction: row-reverse;">
+                    <div class="d-grid text-white mr-15">
+                        <h6 class="text-white">Prestadores a visitar</h6>
+                        {{weekGroupData?.weekgroupprestadores?.length || 0}}
+                    </div>
+                    <div class="d-grid text-white mr-15">
+                        <h6 class="text-white">Prestadores visitados</h6>
+                        0 esta semana
+                    </div>
+                    <div class="d-grid text-white mr-15">
+                        <h6 class="text-white">Visitas completadas</h6>
+                        {{completedVisitsCount}} / {{weekGroupData?.weekgroupprestadores?.length || 0}}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <button class="mainPageButton" (click)="openEditDialog()" mat-raised-button mat-button color="primary">EDITAR
+            GRUPO
+            DE SEMANA</button>
+    </mat-card-content>
+
+</mat-card>
+
+<mat-card class="trinta-card contacts-card mb-25 bg-white border-none d-block">
+    <app-veil [state]="gettingData" [message]="'Buscando Grupo de Semana...'"></app-veil>
+    <mat-card-header>
+        <mat-card-title>
+            <h4 class="mt-0 mb-0">
+                Prestadores a visitar
+            </h4>
+        </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+        <p>Listado de Prestadores a visitar en esta semana.</p>
+
+        <div class="contacts-table">
+            <div class="table-responsive">
+                <table mat-table [dataSource]="dataSource">
+
+                    <ng-container matColumnDef="actions">
+                        <th mat-header-cell *matHeaderCellDef class="pl-0 text-primary"></th>
+                        <td #tdaction (mouseleave)="myFab.open = false; $event.stopPropagation()"
+                            (mouseover)="myFab.open = true; $event.stopPropagation()"
+                            style="overflow: visible; padding: inherit;" mat-cell *matCellDef="let element"
+                            class="pl-0 text-primary">
+                            <eco-fab-speed-dial #myFab [direction]="'right'">
+                                <eco-fab-speed-dial-trigger [style.display]="'flex'" [style.top]="'auto'">
+                                    <button class="actionsbutton" mat-fab><mat-icon fontIcon="menu"></mat-icon></button>
+                                </eco-fab-speed-dial-trigger>
+                                <eco-fab-speed-dial-actions [style.display]="'flex'" [style.top]="'auto'"
+                                    [style.height]="getHeight(tdaction)+'px'">
+
+
+                                    <button *ngIf="!element.visit" (click)="openCreateDialog(element)" mat-mini-fab
+                                        class="warningButton" matTooltip="Agendar Grupo de Visita">
+                                        <span class="material-symbols-outlined">pending_actions</span>
+                                    </button>
+                                </eco-fab-speed-dial-actions>
+                            </eco-fab-speed-dial>
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="prestador">
+                        <th mat-header-cell *matHeaderCellDef class="pl-0 text-primary">
+                            Prestador a Visitar
+                        </th>
+                        <td style="cursor: pointer; max-width: 350px;" mat-cell *matCellDef="let element" class="pl-0">
+                            <a>{{element.prestador.name}}</a>
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="prestadorCode">
+                        <th mat-header-cell *matHeaderCellDef>
+                            Código Prestador
+                        </th>
+                        <td mat-cell *matCellDef="let element">
+                            {{element.prestador.code}}
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="lead">
+                        <th mat-header-cell *matHeaderCellDef>
+                            Lider del Grupo
+                        </th>
+                        <td mat-cell *matCellDef="let element">
+                            <div *ngIf="element.lead" class="d-flex align-items-center">
+                                <div
+                                    class="mr-15 border-radius justify-content-center bg-gray align-items-center d-flex fw-semibold fs-25 text-primary text-center w-50 h-50">
+                                    {{element.lead?.name[0]+element.lead?.surname[0]}}
+                                </div>
+                                {{element.lead?.name +" "+element.lead?.surname || '' + " "+element.lead?.lastname ||
+                                ''}}
+                            </div>
+
+                            <div *ngIf="!element.lead">
+                                <span>Sin asignar</span>
+                            </div>
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="state">
+                        <th class="text-center" mat-header-cell *matHeaderCellDef>
+                            Programación del Grupo de Visita
+                        </th>
+                        <td mat-cell class="text-center" *matCellDef="let element">
+                            <span class="trinta-badge deactive fw-medium d-inline-block" *ngIf="!element.visit">
+                                PENDIENTE
+                            </span>
+
+                            <span class="trinta-badge converted fw-medium d-inline-block"
+                                *ngIf="element.visit && element.visit.visitState === 'AGENDADA'">
+                                AGENDADA
+                            </span>
+
+                            <span class="trinta-badge  fw-medium d-inline-block"
+                                *ngIf="element.visit && element.visit.visitState === 'COMPLETADA'">
+                                COMPLETADA
+                            </span>
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="visitDate">
+                        <th mat-header-cell *matHeaderCellDef>
+                            Fecha de visita propuesta
+                        </th>
+                        <td mat-cell *matCellDef="let element">
+                            {{element.visitDate || 'Sin fecha'}}
+                        </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+                </table>
+            </div>
+            <mat-paginator #groupPaginator [pageSizeOptions]="[10, 12, 16]"></mat-paginator>
+        </div>
+    </mat-card-content>
+</mat-card>
+
+<!-- Visitas Programadas Card -->
+<mat-card class="trinta-card contacts-card mb-25 bg-white border-none d-block">
+    <app-veil [state]="loadingVisits" [message]="'Cargando visitas...'"></app-veil>
+    <mat-card-header>
+        <mat-card-title>
+            <h4 class="mt-0 mb-0">
+                Grupos de Visitas Programados
+            </h4>
+        </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+        <p>Listado de Grupos de Visitas programados para este grupo de semana. Aquí puedes ver el estado de cada Grupo
+            de Visita y completarlo si es necesario.</p>
+
+        <div *ngIf="!gettingData && !loadingVisits && visitsDataSource.data.length === 0"
+            class="alert alert-bg-warning d-flex align-items-center" role="alert">
+            <i class="material-icons align-middle mr-2">warning</i>
+            No hay visitas programadas para este grupo de semana. Puede agendar visitas usando los botones de acción en
+            la tabla de prestadores.
+        </div>
+
+        <div class="contacts-table" *ngIf="!gettingData && !loadingVisits && visitsDataSource.data.length > 0">
+            <div class="table-responsive">
+                <table mat-table [dataSource]="visitsDataSource">
+                    <ng-container matColumnDef="acciones">
+                        <th mat-header-cell *matHeaderCellDef class="pl-0 text-primary"></th>
+                        <td #tdvisitaction (mouseleave)="visitFab.open = false; $event.stopPropagation()"
+                            (mouseover)="visitFab.open = true; $event.stopPropagation()"
+                            style="overflow: visible; padding: inherit;" mat-cell *matCellDef="let element"
+                            class="pl-0 text-primary">
+                            <eco-fab-speed-dial #visitFab [direction]="'right'">
+                                <eco-fab-speed-dial-trigger [style.display]="'flex'" [style.top]="'auto'">
+                                    <button class="actionsbutton" mat-fab><mat-icon fontIcon="menu"></mat-icon></button>
+                                </eco-fab-speed-dial-trigger>
+                                <eco-fab-speed-dial-actions [style.display]="'flex'" [style.top]="'auto'"
+                                    [style.height]="getHeight(tdvisitaction)+'px'">
+
+                                    <button *ngIf="element.visit_state === 'AGENDADA'" mat-mini-fab class="infoButton" (click)="openCreateDialog(element, true)"
+                                        matTooltip="Editar Grupo de Visita">
+                                        <span class="material-symbols-outlined">edit</span>
+                                    </button>
+
+                                    <button *ngIf="element.visit_state === 'AGENDADA'"
+                                        (click)="openCompleteDialog(element)" mat-mini-fab class="successButton"
+                                        matTooltip="Completar Grupo de Visita">
+                                        <span class="material-symbols-outlined">event_available</span>
+                                    </button>
+
+                                </eco-fab-speed-dial-actions>
+                            </eco-fab-speed-dial>
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="prestador">
+                        <th mat-header-cell *matHeaderCellDef class="pl-0 text-primary">
+                            Prestador
+                        </th>
+                        <td style="cursor: pointer; max-width: 350px;" mat-cell *matCellDef="let element" class="pl-0">
+                            <div>
+                                <span class="text-primary fw-semibold">{{element.prestador.name}}</span>
+                                <br>
+                                <small class="text-muted">Código: {{element.prestador.code}}</small>
+                            </div>
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="tipo">
+                        <th mat-header-cell *matHeaderCellDef>
+                            Tipo de Visita
+                        </th>
+                        <td mat-cell *matCellDef="let element">
+                            {{getVisitTypeName(element.tipo)}}
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="fecha">
+                        <th mat-header-cell *matHeaderCellDef>
+                            Fecha Programada
+                        </th>
+                        <td mat-cell *matCellDef="let element">
+                            {{element.fecha | date: 'dd/MM/yyyy'}}
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="estado">
+                        <th mat-header-cell *matHeaderCellDef>
+                            Estado
+                        </th>
+                        <td mat-cell *matCellDef="let element">
+                            <span class="trinta-badge converted fw-medium d-inline-block"
+                                *ngIf="element.visit_state === 'AGENDADA'">
+                                SIN COMPLETAR
+                            </span>
+                            <span class="trinta-badge fw-medium d-inline-block"
+                                *ngIf="element.visit_state === 'COMPLETADA'">
+                                COMPLETADA
+                            </span>
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="lider">
+                        <th mat-header-cell *matHeaderCellDef>
+                            Líder
+                        </th>
+                        <td mat-cell *matCellDef="let element">
+                            <div class="d-flex align-items-center">
+                                <div
+                                    class="mr-15 border-radius justify-content-center bg-gray align-items-center d-flex fw-semibold fs-25 text-primary text-center w-50 h-50">
+                                    {{element.lider.name ? element.lider.name[0] : '?'}}{{element.lider.surname ?
+                                    element.lider.surname[0] : ''}}
+                                </div>
+                                {{element.lider.name}} {{element.lider.surname}} {{element.lider.lastname}}
+                            </div>
+                        </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="visitsDisplayedColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: visitsDisplayedColumns;"></tr>
+                </table>
+            </div>
+            <mat-paginator #visitsPaginator [pageSizeOptions]="[5, 10, 15]"></mat-paginator>
+        </div>
+    </mat-card-content>
+</mat-card>
+
+<router-outlet />

@@ -1,0 +1,233 @@
+<div class="mediumVerticalDialogContainer">
+    <h3 mat-dialog-title>
+        Crear Criterio
+    </h3>
+    <ng-scrollbar visibility="hover">
+        <mat-dialog-content class="mat-typography">
+            <mat-card class="trinta-card mb-25 bg-white border-none d-block">
+                <mat-card-content>
+                    <form>
+                        <div class="row">
+                            <p>El criterio creado será visible en las Proximas visitas.</p>
+
+                            <div class="col-sm-6">
+                                <mat-form-field>
+                                    <i-feather name="list"></i-feather>
+                                    <mat-label>Tipo de Criterio</mat-label>
+                                    <mat-select>
+                                        <mat-option value="1">Específico</mat-option>
+                                        <mat-option value="1">Todos los servicios</mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+
+
+                            <div class="col-sm-6">
+                                <mat-form-field>
+                                    <i-feather name="list"></i-feather>
+                                    <mat-label>Estandar</mat-label>
+                                    <mat-select>
+                                        <mat-option value="1">TALENTO HUMANO</mat-option>
+                                        <mat-option value="23">INFRAESTRUCTURA</mat-option>
+                                        <mat-option value="3">DOTACIÓN</mat-option>
+                                        <mat-option value="42">MEDICAMENTOS, DISPOSITIVOS MÉDICOS E INSUMOS</mat-option>
+                                        <mat-option value="34">PROCEOS PRIORITARIOS</mat-option>
+                                        <mat-option value="5">HISTORIA CLÍNICA</mat-option>
+                                        <mat-option value="6">INTERDEPENDENCIA</mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+
+                          
+                            <div class="col-sm-12">
+                                <mat-form-field>
+                                    <i-feather name="users"></i-feather>
+                                    <mat-label>Seleccione el criterio padre (si aplica)</mat-label>
+                                    <mat-select multiple>
+                                        <mat-option value="1">11.1.5.1</mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+
+                            <div class="col-sm-12">
+                                <mat-form-field>
+                                    <i-feather name="list"></i-feather>
+                                    <mat-label>Seleccione el Subgrupo al que pertenece</mat-label>
+                                    <mat-select>
+
+                                        <mat-option value="1">11.2.1. SERVICIO DE CONSULTA EXTERNA GENERAL</mat-option>
+                                        <mat-option value="1">11.2.2. SERVICIO DE CONSULTA EXTERNA
+                                            ESPECIALIZADA</mat-option>
+                                        <mat-option value="1">11.2.3. SERVICIO DE VACUNACIÓN</mat-option>
+                                        <mat-option value="1">11.2.4. SERVICIO DE SEGURIDAD Y SALUD EN EL
+                                            TRABAJO</mat-option>
+                                        <mat-option value="1">11.3.1. SERVICIO DE TERAPIAS</mat-option>
+                                        <mat-option value="1">11.3.2. SERVICIO FARMACÉUTICO</mat-option>
+                                        <mat-option value="1">11.3.3 SERVICIO DE RADIOLOGÍA ODONTOLÓGICA</mat-option>
+                                        <mat-option value="1">11.3.4 SERVICIO DE IMÁGENES DIAGNÓSTICAS</mat-option>
+                                        <mat-option value="1">11.3.4.1 MÉTODOS DIAGNÓSTICOS CON IMÁGENES OBTENIDAS
+                                            MEDIANTE EQUIPOS GENERADORES DE RADIACIONES IONIZANTES</mat-option>
+                                        <mat-option value="1">11.3.4.2 MÉTODOS DIAGNÓSTICOS CON IMÁGENES OBTENIDAS
+                                            MEDIANTE EQUIPOS GENERADORES DE RADIACIONES NO IONIZANTES</mat-option>
+                                        <mat-option value="1">11.3.5 SERVICIO DE MEDICINA</mat-option>
+                                        <mat-option value="1">11.3.6 SERVICIO DE RADIOTERAPIA</mat-option>
+                                        <mat-option value="1">11.3.7 SERVICIO DE QUIMIOTERAPIA</mat-option>
+                                        <mat-option value="1">11.3.8 SERVICIO DE DIAGNÓSTICO VASCULAR</mat-option>
+                                        <mat-option value="1">11.3.9 SERVICIO DE HEMODINAMIA E
+                                            INTERVENCIONISMO</mat-option>
+                                        <mat-option value="1">11.3.10 SERVICIO DE GESTIÓN PRE TRANSFUSIONAL</mat-option>
+                                        <mat-option value="1">11.3.11 SERVICIO DE TOMA DE MUESTRAS DE LABORATORIO
+                                            CLÍNICO</mat-option>
+                                        <mat-option value="1">11.3.12 SERVICIO DE LABORATORIO CLÍNICO</mat-option>
+                                        <mat-option value="1">11.3.13 SERVICIO DE TOMA DE MUESTRAS DE CUELLO UTERINO Y
+                                            GINECOLÓGICAS</mat-option>
+                                        <mat-option value="1">11.3.14 SERVICIO DE LABORATORIO DE CITOLOGÍAS
+                                            CERVICO-UTERINAS</mat-option>
+                                        <mat-option value="1">11.3.15 SERVICIO DE LABORATORIO DE
+                                            HISTOTECNOLOGÍA</mat-option>
+                                        <mat-option value="1">11.3.16 SERVICIO DE PATOLOGÍA</mat-option>
+                                        <mat-option value="1">11.3.17 SERVICIO DE DIÁLISIS</mat-option>
+                                        <mat-option value="1">11.4.1 SERVICIO DE HOSPITALIZACIÓN</mat-option>
+                                        <mat-option value="1">11.4.2 SERVICIO DE HOSPITALIZACIÓN PACIENTE
+                                            CRÓNICO</mat-option>
+                                        <mat-option value="1">11.4.3 SERVICIO DE CUIDADO BÁSICO NEONATAL</mat-option>
+                                        <mat-option value="1">11.4.4 SERVICIO DE CUIDADO INTERMEDIO
+                                            NEONATAL</mat-option>
+                                        <mat-option value="1">11.4.5 SERVICIO DE CUIDADO INTENSIVO NEONATAL</mat-option>
+                                        <mat-option value="1">11.4.6 SERVICIO DE CUIDADO INTERMEDIO
+                                            PEDIÁTRICO</mat-option>
+                                        <mat-option value="1">11.4.7 SERVICIO DE CUIDADO INTENSIVO
+                                            PEDIÁTRICO</mat-option>
+                                        <mat-option value="1">11.4.8 SERVICIO DE CUIDADO INTERMEDIO ADULTO</mat-option>
+                                        <mat-option value="1">11.4.9 SERVICIO DE CUIDADO INTENSIVO ADULTOS</mat-option>
+                                        <mat-option value="1">11.4.10 SERVICIO DE HOSPITALIZACIÓN EN SALUD MENTAL O
+                                            CONSUMO DE SUSTANCIAS PSICOACTIVAS</mat-option>
+                                        <mat-option value="1">11.4.11 SERVICIO DE HOSPITALIZACIÓN PARCIAL</mat-option>
+                                        <mat-option value="1">11.4.12 SERVICIO PARA EL CUIDADO BÁSICO DEL CONSUMO DE
+                                            SUSTANCIAS PSICOACTIVAS</mat-option>
+                                        <mat-option value="1">11.5.1 SERVICIO DE CIRUGÍA</mat-option>
+                                        <mat-option value="1">11.6.1 SERVICIO DE URGENCIAS</mat-option>
+                                        <mat-option value="1">11.6.2 SERVICIO DE TRANSPORTE ASISTENCIAL</mat-option>
+                                        <mat-option value="1">11.6.3 SERVICIO ATENCIÓN PREHOSPITALARIA</mat-option>
+                                        <mat-option value="1">11.6.4 SERVICIO PARA LA ATENCIÓN DEL PARTO</mat-option>
+
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+
+                            <div class="col-sm-12">
+                                <mat-form-field class="textarea">
+                                    <i-feather name="file-text"></i-feather>
+                                    <mat-label>Descripción</mat-label>
+                                    <textarea formControlName="description" matInput
+                                        placeholder="Agrega una descripción a ésta semana."></textarea>
+                                </mat-form-field>
+                            </div>
+
+                           
+                           
+
+                            <h6 style="margin-top: 20px; color: tomato;">Agregar hallazgos del criterio</h6>
+
+                          
+
+                            <div class="col-sm-12">
+                                <mat-form-field class="textarea">
+                                    <i-feather name="file-text"></i-feather>
+                                    <mat-label>Descripción del Encabezado</mat-label>
+                                    <textarea formControlName="description" matInput
+                                        placeholder="Agrega una descripción a ésta semana."></textarea>
+                                </mat-form-field>
+                            </div>
+
+                            <div class="col-sm-6 col-md-6 col-lg-6">
+                                <button type="button" mat-fab
+                                    extended color="warn" style="margin-bottom: 20px;">
+                                    <mat-icon>playlist_add_check</mat-icon>
+                                    Agregar Encabezado
+                                </button>
+                            </div>
+
+                            <h6>Listado de Encabezados, Hallazgos y Subhallazgos</h6>
+
+                            <h6>Encabezado 1: El prestador NO cuenta con un titulo VALIDO</h6>
+
+                            <div class="col-sm-12">
+                                <mat-form-field class="textarea">
+                                    <i-feather name="file-text"></i-feather>
+                                    <mat-label>Descripción del Hallazgo</mat-label>
+                                    <textarea formControlName="description" matInput
+                                        placeholder="Agrega una descripción a ésta semana."></textarea>
+                                </mat-form-field>
+                            </div>
+
+                            
+                            <div class="col-sm-6 col-md-6 col-lg-6">
+                                <button type="button" mat-fab
+                                    extended color="warn" style="margin-bottom: 20px;">
+                                    <mat-icon>playlist_add_check</mat-icon>
+                                    Agregar Hallazgos
+                                </button>
+                            </div>
+
+                            <section class="col-sm-12">
+                                <mat-checkbox class="example-margin">Permite agregar una descripción</mat-checkbox>
+                                <mat-checkbox class="example-margin">Permite cargar archivos como evidencia
+                                </mat-checkbox>
+                            </section>
+
+                            <div class="col-sm-6 col-md-6 col-lg-6">
+                                <button type="button" mat-fab
+                                    extended color="warn" style="margin-bottom: 20px;">
+                                    <mat-icon>playlist_add_check</mat-icon>
+                                    Agregar un Subhallazgos
+                                </button>
+                            </div>
+
+                           
+                            <div class="col-sm-12">
+                                <mat-form-field>
+                                    <i-feather name="list"></i-feather>
+                                    <mat-label>Seleccione el Hallazgo padre y definición</mat-label>
+                                    <mat-select>
+
+                                        <mat-option value="1">Hallazgo UNO</mat-option>
+                                        <mat-option value="2">Hallazgo ADICIONAL</mat-option>
+
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+
+ <div class="col-sm-12">
+                                <mat-form-field class="textarea">
+                                    <i-feather name="file-text"></i-feather>
+                                    <mat-label>Descripción del Suballazgo</mat-label>
+                                    <textarea formControlName="description" matInput
+                                        placeholder="Agrega una descripción a ésta semana."></textarea>
+                                </mat-form-field>
+                            </div>
+
+                            <!-- <div class="col-sm-12">
+                                <mat-form-field class="textarea">
+                                    <i-feather name="file-text"></i-feather>
+                                    <mat-label>Descripción</mat-label>
+                                    <textarea matInput placeholder="Agrega una descripción a ésta semana."></textarea>
+                                </mat-form-field>
+                            </div> -->
+
+
+                        </div>
+                    </form>
+                </mat-card-content>
+            </mat-card>
+        </mat-dialog-content>
+    </ng-scrollbar>
+    <mat-dialog-actions align="end">
+        <button mat-button color="warn" mat-dialog-close>
+            Cancelar
+        </button>
+        <button mat-button [mat-dialog-close]="true" (click)="onclick()" cdkFocusInitial>
+            CREAR CRITERIO
+        </button>
+    </mat-dialog-actions>
+</div>

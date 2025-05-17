@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2021",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "paths": {
+            "@models/*": ["src/core/domain/models/*"],
+            "@schemas/*":  ["src/core/infraestructure/schemas/*"],
+            "@database/*": ["src/core/infraestructure/database/*"],
+            "@guards/*": ["src/core/infraestructure/guards/*"],
+            "@context/*": ["src/context/*"],
+            "@enums/*": ["src/core/domain/enums/*"],
+            "@decorators/*": ["src/core/infraestructure/decorators/*"],
+            "@filters/*": ["src/core/infraestructure/filters/*"],
+            "@services/*": ["src/core/infraestructure/services/*"]
+        },
+    "incremental": true,
+    "skipLibCheck": true,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "strictBindCallApply": false,
+    "forceConsistentCasingInFileNames": false,
+    "noFallthroughCasesInSwitch": false
+  }
+}

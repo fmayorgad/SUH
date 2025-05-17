@@ -1,0 +1,33 @@
+<div class="largeVerticalDialogContainer">
+    <h3 mat-dialog-title>
+        COMUNICADO DE VISITA : 706000125
+    </h3>
+    <ng-scrollbar visibility="hover">
+        <div class="pdf-container">
+            <pdf-viewer [src]="src" [rotation]="0" [original-size]="false" [show-all]="true" [fit-to-page]="false"
+                [zoom]="1" [zoom-scale]="'page-width'" [stick-to-page]="false" [render-text]="true"
+                [external-link-target]="'blank'" [autoresize]="true" [show-borders]="false"
+                style="height: 500px;"></pdf-viewer>
+        </div>
+    </ng-scrollbar>
+
+    <div style="display: flex;padding: 15px 15px 0px 15px;border-top: 1px solid #80808036; height: 128px;">
+        <div class="col-sm-10">
+            <h1>se puede editar: sade, asistentes, fecha de visita y servicio</h1>
+            <mat-form-field class="fullWidth" style="height: 112px;">
+                <mat-label>Observaciones</mat-label>
+                <textarea style="resize: none;"   matInput></textarea>
+            </mat-form-field>
+        </div>
+        <div class="col-sm-2">
+            <button class="fullWidth" mat-button color="primary" (click)="onAccept()"> 
+                APROBAR
+            </button>
+            <button class="fullWidth" mat-button color="warn" (click)="onAccept()"> 
+                RECHAZAR
+            </button>
+        </div>
+    </div>
+    
+
+</div>

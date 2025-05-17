@@ -1,0 +1,16 @@
+.fullWidth {
+  width: 100% !important;
+}
+::ng-deep {
+  .selectCustomAutocomplete .mdc-list-item__primary-text {
+    width: 100% !important;
+  }
+
+  mat-grid-tile select-custom{
+      display: grid;
+      margin-top: -22px;
+  }
+  
+
+
+}

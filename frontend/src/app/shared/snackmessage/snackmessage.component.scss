@@ -1,0 +1,77 @@
+::ng-deep {
+  h2 {
+    color: white;
+    margin: 0px;
+    color: white;
+  }
+
+  .simpleSnackContainer p {
+    font-weight: 500;
+    color: white;
+  }
+
+  .snackIcon {
+    line-height: 32px;
+    height: 29px !important;
+    width: 29px !important;
+    margin-right: 10px;
+  }
+
+  .simpleSnackContainer {
+    display: flex;
+    justify-content: space-between;
+
+    p {
+      line-height: 32px;
+      margin: 0px;
+    }
+  }
+  .snackCloseButton {
+    padding: 0px !important;
+    padding-top: 3px !important;
+    margin: 0px !important;
+    height: 30px !important;
+    width: 30px !important;
+    margin-left: 12px !important;
+  }
+  .snackContainer {
+    display: grid;
+  }
+  .snack {
+
+    p{
+      color: white !important;
+    }
+    
+    &Error.mat-mdc-snack-bar-container {
+      --mdc-snackbar-container-color: #d52447;
+      max-width: 450px;
+    }
+
+    &Info.mat-mdc-snack-bar-container {
+      --mdc-snackbar-container-color: #1d7cef;
+      max-width: 400px;
+    }
+
+    &Success.mat-mdc-snack-bar-container {
+      --mdc-snackbar-container-color: #02ba5e;
+      max-width: initial;
+    }
+
+    &Warning.mat-mdc-snack-bar-container {
+      --mdc-snackbar-container-color: #ffad08;
+      max-width: initial;
+    }
+
+    --mat-mdc-snack-bar-button-color: white;
+    --mdc-snackbar-supporting-text-color: white;
+  }
+  .snackSuccess .mat-mdc-snack-bar-label {
+    padding: 9px 5px 9px 15px !important;
+  }
+
+  .snackErrors {
+    padding-left: 19px !important;
+    margin: 0px 0px 10px 0px !important;
+  }
+}

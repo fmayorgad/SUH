@@ -1,0 +1,738 @@
+<mat-card class="trinta-card contacts-card mb-25 bg-white border-none d-block">
+    <mat-card-header>
+        <mat-card-title>
+            <h4 class="mt-0 mb-0">
+                Visitas
+            </h4>
+        </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+        <div class="trinta-card all-courses-card mb-25 bg-white border-none d-block cardNoSidePadding">
+
+            <mat-card-content>
+                <mat-tab-group animationDuration="0ms">
+                    <mat-tab label="Todas">
+
+                        <p>Listado Visitas en las que has participado o estas participando.</p>
+
+                        <div class="filterHeaderContainer">
+                            <form [formGroup]="filterFormAll" class="row">
+                                <div
+                                    class="col-sm-12 col-md-{{!hideResetFilterAll ? '6' : '5'}} col-lg-{{!hideResetFilterAll ? '6' : '5'}}">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>Buscar</mat-label>
+                                        <input matInput formControlName="searchText" placeholder="Buscar...">
+                                    </mat-form-field>
+                                </div>
+                                <div class="col-sm-12 col-md-3 col-lg-3">
+                                    <select-custom [options]="leads" [icon]="'user'" [label]="'Lead'"
+                                        formControlName="lead">
+                                    </select-custom>
+                                </div>
+                                <div class="col-sm-12 col-md-3 col-lg-3">
+                                    <select-custom [options]="verificadores" [icon]="'user'" [label]="'Verificadores'"
+                                        formControlName="verificadores">
+                                    </select-custom>
+                                </div>
+                                <div class="col-sm-12 col-md-1 col-lg-1 flexi" *ngIf="hideResetFilterAll">
+                                    <button (click)="onFilterAll()" matTooltip="Buscar" class="filterActionbutton mauto"
+                                        mat-icon-button color="primary"
+                                        aria-label="Example icon button with a search icon">
+                                        <mat-icon>search</mat-icon>
+                                    </button>
+
+                                    <button (click)="onResetFilterAll()" matTooltip="Reiniciar filtros"
+                                        class="filterActionbutton mauto" mat-icon-button color="warn">
+                                        <span class="material-symbols-outlined">
+                                            reset_settings
+                                        </span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="contacts-table">
+                            <app-veil [state]="loading.all" [message]="'Cargando información...'"></app-veil>
+
+                            <div class="table-responsive">
+                                <table mat-table [dataSource]="dataSource">
+
+                                    <ng-container matColumnDef="actions">
+                                        <th mat-header-cell *matHeaderCellDef class="text-start pl-0">
+
+                                        </th>
+                                        <td #tdaction (mouseleave)="myFab.open = false; $event.stopPropagation()"
+                                            (mouseover)="myFab.open = true; $event.stopPropagation()"
+                                            style="overflow: visible; padding: inherit;" mat-cell
+                                            *matCellDef="let element" class="text-start pl-0">
+
+                                            <eco-fab-speed-dial #myFab [direction]="'right'">
+                                                <eco-fab-speed-dial-trigger [style.display]="'flex'"
+                                                    [style.top]="'auto'">
+                                                    <button class="actionsbutton" mat-fab><mat-icon
+                                                            fontIcon="menu" /></button>
+                                                </eco-fab-speed-dial-trigger>
+
+                                                <eco-fab-speed-dial-actions [style.display]="'flex'"
+                                                    [style.top]="'auto'" [style.height]="getHeight(tdaction)+'px'">
+                                                    <button [routerLink]="['visita', element.id]" mat-mini-fab
+                                                        class="infoButton" matTooltip="Ver detalles de visita"><span
+                                                            class="material-symbols-outlined">description</span></button>
+                                                </eco-fab-speed-dial-actions>
+                                            </eco-fab-speed-dial>
+                                        </td>
+                                    </ng-container>
+
+                                    <ng-container matColumnDef="prestador">
+                                        <th mat-header-cell *matHeaderCellDef class="pl-0 text-primary">
+                                            Nombre del Prestador
+                                        </th>
+                                        <td style="cursor: pointer; max-width: 350px;" mat-cell
+                                            *matCellDef="let element" class="pl-0 text-primary">
+                                            <a>{{element.name}}</a>
+                                        </td>
+                                    </ng-container>
+
+                                    <ng-container matColumnDef="state">
+                                        <th mat-header-cell *matHeaderCellDef>
+                                            Estado de la Visita
+                                        </th>
+                                        <td mat-cell *matCellDef="let element">
+                                            <span class="trinta-badge fw-medium pending d-inline-block"
+                                                *ngIf="element.state === 'active'">
+                                                EN PROCESO
+                                            </span>
+                                            <span class="trinta-badge fw-medium deactive d-inline-block"
+                                                *ngIf="element.state === 'deactive'">
+                                                TERMINADO
+                                            </span>
+                                            <span class="trinta-badge fw-medium converted d-inline-block"
+                                                *ngIf="element.state === 'pending'">
+                                                PENDIENTE
+                                            </span>
+                                        </td>
+                                    </ng-container>
+
+                                    <ng-container matColumnDef="lead">
+                                        <th mat-header-cell *matHeaderCellDef>
+                                            Lider del Grupo
+                                        </th>
+                                        <td mat-cell *matCellDef="let element">
+                                            <div class="d-flex align-items-center">
+                                                <div [matTooltip]="element.lead.name + ' ' + (element.lead.surname || '') + ' '"
+                                                    class="mr-15 border-radius justify-content-center bg-gray align-items-center d-flex fw-semibold fs-25 text-primary text-center w-50 h-50">
+                                                    {{element.lead.name[0]}}{{element.lead.surname[0]}}
+                                                </div>
+                                                {{element.lead.name}} {{element.lead.surname}} {{element.lead.lastname}}
+                                            </div>
+                                        </td>
+                                    </ng-container>
+
+                                    <ng-container matColumnDef="members">
+                                        <th mat-header-cell *matHeaderCellDef>
+                                            Miembros del Grupo
+                                        </th>
+                                        <td mat-cell *matCellDef="let element" class="avatarElementContainer">
+                                            <div class="d-flex align-items-center">
+                                                @for (member of element.members; track member; let idx = $index) {
+                                                @if(idx < 3) { <div
+                                                    [matTooltip]="member.name + ' ' + (member.surname || '') + ' ' + (member.lastname || '')"
+                                                    class="avatarElement bg{{member.name[0]}} rounded-circle justify-content-center align-items-center d-flex fw-semibold text-center w-50 h-50">
+                                                    {{member.name.toUpperCase()[0]}}{{member.surname.toUpperCase()[0]}}
+                                            </div>
+                                            }
+                                            }
+                                            @if(element.members.length > 3) {
+                                            <div [matTooltip]="(element.members.length - 3) + ' miembros más'"
+                                                class="avatarElement bgF rounded-circle justify-content-center align-items-center d-flex fw-semibold text-center w-50 h-50">
+                                                <mat-icon>add</mat-icon>
+                                            </div>
+                                            }
+                            </div>
+                            </td>
+                            </ng-container>
+
+                            <ng-container matColumnDef="services">
+                                <th mat-header-cell *matHeaderCellDef>
+                                    Servicios a verificar
+                                </th>
+                                <td mat-cell *matCellDef="let element">
+                                    <ul style="padding: 0px 14px;">
+                                        @if (element.visitServicios?.length) {
+                                        @for (visitServicio of element.visitServicios; track visitServicio; let i =
+                                        $index) {
+                                        @if(i < 3) { <li>
+                                            <span>
+                                                {{visitServicio.servicio_id.name}}
+                                            </span>
+                                            </li>
+                                            }
+                                            }
+                                            @if(element.visitServicios.length > 3) {
+                                            <li>
+                                                <span class="text-muted">
+                                                    y {{element.visitServicios.length - 3}} servicios más
+                                                </span>
+                                            </li>
+                                            }
+                                            } @else {
+                                            {{element.prestadoresToVisit}}
+                                            }
+                                    </ul>
+                                </td>
+                            </ng-container>
+
+                            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                            <tr *matNoDataRow class="mat-row centered">
+                                <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+                                    No hay datos disponibles.
+                                </td>
+                            </tr>
+
+                            </table>
+
+
+                        </div> <mat-paginator #allPaginator [pageSizeOptions]="pageSizeOptions"
+                            [pageSize]="paginationAll.pageSize" [length]="paginationAll.length"
+                            [showFirstLastButtons]="showFirstLastButtons"
+                            (page)="onPageChangeAll($event)"></mat-paginator>
+        </div>
+        </mat-tab>
+
+        <mat-tab label="En proceso">
+
+            <p>Listado Visitas ABIERTAS en las que eres un Verificador/Lider.</p>
+
+            <div class="filterHeaderContainer">
+                <form [formGroup]="filterFormInProcess" class="row">
+                    <div
+                        class="col-sm-12 col-md-{{!hideResetFilterInProcess ? '6' : '5'}} col-lg-{{!hideResetFilterInProcess ? '6' : '5'}}">
+                        <mat-form-field appearance="fill" class="w-100">
+                            <mat-label>Buscar</mat-label>
+                            <input matInput formControlName="searchText" placeholder="Buscar...">
+                        </mat-form-field>
+                    </div>
+                    <div class="col-sm-12 col-md-3 col-lg-3">
+                        <select-custom [options]="leads" [icon]="'user'" [label]="'Lead'" formControlName="lead">
+                        </select-custom>
+                    </div>
+                    <div class="col-sm-12 col-md-3 col-lg-3">
+                        <select-custom [options]="verificadores" [label]="'Verificadores'"
+                            formControlName="verificadores">
+                        </select-custom>
+                    </div>
+                    <div class="col-sm-12 col-md-1 col-lg-1 flexi" *ngIf="hideResetFilterInProcess">
+                        <button (click)="onFilterInProcess()" matTooltip="Buscar" class="filterActionbutton mauto"
+                            mat-icon-button color="primary" aria-label="Example icon button with a search icon">
+                            <mat-icon>search</mat-icon>
+                        </button>
+
+                        <button (click)="onResetFilterInProcess()" matTooltip="Reiniciar filtros"
+                            class="filterActionbutton mauto" mat-icon-button color="warn">
+                            <span class="material-symbols-outlined">
+                                reset_settings
+                            </span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+
+            <div class="contacts-table">
+                <div *ngIf="loading.inProcess" class="text-center p-3">
+                    <mat-spinner diameter="40" class="mx-auto"></mat-spinner>
+                    <p>Cargando visitas en proceso...</p>
+                </div>
+                <div *ngIf="!loading.inProcess" class="table-responsive">
+                    <table mat-table [dataSource]="dataSourceProcess">
+
+                        <ng-container matColumnDef="actions">
+                            <th mat-header-cell *matHeaderCellDef class="text-start pl-0">
+
+                            </th>
+                            <td #tdactionProcess (mouseleave)="myFabProcess.open = false; $event.stopPropagation()"
+                                (mouseover)="myFabProcess.open = true; $event.stopPropagation()"
+                                style="overflow: visible; padding: inherit;" mat-cell *matCellDef="let element"
+                                class="text-start pl-0">
+
+                                <eco-fab-speed-dial #myFabProcess [direction]="'right'">
+                                    <eco-fab-speed-dial-trigger [style.display]="'flex'" [style.top]="'auto'">
+                                        <button class="actionsbutton" mat-fab><mat-icon fontIcon="menu" /></button>
+                                    </eco-fab-speed-dial-trigger>
+
+                                    <eco-fab-speed-dial-actions [style.display]="'flex'" [style.top]="'auto'"
+                                        [style.height]="getHeight(tdactionProcess)+'px'">
+                                        <button [routerLink]="['visita', element.id]" mat-mini-fab class="infoButton"
+                                            matTooltip="Ver detalles de visita"><span
+                                                class="material-symbols-outlined">description</span></button>
+                                    </eco-fab-speed-dial-actions>
+                                </eco-fab-speed-dial>
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="prestador">
+                            <th mat-header-cell *matHeaderCellDef class="pl-0 text-primary">
+                                Nombre del Prestador
+                            </th>
+                            <td style="cursor: pointer; max-width: 350px;" mat-cell *matCellDef="let element"
+                                class="pl-0 text-primary">
+                                <a>{{element.name}}</a>
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="lead">
+                            <th mat-header-cell *matHeaderCellDef>
+                                Lider del Grupo
+                            </th>
+                            <td mat-cell *matCellDef="let element">
+                                <div class="d-flex align-items-center">
+                                    <div [matTooltip]="element.lead.name + ' ' + (element.lead.surname || '') + ' ' "
+                                        class="mr-15 border-radius justify-content-center bg-gray align-items-center d-flex fw-semibold fs-25 text-primary text-center w-50 h-50">
+                                        {{element.lead.name[0]}}{{element.lead.surname[0]}}{{element.lead.lastname[0]}}
+                                    </div>
+                                    {{element.lead.name}} {{element.lead.surname}} {{element.lead.lastname}}
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="members">
+                            <th mat-header-cell *matHeaderCellDef>
+                                Miembros del Grupo
+                            </th>
+                            <td mat-cell *matCellDef="let element" class="avatarElementContainer">
+                                <div class="d-flex align-items-center">
+                                    @for (member of element.members; track member; let idx = $index) {
+                                    @if(idx < 3) { <div
+                                        [matTooltip]="member.name + ' ' + (member.surname || '') + ' ' + (member.lastname || '')"
+                                        class="avatarElement bg{{member.name[0]}} rounded-circle justify-content-center  align-items-center d-flex fw-semibold y text-center w-50 h-50">
+                                        {{member.name.toUpperCase()[0]}}{{member.surname.toUpperCase()[0]}}
+                                </div>
+                                }
+                                }
+                                @if(element.members.length > 3) {
+                                <div [matTooltip]="(element.members.length - 3) + ' miembros más'"
+                                    class="avatarElement bgF rounded-circle justify-content-center  align-items-center d-flex fw-semibold text-center w-50 h-50">
+                                    <mat-icon>add</mat-icon>
+                                </div>
+                                }
+                </div>
+                </td>
+                </ng-container>
+
+                <ng-container matColumnDef="services">
+                    <th mat-header-cell *matHeaderCellDef>
+                        Servicios a verificar
+                    </th>
+                    <td mat-cell *matCellDef="let element">
+                        <ul style="padding: 0px 14px;">
+                            @if (element.visitServicios?.length) {
+                            @for (visitServicio of element.visitServicios; track visitServicio; let i = $index) {
+                            @if(i < 3) { <li>
+                                <span>
+                                    {{visitServicio.servicio_id.name}}
+                                </span>
+                                </li>
+                                }
+                                }
+                                @if(element.visitServicios.length > 3) {
+                                <li>
+                                    <span class="text-muted">
+                                        y {{element.visitServicios.length - 3}} servicios más
+                                    </span>
+                                </li>
+                                }
+                                } @else {
+                                {{element.prestadoresToVisit}}
+                                }
+                        </ul>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="recorridos">
+                    <th mat-header-cell *matHeaderCellDef>
+                        Recorridos definidos
+                    </th>
+                    <td mat-cell *matCellDef="let element">
+                        3
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumnsPending"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumnsPending;"></tr>
+                <tr *matNoDataRow class="mat-row centered">
+                    <td class="mat-cell" [attr.colspan]="displayedColumnsPending.length">
+                        No hay datos disponibles.
+                    </td>
+                </tr>
+
+                </table>
+            </div>
+            <mat-paginator #processPaginator [pageSizeOptions]="pageSizeOptions" [pageSize]="paginationProcess.pageSize"
+                [length]="paginationProcess.length" [showFirstLastButtons]="showFirstLastButtons"
+                (page)="onPageChangeProcess($event)"></mat-paginator>
+            </div>
+        </mat-tab>
+
+        <mat-tab label="No iniciadas">
+
+            <p>Listado de Visitas programadas que aun no inician por su Fecha de Visita.</p>
+
+            <div class="filterHeaderContainer">
+                <form [formGroup]="filterFormNotInitiated" class="row">
+                    <div
+                        class="col-sm-12 col-md-{{!hideResetFilterNotInitiated ? '6' : '5'}} col-lg-{{!hideResetFilterNotInitiated ? '6' : '5'}}">
+                        <mat-form-field appearance="fill" class="w-100">
+                            <mat-label>Buscar</mat-label>
+                            <input matInput formControlName="searchText" placeholder="Buscar...">
+                        </mat-form-field>
+                    </div>
+                    <div class="col-sm-12 col-md-3 col-lg-3">
+                        <select-custom [options]="leads" [icon]="'user'" [label]="'Lead'" formControlName="lead">
+                        </select-custom>
+                    </div>
+                    <div class="col-sm-12 col-md-3 col-lg-3">
+                        <select-custom [options]="verificadores" [icon]="'user'" [label]="'Verificadores'"
+                            formControlName="verificadores">
+                        </select-custom>
+                    </div>
+                    <div class="col-sm-12 col-md-1 col-lg-1 flexi" *ngIf="hideResetFilterNotInitiated">
+                        <button (click)="onFilterNotInitiated()" matTooltip="Buscar" class="filterActionbutton mauto"
+                            mat-icon-button color="primary" aria-label="Example icon button with a search icon">
+                            <mat-icon>search</mat-icon>
+                        </button>
+
+                        <button (click)="onResetFilterNotInitiated()" matTooltip="Reiniciar filtros"
+                            class="filterActionbutton mauto" mat-icon-button color="warn">
+                            <span class="material-symbols-outlined">
+                                reset_settings
+                            </span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+
+            <div class="contacts-table">
+                <div *ngIf="loading.notInitiated" class="text-center p-3">
+                    <mat-spinner diameter="40" class="mx-auto"></mat-spinner>
+                    <p>Cargando visitas no iniciadas...</p>
+                </div>
+                <div *ngIf="!loading.notInitiated" class="table-responsive">
+                    <table mat-table [dataSource]="dataSourcePending">
+
+                        <ng-container matColumnDef="actions">
+                            <th mat-header-cell *matHeaderCellDef class="text-start pl-0">
+
+                            </th>
+                            <td #tdactionNotInitiated
+                                (mouseleave)="myFabNotInitiated.open = false; $event.stopPropagation()"
+                                (mouseover)="myFabNotInitiated.open = true; $event.stopPropagation()"
+                                style="overflow: visible; padding: inherit;" mat-cell *matCellDef="let element"
+                                class="text-start pl-0">
+
+                                <eco-fab-speed-dial #myFabNotInitiated [direction]="'right'">
+                                    <eco-fab-speed-dial-trigger [style.display]="'flex'" [style.top]="'auto'">
+                                        <button class="actionsbutton" mat-fab><mat-icon fontIcon="menu" /></button>
+                                    </eco-fab-speed-dial-trigger>
+
+                                    <eco-fab-speed-dial-actions [style.display]="'flex'" [style.top]="'auto'"
+                                        [style.height]="getHeight(tdactionNotInitiated)+'px'">
+                                        <button [routerLink]="['visita', element.id]" mat-mini-fab class="infoButton"
+                                            matTooltip="Ver detalles de visita"><span
+                                                class="material-symbols-outlined">description</span></button>
+                                    </eco-fab-speed-dial-actions>
+                                </eco-fab-speed-dial>
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="prestador">
+                            <th mat-header-cell *matHeaderCellDef class="pl-0 text-primary">
+                                Nombre del Prestador
+                            </th>
+                            <td style="cursor: pointer; max-width: 350px;" mat-cell *matCellDef="let element"
+                                class="pl-0 text-primary">
+                                <a>{{element.name}}</a>
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="lead">
+                            <th mat-header-cell *matHeaderCellDef>
+                                Lider del Grupo
+                            </th>
+                            <td mat-cell *matCellDef="let element">
+                                <div class="d-flex align-items-center">
+                                    <div [matTooltip]="element.lead.name + ' ' + (element.lead.surname || '') + ' ' + (element.lead.lastname || '')"
+                                        class="mr-15 border-radius justify-content-center bg-gray align-items-center d-flex fw-semibold fs-25 text-primary text-center w-50 h-50">
+                                        {{element.lead.name[0]}}{{element.lead.surname[0]}}
+                                    </div>
+                                    {{element.lead.name}} {{element.lead.surname}} {{element.lead.lastname}}
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="members">
+                            <th mat-header-cell *matHeaderCellDef>
+                                Miembros del Grupo
+                            </th>
+                            <td mat-cell *matCellDef="let element" class="avatarElementContainer">
+                                <div class="d-flex align-items-center">
+                                    @for (member of element.members; track member; let idx = $index) {
+                                    @if(idx < 3) { <div
+                                        [matTooltip]="member.name + ' ' + (member.surname || '') + ' ' + (member.lastname || '')"
+                                        class="avatarElement bg{{member.name[0]}} rounded-circle justify-content-center align-items-center d-flex fw-semibold  text-center w-50 h-50">
+                                        {{member.name.toUpperCase()[0]}}{{member.surname.toUpperCase()[0]}}
+                                </div>
+                                }
+                                }
+                                @if(element.members.length > 3) {
+                                <div [matTooltip]="(element.members.length - 3) + ' miembros más'"
+                                    class="avatarElement bgF rounded-circle justify-content-center align-items-center d-flex fw-semibold  text-center w-50 h-50">
+                                    <mat-icon>add</mat-icon>
+                                </div>
+                                }
+                </div>
+                </td>
+                </ng-container>
+
+                <ng-container matColumnDef="services">
+                    <th mat-header-cell *matHeaderCellDef>
+                        Servicios a verificar
+                    </th>
+                    <td mat-cell *matCellDef="let element">
+                        <ul style="padding: 0px 14px;">
+                            @if (element.visitServicios?.length) {
+                            @for (visitServicio of element.visitServicios; track visitServicio; let i = $index) {
+                            @if(i < 3) { <li>
+                                <span>
+                                    {{visitServicio.servicio_id.name}}
+                                </span>
+                                </li>
+                                }
+                                }
+                                @if(element.visitServicios.length > 3) {
+                                <li>
+                                    <span class="text-muted">
+                                        y {{element.visitServicios.length - 3}} servicios más
+                                    </span>
+                                </li>
+                                }
+                                } @else {
+                                {{element.prestadoresToVisit}}
+                                }
+                        </ul>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="recorridos">
+                    <th mat-header-cell *matHeaderCellDef>
+                        Recorridos definidos
+                    </th>
+                    <td mat-cell *matCellDef="let element">
+                        3
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="visitState">
+                    <th mat-header-cell *matHeaderCellDef>
+                        Estado de documentación Previa
+                    </th>
+                    <td mat-cell *matCellDef="let element">
+                        {{element.visitState || '-'}}
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumnsNotInitiated"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumnsNotInitiated;"></tr>
+                <tr *matNoDataRow class="mat-row centered">
+                    <td class="mat-cell" [attr.colspan]="displayedColumnsNotInitiated.length">
+                        No hay datos disponibles.
+                    </td>
+                </tr>
+
+                </table>
+            </div>
+            <mat-paginator #notInitiatedPaginator [pageSizeOptions]="pageSizeOptions"
+                [pageSize]="paginationNotInitiated.pageSize" [length]="paginationNotInitiated.length"
+                [showFirstLastButtons]="showFirstLastButtons" (page)="onPageChangeNotInitiated($event)"></mat-paginator>
+            </div>
+
+        </mat-tab>
+
+        <mat-tab label="Terminadas">
+
+            <div class="filterHeaderContainer">
+                <form [formGroup]="filterFormFinished" class="row">
+                    <div
+                        class="col-sm-12 col-md-{{!hideResetFilterFinished ? '6' : '5'}} col-lg-{{!hideResetFilterFinished ? '6' : '5'}}">
+                        <mat-form-field appearance="fill" class="w-100">
+                            <mat-label>Buscar</mat-label>
+                            <input matInput formControlName="searchText" placeholder="Buscar...">
+                        </mat-form-field>
+                    </div>
+                    <div class="col-sm-12 col-md-3 col-lg-3">
+                        <select-custom [options]="leads" [icon]="'user'" [label]="'Lead'" formControlName="lead">
+                        </select-custom>
+                    </div>
+                    <div class="col-sm-12 col-md-3 col-lg-3">
+                        <select-custom [options]="verificadores" [icon]="'user'" [label]="'Verificadores'"
+                            formControlName="verificadores">
+                        </select-custom>
+                    </div>
+                    <div class="col-sm-12 col-md-1 col-lg-1 flexi" *ngIf="hideResetFilterFinished">
+                        <button (click)="onFilterFinished()" matTooltip="Buscar" class="filterActionbutton mauto"
+                            mat-icon-button color="primary" aria-label="Example icon button with a search icon">
+                            <mat-icon>search</mat-icon>
+                        </button>
+
+                        <button (click)="onResetFilterFinished()" matTooltip="Reiniciar filtros"
+                            class="filterActionbutton mauto" mat-icon-button color="warn">
+                            <span class="material-symbols-outlined">
+                                reset_settings
+                            </span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="contacts-table">
+                <div *ngIf="loading.finished" class="text-center p-3">
+                    <mat-spinner diameter="40" class="mx-auto"></mat-spinner>
+                    <p>Cargando visitas terminadas...</p>
+                </div>
+                <div *ngIf="!loading.finished" class="table-responsive">
+                    <table mat-table [dataSource]="dataSourceFinish">
+
+                        <ng-container matColumnDef="actions">
+                            <th mat-header-cell *matHeaderCellDef class="text-start pl-0">
+
+                            </th>
+                            <td #tdactionFinished (mouseleave)="myFabFinished.open = false; $event.stopPropagation()"
+                                (mouseover)="myFabFinished.open = true; $event.stopPropagation()"
+                                style="overflow: visible; padding: inherit;" mat-cell *matCellDef="let element"
+                                class="text-start pl-0">
+
+                                <eco-fab-speed-dial #myFabFinished [direction]="'right'">
+                                    <eco-fab-speed-dial-trigger [style.display]="'flex'" [style.top]="'auto'">
+                                        <button class="actionsbutton" mat-fab><mat-icon fontIcon="menu" /></button>
+                                    </eco-fab-speed-dial-trigger>
+
+                                    <eco-fab-speed-dial-actions [style.display]="'flex'" [style.top]="'auto'"
+                                        [style.height]="getHeight(tdactionFinished)+'px'">
+                                        <button [routerLink]="['visita', element.id]" mat-mini-fab class="infoButton"
+                                            matTooltip="Ver detalles de visita"><span
+                                                class="material-symbols-outlined">description</span></button>
+                                    </eco-fab-speed-dial-actions>
+                                </eco-fab-speed-dial>
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="prestador">
+                            <th mat-header-cell *matHeaderCellDef class="pl-0 text-primary">
+                                Nombre del Prestador
+                            </th>
+                            <td style="cursor: pointer; max-width: 350px;" mat-cell *matCellDef="let element"
+                                class="pl-0 text-primary">
+                                <a>{{element.name}}</a>
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="lead">
+                            <th mat-header-cell *matHeaderCellDef>
+                                Lider del Grupo
+                            </th>
+                            <td mat-cell *matCellDef="let element">
+                                <div class="d-flex align-items-center">
+                                    <div [matTooltip]="element.lead.name + ' ' + (element.lead.surname || '') + ' ' "
+                                        class="mr-15 border-radius justify-content-center bg-gray align-items-center d-flex fw-semibold fs-25 text-primary text-center w-50 h-50">
+                                        {{element.lead.name[0]}}{{element.lead.surname[0]}}
+                                    </div>
+                                    {{element.lead.name}} {{element.lead.surname}} {{element.lead.lastname}}
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="members">
+                            <th mat-header-cell *matHeaderCellDef>
+                                Miembros del Grupo
+                            </th>
+                            <td mat-cell *matCellDef="let element" class="avatarElementContainer">
+                                <div class="d-flex align-items-center">
+                                    @for (member of element.members; track member; let idx = $index) {
+                                    @if(idx < 3) { <div
+                                        [matTooltip]="member.name + ' ' + (member.surname || '') + ' ' + (member.lastname || '')"
+                                        class="avatarElement bg{{member.name[0]}} rounded-circle justify-content-center align-items-center d-flex fw-semibold  text-center w-50 h-50">
+                                        {{member.name.toUpperCase()[0]}}{{member.lastname.toUpperCase()[0]}}
+                                </div>
+                                }
+                                }
+                                @if(element.members.length > 3) {
+                                <div [matTooltip]="(element.members.length - 3) + ' miembros más'"
+                                    class="avatarElement bgF rounded-circle justify-content-center align-items-center d-flex fw-semibold  text-center w-50 h-50">
+                                    <mat-icon>add</mat-icon>
+                                </div>
+                                }
+                </div>
+                </td>
+                </ng-container>
+
+                <ng-container matColumnDef="services">
+                    <th mat-header-cell *matHeaderCellDef>
+                        Servicios a verificar
+                    </th>
+                    <td mat-cell *matCellDef="let element">
+                        <ul style="padding: 0px 14px;">
+                            @if (element.visitServicios?.length) {
+                            @for (visitServicio of element.visitServicios; track visitServicio; let i = $index) {
+                            @if(i < 3) { <li>
+                                <span>
+                                    {{visitServicio.servicio_id.name}}
+                                </span>
+                                </li>
+                                }
+                                }
+                                @if(element.visitServicios.length > 3) {
+                                <li>
+                                    <span class="text-muted">
+                                        y {{element.visitServicios.length - 3}} servicios más
+                                    </span>
+                                    }
+                                    } @else {
+                                    {{element.prestadoresToVisit}}
+                                    }
+                        </ul>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="recorridos">
+                    <th mat-header-cell *matHeaderCellDef>
+                        Recorridos definidos
+                    </th>
+                    <td mat-cell *matCellDef="let element">
+                        3
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumnsFinished"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumnsFinished;"></tr>
+                <tr *matNoDataRow class="mat-row centered">
+                    <td class="mat-cell" [attr.colspan]="displayedColumnsFinished.length">
+                        No hay datos disponibles.
+                    </td>
+                </tr>
+
+                </table>
+            </div>
+            <mat-paginator #finishedPaginator [pageSizeOptions]="pageSizeOptions"
+                [pageSize]="paginationFinished.pageSize" [length]="paginationFinished.length"
+                [showFirstLastButtons]="showFirstLastButtons" (page)="onPageChangeFinished($event)"></mat-paginator>
+            </div>
+
+
+        </mat-tab>
+        </mat-tab-group>
+    </mat-card-content>
+    </div>
+    </mat-card-content>
+</mat-card>
+<router-outlet />

@@ -1,0 +1,121 @@
+<div class="verticalDialogContainer">
+    <h3 mat-dialog-title>
+        {{ isEdit ? 'Editar Grupo de Visita' : 'Agendar Grupo de Visita' }}
+    </h3>
+    <ng-scrollbar visibility="hover">
+        <mat-dialog-content class="mat-typography">
+            <mat-card class="trinta-card mb-25 bg-white border-none d-block">
+                <mat-card-content>
+
+                    <!-- Display Prestador Information -->
+                    <div class="mb-20">
+                        <h4 class="mb-10">Prestador a Visitar</h4>
+                        <p class="mb-0 fz-14 regularText">
+                            <span style="font-weight: 700; text-transform: uppercase;">Nombre:</span> {{
+                            incomingData.prestador?.name }}
+                        </p>
+                        <p class="mb-0 fz-14 regularText">
+                            <span style="font-weight: 700; text-transform: uppercase;">Código:</span> {{
+                            incomingData.prestador?.code }}
+                        </p>
+                    </div>
+
+                    <div class="mt-15 alert alert-bg-primary d-flex align-items-center" role="alert">
+                        <span class="material-symbols-outlined mr-10">
+                            info
+                        </span>
+                        Los miembros del Grupo de Visita serán agregados al momento de COMPLETARLA, por el Lider que
+                        seleccionarás en éste formulario.
+                    </div>
+
+                    <form [formGroup]="visitForm" class="mt-15">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <mat-form-field>
+                                    <i-feather name="user"></i-feather>
+                                    <mat-label>Lider</mat-label>
+                                    <mat-select formControlName="lead">
+                                        <mat-option *ngFor="let lider of incomingData.weekgroup.weekgroupusers"
+                                            [value]="lider.members.id">
+                                            {{lider.members?.name}} {{lider.members?.surname}}
+                                            {{lider.members?.lastname}}
+                                        </mat-option>
+                                    </mat-select>
+                                    <mat-error
+                                        *ngIf="visitForm.get('lead')?.hasError('required') && visitForm.get('lead')?.touched">
+                                        Lider es requerido
+                                    </mat-error>
+                                </mat-form-field>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <mat-form-field>
+                                    <i-feather name="list"></i-feather>
+                                    <mat-label>Tipo de Visita</mat-label>
+                                    <mat-select formControlName="visitType">
+                                        <mat-option [value]="visitTypes.PROGRAMACION">Programación</mat-option>
+                                        <mat-option [value]="visitTypes.CERTIFICACION">Certificación</mat-option>
+                                        <mat-option [value]="visitTypes.SOLICITUD">Solicitud</mat-option>
+                                        <mat-option [value]="visitTypes.PREVIA">Previa</mat-option>
+                                        <mat-option [value]="visitTypes.QUEJA">Queja</mat-option>
+                                        <mat-option [value]="visitTypes.REQUERIMIENTO">Requerimiento</mat-option>
+                                        <mat-option [value]="visitTypes.DERIVADA">Derivada</mat-option>
+                                        <mat-option [value]="visitTypes.SEGUIMIENTO">Seguimiento</mat-option>
+                                    </mat-select>
+                                    <mat-error
+                                        *ngIf="visitForm.get('visitType')?.hasError('required') && visitForm.get('visitType')?.touched">
+                                        Tipo de visita es requerido
+                                    </mat-error>
+                                </mat-form-field>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <mat-form-field appearance="fill">
+                                    <i-feather name="calendar"></i-feather>
+                                    <mat-label>Fecha de visita propuesta</mat-label>
+                                    <input matInput formControlName="visitDate" [matDatepicker]="visitDatePicker"
+                                        [matDatepickerFilter]="filterByWeekRange">
+                                    <mat-datepicker-toggle matIconSuffix
+                                        [for]="visitDatePicker"></mat-datepicker-toggle>
+                                    <mat-datepicker #visitDatePicker></mat-datepicker>
+                                    <mat-error
+                                        *ngIf="visitForm.get('visitDate')?.hasError('required') && visitForm.get('visitDate')?.touched">
+                                        Fecha de visita es requerida
+                                    </mat-error>
+                                </mat-form-field>
+                            </div>
+
+                            <div class="col-sm-12">
+                                <mat-form-field class="textarea">
+                                    <i-feather name="file-text"></i-feather>
+                                    <mat-label>Descripción</mat-label>
+                                    <textarea matInput formControlName="description"
+                                        placeholder="Agrega una descripción a esta visita."></textarea>
+                                </mat-form-field>
+                            </div>
+
+                            <div class="col-sm-12">
+                                <mat-form-field class="textarea">
+                                    <i-feather name="file-text"></i-feather>
+                                    <mat-label>Notas</mat-label>
+                                    <textarea matInput formControlName="notes"
+                                        placeholder="Notas adicionales para la visita"></textarea>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                    </form>
+                </mat-card-content>
+            </mat-card>
+        </mat-dialog-content>
+    </ng-scrollbar>
+    <mat-dialog-actions align="end">
+        <button mat-button color="warn" mat-dialog-close [disabled]="loading">
+            Cancelar
+        </button>
+        <button mat-button (click)="onSubmit()" [disabled]="loading || visitForm.invalid || !visitForm.dirty"
+            cdkFocusInitial>
+            <span *ngIf="!loading">{{ isEdit ? 'Actualizar' : 'Agendar Grupo de Visita' }}</span>
+            <span *ngIf="loading">{{ isEdit ? 'Actualizando...' : 'Agendando...' }}</span>
+        </button>
+    </mat-dialog-actions>
+</div>

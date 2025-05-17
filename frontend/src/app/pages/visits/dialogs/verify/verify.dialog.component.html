@@ -1,0 +1,189 @@
+<div class="mediumVerticalDialogContainer">
+    <h3 mat-dialog-title>
+        VERIFICAR CRITERIO 11.1.5.1.
+    </h3>
+    <ng-scrollbar visibility="hover">
+        <mat-dialog-content class="mat-typography">
+            <mat-card class="trinta-card mb-25 bg-white border-none d-block">
+                <mat-card-content>
+                    <form>
+                        <div class="row">
+                            <span style="margin-bottom: 15px; text-transform: uppercase;"> <span
+                                    style="font-weight: 600;">11.1.5.1.</span> prestador de servicios de salud cuenta
+                                con una política de seguridad del paciente acorde con los lineamientos del Ministerio de
+                                Salud y Proteccion Social. </span>
+
+                            <div class="col-sm-6">
+                                <span style=" padding: 12px; display: block;
+                            border-radius: 5px;
+                            background: #3f51b5;
+                            color: white;">TALENTO HUMANO</span>
+                            </div>
+                            <div class="col-sm-6">
+                                <span style=" padding: 12px; display: block;
+                            border-radius: 5px;
+                            background: #db1241;
+                            color: white;">CONSULTA EXTERNA GENERAL</span>
+                            </div>
+
+
+                            <h5 style="margin-top: 25px;">DECLARADOS Y PRESTADOS</h5>
+
+
+                            <mat-accordion class="example-headers-align" multi style="margin-top: 10px;">
+                                <mat-expansion-panel hideToggle #matExpansionPanel1>
+                                    <mat-expansion-panel-header (click)="expandPanel(matExpansionPanel1, $event)">
+                                        <mat-panel-title> SERVICIO 1 </mat-panel-title>
+                                        <mat-panel-description>
+                                            <span class="trinta-badge fw-medium d-inline-block">
+                                                VERIFICADO
+                                            </span>
+
+                                        </mat-panel-description>
+
+                                        <mat-panel-description>
+
+
+                                            <div>
+                                                <mat-checkbox class="example-margin"
+                                                    [checked]="true">CUMPLE</mat-checkbox>
+                                                <mat-checkbox class="example-margin">NO CUMPLE</mat-checkbox>
+                                            </div>
+                                        </mat-panel-description>
+                                    </mat-expansion-panel-header>
+
+                                    <mat-form-field>
+                                        <mat-label>First name</mat-label>
+                                        <input matInput />
+                                    </mat-form-field>
+
+                                    <mat-form-field>
+                                        <mat-label>Age</mat-label>
+                                        <input matInput type="number" min="1" />
+                                    </mat-form-field>
+                                    <mat-action-row>
+                                        <button mat-button>Completar</button>
+                                    </mat-action-row>
+                                </mat-expansion-panel>
+
+                                <mat-expansion-panel hideToggle #matExpansionPanel1>
+                                    <mat-expansion-panel-header (click)="expandPanel(matExpansionPanel1, $event)">
+                                        <mat-panel-title> SERVICIO 2 </mat-panel-title>
+                                        <mat-panel-description>
+                                            <span class="trinta-badge deactive fw-medium d-inline-block">
+                                                NO VERIFICADO
+                                            </span>
+
+                                        </mat-panel-description>
+
+                                        <mat-panel-description>
+                                            <div>
+                                                <mat-checkbox class="example-margin">CUMPLE</mat-checkbox>
+                                                <mat-checkbox class="example-margin" [checked]="true">NO
+                                                    CUMPLE</mat-checkbox>
+                                            </div>
+                                        </mat-panel-description>
+                                    </mat-expansion-panel-header>
+
+                                    <h6>El prestador no tiene un profesional con un titulo valido debido a que éste se
+                                        encuentra</h6>
+
+                                    <div style="display: grid; margin-bottom: 15px;">
+                                        <mat-checkbox class="example-margin">No tiene un titulo valido</mat-checkbox>
+                                        <mat-checkbox class="example-margin">No esta registrado en RETUS</mat-checkbox>
+                                        <mat-checkbox class="example-margin">No se pudo verificar con la institución
+                                            emisora</mat-checkbox>
+
+                                        <div style="display: grid; margin-left: 25px;">
+                                            <mat-checkbox class="example-margin">No termino estudios</mat-checkbox>
+                                            <mat-checkbox class="example-margin">No presentó tesis</mat-checkbox>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-12">
+                                        <mat-form-field class="textarea">
+                                            <i-feather name="file-text"></i-feather>
+                                            <mat-label>Descripción del Hallazgo</mat-label>
+                                            <textarea formControlName="description" matInput
+                                                placeholder="Agrega una descripción a éste hallazgo para dejar una constancia o especificidad."></textarea>
+                                        </mat-form-field>
+                                    </div>
+
+                                    <div style="display: grid;">
+                                        <h6>Terminos de INCUMPLIMIENTO</h6>
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <mat-checkbox class="example-margin">NO CUMPLE EN
+                                                    RECORRIDO</mat-checkbox>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <mat-checkbox class="example-margin">NO CUMPLE EN
+                                                    DOCUMENTACIÓN</mat-checkbox>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <h6 style="margin-top: 20px;">Listado de adjuntos</h6>
+
+                                    <div style="display: flex;">
+                                        <button mat-fab aria-label="Example icon button with a delete icon">
+                                            <mat-icon>add</mat-icon>
+                                        </button>
+                                    </div>
+
+                                    <mat-action-row>
+                                        <button mat-button>Verificar</button>
+                                    </mat-action-row>
+                                </mat-expansion-panel>
+
+                                <mat-expansion-panel hideToggle #matExpansionPanel1>
+                                    <mat-expansion-panel-header (click)="expandPanel(matExpansionPanel1, $event)">
+                                        <mat-panel-title> SERVICIO 3 </mat-panel-title>
+                                        <mat-panel-description>
+                                            <span class="trinta-badge deactive fw-medium d-inline-block">
+                                                NO VERIFICADO
+                                            </span>
+
+                                        </mat-panel-description>
+
+                                        <mat-panel-description>
+
+
+                                            <div>
+                                                <mat-checkbox class="example-margin"
+                                                    [checked]="true">CUMPLE</mat-checkbox>
+                                                <mat-checkbox class="example-margin">NO CUMPLE</mat-checkbox>
+                                            </div>
+                                        </mat-panel-description>
+                                    </mat-expansion-panel-header>
+
+                                    <mat-form-field>
+                                        <mat-label>First name</mat-label>
+                                        <input matInput />
+                                    </mat-form-field>
+
+                                    <mat-form-field>
+                                        <mat-label>Age</mat-label>
+                                        <input matInput type="number" min="1" />
+                                    </mat-form-field>
+                                    <mat-action-row>
+                                        <button mat-button>Completar</button>
+                                    </mat-action-row>
+                                </mat-expansion-panel>
+                            </mat-accordion>
+                        </div>
+                    </form>
+                </mat-card-content>
+            </mat-card>
+        </mat-dialog-content>
+    </ng-scrollbar>
+    <mat-dialog-actions align="end">
+        <button mat-button color="warn" mat-dialog-close>
+            Cancelar
+        </button>
+        <button mat-button [mat-dialog-close]="true" (click)="onclick()" cdkFocusInitial>
+            VALIDAR CRITERIO
+        </button>
+    </mat-dialog-actions>
+</div>

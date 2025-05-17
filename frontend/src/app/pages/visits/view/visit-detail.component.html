@@ -1,0 +1,132 @@
+<mat-card class="trinta-card course-details-card mb-25 bg-dark border-none d-block">
+    <app-veil [state]="gettingData" [message]="'Buscando Visita...'"></app-veil>
+    <mat-card-content>
+        <div class="top justify-content-between">
+
+            <h4 class="text-white mt-15">
+                {{visitData?.prestador?.nombreSede || 'No disponible'}}
+            </h4>
+
+            <div class="d-flex align-items-center mt-15">
+                <span class="trinta-badge fw-medium d-inline-block mr-15" [ngClass]="{
+                        'converted': visitData?.visitState === 'AGENDADA',
+                        'active': visitData?.visitState === 'COMPLETADA'
+                    }">
+                    {{ getVisitStateName(visitData?.visitState) }}
+                </span>
+            </div>
+
+            <h6 class="text-white mt-15">Líder del Grupo de Visita</h6>
+            <div class="d-flex align-items-center mt-15" *ngIf="visitData?.weekgroupVisit?.lead">
+                <div
+                    class="mr-15 border-radius justify-content-center bg-gray align-items-center d-flex fw-semibold fs-25 text-primary text-center w-70 h-70">
+                    {{(visitData?.weekgroupVisit?.lead?.name || '')[0]}}{{((visitData?.weekgroupVisit?.lead?.lastname ||
+                    visitData?.weekgroupVisit?.lead?.surname) || '')[0]}}
+                </div>
+                <h5 style="color: white;">{{visitData?.weekgroupVisit?.lead?.name}}
+                    {{visitData?.weekgroupVisit?.lead?.lastname || ''}}
+                    {{visitData?.weekgroupVisit?.lead?.surname || ''}}</h5>
+            </div>
+
+            <p class="mt-20 text-white">
+                {{visitData?.weekgroupVisit?.description || 'No hay descripción disponible'}}
+            </p>
+
+            <div class="row mt-20">
+                <div class="col-md-6">
+                    <h6 class="text-white">Miembros de la visita</h6>
+                    <div class="d-flex align-items-center" style="flex-wrap: wrap;">
+                        <div *ngFor="let member of visitData?.visitVerificadores; let i = index"
+                            [matTooltip]="member.user_id.name + ' ' + (member.user_id.surname || '') + ' ' + (member.user_id.lastname || '')"
+                            class="mr-5 bg{{i}} avatarElement rounded-circle justify-content-center align-items-center d-flex fw-semibold text-center w-50 h-50">
+                            {{(member.user_id.name || '')[0]}}{{((member.user_id.lastname || member.user_id.surname) ||
+                            '')[0]}}
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <div class="col-md-6 d-flex" style="align-self: flex-end; flex-direction: column;">
+
+                    <div class="row" style="text-align: end;">
+
+                        <div class="d-flex  mb-10" style="flex-direction: row-reverse;">
+                            <div class="d-grid text-white mr-15">
+                                <h6 class="text-white">Fecha Programada</h6>
+                                {{getFormattedDate(visitData?.date)}}
+                            </div>
+                        </div>
+
+
+                        <div class="d-flex" style="flex-direction: row-reverse;">
+                            <div class="d-grid text-white mr-15">
+                                <h6 class="text-white">SADE</h6>
+                                {{visitData?.sade || 'No disponible'}}
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </mat-card-content>
+</mat-card>
+
+<!-- Información del Prestador -->
+<mat-card class="trinta-card mb-25 bg-white border-none d-block" *ngIf="visitData?.prestador">
+    <app-veil [state]="gettingData" [message]="'Buscando Visita...'"></app-veil>
+    <mat-card-header>
+        <mat-card-title>
+            <h4 class="mt-0 mb-0">
+                Información del Prestador
+            </h4>
+        </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+        <div class="row">
+            <div class="col-md-6">
+                <mat-list>
+                    <mat-list-item>
+                        <span matListItemTitle>Nombre del Prestador</span>
+                        <span matListItemLine>{{visitData?.prestador?.nombreSede || 'No disponible'}}</span>
+                    </mat-list-item>
+                    <mat-list-item>
+                        <span matListItemTitle>Código del Prestador</span>
+                        <span matListItemLine>{{visitData?.prestador?.codigoPrestador || 'No disponible'}}</span>
+                    </mat-list-item>
+                </mat-list>
+            </div>
+            <div class="col-md-6">
+                <mat-list>
+                    <mat-list-item>
+                        <span matListItemTitle>Identificador</span>
+                        <span matListItemLine>{{visitData?.prestador?.identificador || 'No disponible'}}</span>
+                    </mat-list-item>
+                    <mat-list-item>
+                        <span matListItemTitle>Municipio</span>
+                        <span matListItemLine>{{visitData?.prestador?.municipioInicial || 'No disponible'}}</span>
+                    </mat-list-item>
+                </mat-list>
+            </div>
+        </div>
+    </mat-card-content>
+</mat-card>
+
+<div class="tabContainer">
+    <app-veil [state]="gettingData" [message]="'Buscando Visita...'"></app-veil>
+    <mat-tab-group class="tabBodyContainer" mat-stretch-tabs="false" mat-align-tabs="center">
+        <mat-tab id="tab1" label="Información del Prestador y la Visita">
+            <app-visit-information [visitData]="visitData"></app-visit-information>
+        </mat-tab>
+        <mat-tab label="Documentación de la Visita">
+            <app-visit-documents [visitData]="visitData"></app-visit-documents>
+        </mat-tab>
+        <mat-tab label="Criterios Verificados">
+            <app-visit-criteria [visitData]="visitData"></app-visit-criteria>
+        </mat-tab>
+    </mat-tab-group>
+</div>
+
+<router-outlet />

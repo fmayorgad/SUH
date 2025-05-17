@@ -1,0 +1,160 @@
+<!-- Textual Inputs -->
+<mat-card class="trinta-card mb-25 bg-white border-none d-block">
+    <app-veil [state]="gettingData" [message]="'Buscando semana...'"></app-veil>
+    <mat-card-header>
+        <mat-card-title>
+            <h4 class="mt-0 mb-0">
+                {{actionFromRoute === 'CREATE' ? 'Crear': 'Editar'}} Semana
+            </h4>
+        </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+        <form [formGroup]='createWeekForm'>
+            <div class="row">
+                <div class="col-sm-12 col-md-6 col-lg-8">
+                    <mat-form-field class="noiconForm">
+                        <mat-label>Nombre de la semana</mat-label>
+                        <input matInput placeholder="Semana 52" formControlName="name">
+                        <mat-error *ngIf="createWeekForm.controls.name.hasError('required')">El campo es
+                            <strong>requerido</strong>.</mat-error>
+                        <mat-error *ngIf="createWeekForm.controls.name.hasError('minlength')">El campo debe tener mínimo
+                            <strong>6 caracteres</strong>.
+                        </mat-error>
+                        <mat-error *ngIf="createWeekForm.controls.name.hasError('maxlength')">El campo debe tener máximo
+                            <strong>50 caracteres</strong>.
+                        </mat-error>
+                    </mat-form-field>
+                </div>
+
+                <div class="col-sm-12 col-md-6 col-lg-4">
+                    <mat-form-field>
+                        <mat-label>Rango</mat-label>
+                        <mat-date-range-input [rangePicker]="picker">
+                            <input matStartDate formControlName="startDate" placeholder="Inicio">
+                            <input matEndDate formControlName="endDate" placeholder="Fin">
+                        </mat-date-range-input>
+                        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                        <mat-date-range-picker #picker></mat-date-range-picker>
+                    </mat-form-field>
+                </div>
+
+                <div class="col-sm-12">
+                    <mat-form-field class="textarea">
+                        <i-feather name="file-text"></i-feather>
+                        <mat-label>Descripción</mat-label>
+                        <textarea formControlName="description" matInput
+                            placeholder="Agrega una descripción a ésta semana."></textarea>
+                    </mat-form-field>
+                </div>
+            </div>
+        </form>
+
+        <div class="col-sm-12 col-md-12 col-lg-12 flexi" style="gap: 20px; justify-content: space-between;">
+            <button *ngIf="actionFromRoute === 'CREATE'" mat-raised-button mat-button color="accent"
+                (click)="openCreateDialog()">Agregar Grupo de
+                Semana</button>
+
+            <button class="flexi" mat-raised-button mat-button color="warn" type="submit" (click)="actionFromRoute === 'CREATE' ? onSubmitCreate() : onSubmitEdit()"
+                [disabled]="loading || createWeekForm.invalid ||!dataSource || dataSource.data.length === 0">
+                <mat-spinner color="success" [diameter]="20" *ngIf="loading" class="mauto"></mat-spinner>
+                <span *ngIf="!loading">{{actionFromRoute === 'CREATE' ? 'Crear' : 'Editar'}} Semana</span>
+            </button>
+        </div>
+        <div class="row mb-15">
+            <h6 class="rowTitle">Grupos de Semana</h6>
+        </div>
+
+
+        <div *ngIf="actionFromRoute === 'CREATE'" class="alert alert-primary" role="alert">
+            Solo puedes agregar Grupos de Semana desde éste formulario al CREAR. Para editarlos o agregar nuevos Grupos,
+            debes <a routerLink="/grupos-semana" class="alert-link">Ir a Grupos de Semana</a>.
+        </div>
+
+        <div *ngIf="actionFromRoute === 'EDIT'" class="alert alert-primary" role="alert">
+            Para editar estos Grupos de Semana, debes <a routerLink="/grupos-semana" class="alert-link">Ir al módulo
+                Grupos de Semana</a>.
+        </div>
+
+        <div class="tableContainer">
+            <div class="table-responsive">
+                <table mat-table [dataSource]="dataSource">
+                    <ng-container matColumnDef="name">
+                        <th mat-header-cell *matHeaderCellDef class="pl-0 text-primary">
+                            Nombre
+                        </th>
+                        <td mat-cell *matCellDef="let element" class="pl-0 text-primary">
+                            {{element.name | titlecase}}
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="lead">
+                        <th mat-header-cell *matHeaderCellDef>
+                            Lider
+                        </th>
+                        <td mat-cell *matCellDef="let element">
+                            {{element.lead.name}} {{element.lead.surname}} {{element.lead.lastname}}
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="members">
+                        <th mat-header-cell *matHeaderCellDef>
+                            Miembros
+                        </th>
+                        <td class="avatarElementContainer" mat-cell *matCellDef="let element">
+                            <div class="d-flex align-items-center">
+                                @for (member of element.members; track member) {
+                                <div [matTooltip]="member.name + ' ' + member.surname + ' ' + (member.lastname || '')"
+                                    class="avatarElement bg{{member.name[0]}} rounded-circle justify-content-center align-items-center d-flex fw-semibold text-center w-50 h-50">
+                                    {{member.name[0]}}{{member.surname[0]}}
+                                </div>
+                                }
+                            </div>
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="prestadores">
+                        <th mat-header-cell *matHeaderCellDef>
+                            Prestadores a Visitar
+                        </th>
+                        <td class="prestadoresColumn" mat-cell *matCellDef="let element">
+                            <div class="d-flex align-items-center">
+                                <ul style="padding: 0px 14px;">
+                                    @for (prestador of element.selectedPrestadores; track prestador) {
+                                    <li>
+                                        <span>
+                                            {{prestador.nombreSede || prestador.prestadores.nombreSede}}
+                                        </span>
+                                    </li>
+                                    }
+                                </ul>
+                            </div>
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="actions">
+                        <th mat-header-cell *matHeaderCellDef class="text-end pr-0">
+
+                        </th>
+                        <td mat-cell *matCellDef="let element; let i = index;" class="text-end pr-0">
+
+                            <button class="infoIcon" (click)="openEditDialog(i, element)" mat-icon-button
+                                matTooltip="Editar Grupo de Semana" aria-label="Example icon-button with a heart icon">
+                                <mat-icon>edit</mat-icon>
+                            </button>
+
+                            <button class="deleteIcon" (click)="deleteAddedWeekGroup(i)" mat-icon-button
+                                matTooltip="Eliminar Grupo de Semana" aria-label="Example icon-button with a heart icon">
+                                <mat-icon>delete</mat-icon>
+                            </button>
+                        </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+                </table>
+            </div>
+            <mat-paginator [pageSizeOptions]="[10, 12, 16]"></mat-paginator>
+        </div>
+    </mat-card-content>
+</mat-card>

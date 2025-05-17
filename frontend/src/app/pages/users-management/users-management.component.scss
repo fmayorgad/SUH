@@ -1,0 +1,129 @@
+.filterHeaderContainer {
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+.tableContainer {
+  position: relative;
+  min-height: 200px;
+}
+
+.flexi {
+  display: flex;
+  align-items: center;
+}
+
+.mauto {
+  margin: auto;
+}
+
+.filterActionbutton {
+  margin-top: 10px;
+}
+
+// Badge styles
+.trinta-badge {
+  padding: 5px 10px;
+  border-radius: 4px;
+  background-color: #4caf50;
+  color: white;
+  font-size: 12px;
+  text-transform: uppercase;
+  
+  &.deactive {
+    background-color: #f44336;
+  }
+}
+
+// Button styles
+.successButton {
+  background-color: #4caf50;
+  color: white;
+}
+
+.dangerbutton {
+  background-color: #f44336;
+  color: white;
+}
+
+.warningButton {
+  background-color: #ff9800;
+  color: white;
+}
+
+.infoButton {
+  background-color: #2196f3;
+  color: white;
+}
+
+// Table styles
+:host ::ng-deep {
+  .mat-mdc-row {
+    &.mat-mdc-row-no-hover {
+      &:hover {
+        background-color: transparent !important;
+      }
+      
+      &:hover .mat-column-actions {
+        background-color: transparent !important;
+      }
+    }
+  }
+  
+  // No data message styles
+  .no-data-message {
+    padding: 2rem;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #666;
+  }
+  
+  // Fix table width
+  table {
+    width: 100%;
+  }
+}
+
+.mat-column-actions {
+  width: 80px;
+}
+
+.pl-0 {
+  padding-left: 0;
+}
+
+.text-primary {
+  color: #1976d2;
+}
+
+.text-center {
+  text-align: center;
+}
+
+// Avatar styles
+.avatarElementContainer {
+  .d-flex {
+    display: flex;
+  }
+  
+  .align-items-center {
+    align-items: center;
+  }
+  
+  .gap-10 {
+    gap: 10px;
+  }
+  
+}
+
+// Dialog styles
+::ng-deep .custom-dialog-container {
+  .mat-mdc-dialog-surface {
+    background-color: white;
+  }
+  
+  .mdc-dialog__title, 
+  [mat-dialog-title] {
+    color: #333 !important;
+  }
+} 

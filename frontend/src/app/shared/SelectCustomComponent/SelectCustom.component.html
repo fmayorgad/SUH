@@ -1,0 +1,18 @@
+<mat-form-field class="noHintsForField">
+    <i-feather [name]='icon'></i-feather>
+    <mat-label>{{contexLabel}}</mat-label>
+    <input type="text" [placeholder]='placeholder' aria-label="Number" matInput [formControl]="myControl"
+        [matAutocomplete]="auto">
+    <mat-autocomplete class="selectCustomAutocomplete" #auto="matAutocomplete" [displayWith]="displayFn">
+        @for (option of filteredOptions | async; track option) {
+        <mat-option [value]="getAllTexts(selectedOptions)" class="optionContainer">
+            <div class="fullWidth" (click)="optionClicked($event, option)">
+                <mat-checkbox [checked]="isSelected(option)" (change)="toggleSelection(option)"
+                    (click)="$event.stopPropagation()">
+                    {{ option.text }}
+                </mat-checkbox>
+            </div>
+        </mat-option>
+        }
+    </mat-autocomplete>
+</mat-form-field>

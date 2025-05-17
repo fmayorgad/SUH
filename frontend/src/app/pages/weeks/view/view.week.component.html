@@ -1,0 +1,155 @@
+<!-- Textual Inputs -->
+
+<div class="pageContainer">
+    <app-veil [state]="gettingData" [message]="'Buscando semana...'"></app-veil>
+    <mat-card-content class="viewComponentHeaderContainer">
+        <div class="top  justify-content-between ">
+            <h3 class="mb-0 text-white fw-semibold uppercased mb-10">
+                {{weekData.name}}
+            </h3>
+
+            <div class="flexi ">
+                <span *ngIf="weekData.week_state === 'ACTIVA'" class="badge text-bg-success mr-15">ACTIVA</span>
+                <span *ngIf="weekData.week_state === 'CERRADA'" class="badge text-bg-danger mr-15">CERRADA</span>
+                <span *ngIf="weekData.week_state === 'ATRASADA'" class="badge text-bg-warning mr-15">ATRASADA</span>
+
+                <p class="ml-15">
+                    {{weekData.startDate | date: 'dd/MM/yyyy'}} - {{
+                    weekData.endDate | date: 'dd/MM/yyyy'}}
+                </p>
+
+            </div>
+
+            <p class="mt-15 description">
+                {{weekData.description}}
+            </p>
+
+
+            <div class="d-flex justify-content-end">
+
+
+                <div class="d-flex">
+                    <div class="d-grid text-white mr-15">
+                        <h6 class="text-white">Prestadores a visitar</h6>
+                        {{prestadoresToVisit}}
+                    </div>
+                    <div class="d-grid text-white mr-15">
+                        <h6 class="text-white">Prestadores visitados</h6>
+                        {{prestadoresVisited}}
+                    </div>
+                    <div class="d-grid text-white mr-15">
+                        <h6 class="text-white">Visitas completadas</h6>
+                        {{completedVisits}}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+    </mat-card-content>
+
+
+    <mat-card class="trinta-card mb-25 bg-white border-none d-block">
+
+        <mat-card-header>
+            <mat-card-title>
+                <h4 class="mt-0 mb-0">
+                    Grupos de ésta Semana
+                </h4>
+            </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+
+            <button *ngIf="weekData.week_state === 'ACTIVA'" (click)="openCreateDialog()" class="mainPageButton"
+                mat-raised-button mat-button color="primary">AGREGAR GRUPO
+                DE SEMANA</button>
+
+            <div *ngIf="actionFromRoute === 'CREATE'" class="alert alert-primary" role="alert">
+                Solo puedes agregar Grupos de Semana desde éste formulario al CREAR. Para editarlos o agregar nuevos
+                Grupos,
+                debes <a routerLink="/grupos-semana" class="alert-link">Ir a Grupos de Semana</a>.
+            </div>
+
+            <div *ngIf="actionFromRoute === 'EDIT'" class="alert alert-primary" role="alert">
+                Para editar estos Grupos de Semana, debes <a routerLink="/grupos-semana" class="alert-link">Ir al módulo
+                    Grupos de Semana</a>.
+            </div>
+
+            <div class="tableContainer">
+                <div class="table-responsive">
+                    <table mat-table [dataSource]="dataSource">
+                        <ng-container matColumnDef="name">
+                            <th mat-header-cell *matHeaderCellDef class="pl-0 text-primary">
+                                Nombre
+                            </th>
+                            <td mat-cell *matCellDef="let element" [routerLink]="['/grupos-semana/', element.id]"
+                               >
+                                <a  class="pl-0 text-primary" [routerLink]="['/grupos-semana/', element.id]">{{element.name | titlecase}}</a>
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="lead">
+                            <th mat-header-cell *matHeaderCellDef>
+                                Lider
+                            </th>
+                            <td mat-cell *matCellDef="let element">
+                                {{element.lead.name}} {{element.lead.surname}}
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="members">
+                            <th mat-header-cell *matHeaderCellDef>
+                                Miembros
+                            </th>
+                            <td class="avatarElementContainer" mat-cell *matCellDef="let element">
+                                <div class="d-flex align-items-center">
+                                    @for (member of element.members; track member) {
+                                    <div [matTooltip]="member.name + ' ' + member.surname + ' ' + (member.lastname || '')"
+                                        class="avatarElement bg{{member.name[0]}} rounded-circle justify-content-center align-items-center d-flex fw-semibold text-center w-50 h-50">
+                                        {{member.name[0]}}{{member.surname[0]}}
+                                    </div>
+                                    }
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="prestadores">
+                            <th mat-header-cell *matHeaderCellDef>
+                                Prestadores a Visitar
+                            </th>
+                            <td class="prestadoresColumn" mat-cell *matCellDef="let element">
+                                <div class="d-flex align-items-center">
+                                    <ul style="padding: 0px 14px;">
+                                        @for (prestador of element.selectedPrestadores; track prestador) {
+                                        <li>
+                                            <span>
+                                                {{prestador.nombreSede || prestador.prestadores.nombreSede}}
+                                            </span>
+                                        </li>
+                                        }
+                                    </ul>
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="actions">
+                            <th mat-header-cell *matHeaderCellDef class="text-end pr-0">
+
+                            </th>
+                            <td mat-cell *matCellDef="let element; let i = index;" class="text-end pr-0">
+
+
+                            </td>
+                        </ng-container>
+
+                        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+                    </table>
+                </div>
+                <mat-paginator [pageSizeOptions]="[10, 12, 16]"></mat-paginator>
+            </div>
+        </mat-card-content>
+    </mat-card>
+</div>

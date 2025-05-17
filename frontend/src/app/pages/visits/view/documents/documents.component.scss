@@ -1,0 +1,78 @@
+.placeholder-content {
+  padding: 20px;
+  text-align: center;
+  min-height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  p {
+    color: #757575;
+    font-size: 16px;
+  }
+}
+
+.step-label {
+  display: grid;
+  align-items: center;
+  gap: 3px;
+}
+
+.status-badge {
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background-color: #E0E0E0;
+  color: #666;
+}
+
+.step-content {
+  padding: 24px 16px;
+  min-height: 200px;
+}
+
+.disabled-step {
+  opacity: 0.7;
+}
+
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.alert-info {
+  background-color: #E3F2FD;
+  color: #0D47A1;
+  border-left: 4px solid #2196F3;
+}
+
+.alert-success {
+  background-color: #E8F5E9;
+  color: #1B5E20;
+  border-left: 4px solid #4CAF50;
+}
+
+.alert-warning {
+  background-color: #FFF8E1;
+  color: #FF6F00;
+  border-left: 4px solid #FFC107;
+}
+
+.alert mat-icon {
+  font-size: 24px;
+  height: 24px;
+  width: 24px;
+}
+
+.alert-heading {
+  margin-top: 0;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.material-symbols-outlined {
+  font-size: 24px;
+}
