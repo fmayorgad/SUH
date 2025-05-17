@@ -42,3 +42,4 @@ testem.log
 Thumbs.db
 .qodo
 .cursor
+package-lock.json
