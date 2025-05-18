@@ -15,6 +15,7 @@ import {
   } from '@angular/material/paginator';
 
 import { getPaginatorIntl } from '@shared/pagination/paginationIntl';
+import { ProfilesService } from './services/profiles.service';
 
 export const appConfig: ApplicationConfig = {
 	providers: [
@@ -26,6 +27,7 @@ export const appConfig: ApplicationConfig = {
 			withInterceptors([authInterceptor]) 
 		),
 		AuthGuardService,
-		{ provide: MatPaginatorIntl, useValue: getPaginatorIntl() }
+		{ provide: MatPaginatorIntl, useValue: getPaginatorIntl() },
+		ProfilesService
 	],
 };

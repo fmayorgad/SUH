@@ -1,0 +1,50 @@
+.permission-container {
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.permissions-accordion {
+  display: block;
+}
+
+.permission-list {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 0;
+}
+
+.permission-checkbox {
+  margin: 5px 0;
+}
+
+mat-expansion-panel {
+  margin-bottom: 8px;
+}
+
+mat-expansion-panel-header {
+  height: 48px;
+}
+
+mat-dialog-content {
+  position: relative;
+  min-height: 200px;
+}
+
+[mat-dialog-actions] {
+  padding: 12px 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+[mat-dialog-title] {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+.button-spinner {
+  display: inline-block;
+  margin: 0 auto;
+} 

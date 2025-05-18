@@ -259,6 +259,15 @@ export const routes: Routes = [
       },
     ],
   },
+
+  {
+    path: 'perfiles',
+    canActivate: [AuthGuardService],
+    data: { avaliableBy: 'permission', strategy: 'perfiles', permission: 'LIST' },
+    loadChildren: () => import('./pages/profiles/profiles.module').then(m => m.ProfilesModule)
+  },
+
+
   {
     path: 'normatividad',
     /* canActivate: [AuthGuardService], */
@@ -525,6 +534,8 @@ export const routes: Routes = [
     data: { avaliableBy: 'permission', strategy: 'usuarios', permission: 'LIST' },
     component: UsersManagementComponent
   },
+
+ 
 
   { path: '**', component: NotFoundComponent }, // This line will remain down from the whole pages component list
 ];
