@@ -72,7 +72,7 @@ export class ProfilesService {
   async getProfilePermissions(profileId: string): Promise<any | TrackHttpError> {
     const controller = new AbortController();
     try {
-      const request = await fetch(`${this.url}/${this.associateModule}/${profileId}`, {
+      const request = await fetch(`${this.url}/${this.mainModule}/${profileId}`, {
         method: 'GET',
         signal: controller.signal,
         headers: {
@@ -81,14 +81,39 @@ export class ProfilesService {
         },
       });
       
-      if (!request.ok) {
+      if (request.ok) {
+        const profileData = await request.json();
+        console.log('Profile data:', profileData);
+        
+        if (profileData && profileData.role) {
+          return {
+            ok: true,
+            data: profileData.role
+          };
+        }
+      }
+      
+      console.log('Falling back to AssociateProfiles endpoint');
+      
+      // Fallback to the AssociateProfiles endpoint
+      const associationsRequest = await fetch(`${this.url}/${this.associateModule}/${profileId}`, {
+        method: 'GET',
+        signal: controller.signal,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      
+      if (!associationsRequest.ok) {
         return {
           ok: false,
-          message: `Error del servidor: ${request.status} ${request.statusText}`
+          message: `Error del servidor: ${associationsRequest.status} ${associationsRequest.statusText}`
         };
       }
       
-      const data = await request.json();
+      const data = await associationsRequest.json();
+      console.log('Associations data:', data);
       
       return {
         ok: true,
