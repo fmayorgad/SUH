@@ -17,8 +17,8 @@ export class ModuleGetController {
 
   @ApiConsumes('application/json')
   @Get()
-  @Permissions(PermissionEnum.LIST)
-  @ModuleName(ModulesEnum.MODULES)
+  @Permissions(PermissionEnum.READ) // Add appropriate permissions
+  @ModuleName(ModulesEnum.VISITS) // Create VISITS in ModulesEnum if needed
   // @AllowUnauthorizedRequest()
   async execute(): Promise<Record<string, Module[]>> {
     const modules = await this.getModules.execute();

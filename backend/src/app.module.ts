@@ -55,7 +55,7 @@ import { AssociateRolesModule } from '@context/associate-roles-module/infrastruc
     	provide: APP_GUARD,
     	useClass: PermissionsGuard,
     },
-    PermissionsGuard,
+    //PermissionsGuard,
     GetModulesUSer,
     PgLoginRepository,
     {

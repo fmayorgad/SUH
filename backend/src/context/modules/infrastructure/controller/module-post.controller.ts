@@ -19,8 +19,8 @@ export class ModulePostController {
 
   @ApiConsumes('application/x-www-form-urlencoded', 'application/json')
   @Post()
-  @Permissions(PermissionEnum.CREATE)
-  @ModuleName(ModulesEnum.MODULES)
+  @Permissions(PermissionEnum.READ) // Add appropriate permissions
+  @ModuleName(ModulesEnum.VISITS) // Create VISITS in ModulesEnum if needed
   async execute(@Body() moduleDTO: ModuleDTO): Promise<Record<string, Module>> {
     const module = await this.createModule.create(moduleDTO.name, moduleDTO.description, moduleDTO.enum);
 

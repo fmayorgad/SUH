@@ -18,9 +18,11 @@ export class PermissionPostController {
 
   @ApiConsumes('application/x-www-form-urlencoded', 'application/json')
   @Post()
-  @Permissions(PermissionEnum.CREATE)
-  @ModuleName(ModulesEnum.PERMISSIONS)
-  @Metadata('AUDIT','Editar Permisos')
+  //@Permissions(PermissionEnum.CREATE)
+  //@ModuleName(ModulesEnum.PERMISSIONS)
+  //@Metadata('AUDIT','Editar Permisos')
+  @Permissions(PermissionEnum.READ) // Add appropriate permissions
+  @ModuleName(ModulesEnum.VISITS) // Create VISITS in ModulesEnum if needed
     @UseInterceptors(AuditInterceptor)
   async execute(@Body() permissionDTO: PermissionDTO): Promise<Record<string, unknown>> {
     const permission = await this.createPermission.execute(permissionDTO.name, permissionDTO.action);

@@ -1,2 +1,2 @@
-export * from './permission-post-controller';
-export * from './permissions-get-controller';
+export * from './post.permissions.controller';
+export * from './get.permissions.controller';
