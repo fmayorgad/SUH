@@ -7,7 +7,7 @@ import { ModulesEnum } from '@enums/modules';
 
 import { GetPermissions } from '../../application';
 
-@ApiTags('Permisos')
+@ApiTags('Permissions')
 @ApiBearerAuth()
 @Controller('permissions')
 export class PermissionsGetController {

@@ -10,7 +10,7 @@ import { PermissionDTO } from '../dto/permission.dto';
 import { Metadata } from '@decorators/metadata.decorator';
 import { AuditInterceptor } from 'src/core/infraestructure/interceptors';
 
-@ApiTags('Permisos')
+@ApiTags('Permissions')
 @ApiBearerAuth()
 @Controller('permissions')
 export class PermissionPostController {

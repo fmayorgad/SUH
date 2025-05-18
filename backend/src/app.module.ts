@@ -23,6 +23,7 @@ import { ModulesModule } from '@context/modules/infrastructure/modules.module';
 import { ProfileModule } from '@context/profile/infrastructure/profile.module';
 import { PermissionsModule } from '@context/permissions/infrastructure/permissions.module';
 import { CoreModule } from './core/infraestructure/services/core.module';
+import { AssociateRolesModule } from '@context/associate-roles-module/infrastructure/associate-roles.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { CoreModule } from './core/infraestructure/services/core.module';
     ModulesModule,
     ProfileModule,
     PermissionsModule,
+    AssociateRolesModule,
   ],
   controllers: [],
   providers: [

@@ -19,7 +19,8 @@
             "@enums/*": ["src/core/domain/enums/*"],
             "@decorators/*": ["src/core/infraestructure/decorators/*"],
             "@filters/*": ["src/core/infraestructure/filters/*"],
-            "@services/*": ["src/core/infraestructure/services/*"]
+            "@services/*": ["src/core/infraestructure/services/*"],
+            "@interceptors/*": ["src/core/infraestructure/interceptors/*"]
         },
     "incremental": true,
     "skipLibCheck": true,
