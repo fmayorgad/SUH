@@ -18,7 +18,7 @@ export class ProfilesGetController {
   @ApiConsumes('application/json')
   @Get()
   @Permissions(PermissionEnum.LIST)
-  @ModuleName(ModulesEnum.PROFILES)
+  @ModuleName(ModulesEnum.VISITS)
   // @AllowUnauthorizedRequest()
   async execute(): Promise<Record<string, Profile[]>> {
     const profiles = await this.useCase.find();

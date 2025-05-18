@@ -20,7 +20,7 @@ export class ProfilePatchController {
   @Patch(':id')
   @HttpCode(204)
   @Permissions(PermissionEnum.UPDATE)
-  @ModuleName(ModulesEnum.PROFILES)
+  @ModuleName(ModulesEnum.VISITS)
   @Metadata('AUDIT','Editar perfil')
     @UseInterceptors(AuditInterceptor)
   async create(@Param('id', ParseUUIDPipe) id: string, @Body() profile: ProfileDTO): Promise<void> {

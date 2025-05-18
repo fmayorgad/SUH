@@ -8,7 +8,7 @@ export const ProfileModulePermissionSchema = new EntitySchema<RMP>({
   target: RMP,
   columns: {
     profileId: {
-      name: 'profile',
+      name: 'profile_id',
       type: 'uuid',
       primary: true,
     },

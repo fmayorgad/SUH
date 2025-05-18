@@ -21,7 +21,7 @@ export class ProfilePostController {
   @ApiConsumes('application/x-www-form-urlencoded', 'application/json')
   @Post()
   @Permissions(PermissionEnum.CREATE)
-  @ModuleName(ModulesEnum.PROFILES)
+  @ModuleName(ModulesEnum.VISITS)
   @Metadata('AUDIT','Crear perfil')
     @UseInterceptors(AuditInterceptor)
   // @AllowUnauthorizedRequest()
