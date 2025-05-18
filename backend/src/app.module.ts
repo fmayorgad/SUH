@@ -19,6 +19,9 @@ import { PermissionsGuard } from '@guards/permissions.guard';
 import { GetModulesUSer } from '@context/auth/application';
 import { PgLoginRepository } from '@context/auth/infra/persistence/pg-authrepository';
 import { UserSchema, ProfileModulePermissionSchema } from '@schemas/index';
+import { ModulesModule } from '@context/modules/infrastructure/modules.module';
+import { ProfileModule } from '@context/profile/infrastructure/profile.module';
+import { PermissionsModule } from '@context/permissions/infrastructure/permissions.module';
 import { CoreModule } from './core/infraestructure/services/core.module';
 
 @Module({
@@ -36,6 +39,9 @@ import { CoreModule } from './core/infraestructure/services/core.module';
     WeekgroupVisitModule,
     VisitModule,
     ServicioModule,
+    ModulesModule,
+    ProfileModule,
+    PermissionsModule,
   ],
   controllers: [],
   providers: [
