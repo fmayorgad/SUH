@@ -24,7 +24,8 @@ import { ProfileModule } from '@context/profile/infrastructure/profile.module';
 import { PermissionsModule } from '@context/permissions/infrastructure/permissions.module';
 import { CoreModule } from './core/infraestructure/services/core.module';
 import { AssociateRolesModule } from '@context/associate-roles-module/infrastructure/associate-roles.module';
-
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -44,6 +45,10 @@ import { AssociateRolesModule } from '@context/associate-roles-module/infrastruc
     ProfileModule,
     PermissionsModule,
     AssociateRolesModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '.', 'client'),
+      exclude: ['/api/(.*)'],
+    }),
   ],
   controllers: [],
   providers: [

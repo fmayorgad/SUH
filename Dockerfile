@@ -1,62 +1,52 @@
-FROM node:20-alpine3.20 AS front-builder
+# Etapa 1: Construcción del frontend
+FROM node:18.17.1-alpine3.18 AS front-builder
 
-ARG ANGULAR_ENV=production
+ARG ANGULAR_ENV=test
 
 WORKDIR /app
 
-COPY frontend/package*.json ./
+COPY front/package*.json ./
 
-RUN npm ci --legacy-peer-deps
+RUN npm install --force
 
-COPY frontend/ .
+COPY front/ .
 
-RUN npm run build -- --configuration=${ANGULAR_ENV} || echo "Build may have encountered non-fatal errors"
-RUN mkdir -p /frontend-dist && \
-    find /app -name "*.html" -o -name "*.js" -o -name "*.css" | xargs -I{} cp --parents {} /frontend-dist/ || true
+RUN npm run build -- --configuration=${ANGULAR_ENV}
 
-FROM php:8.3.0-fpm-alpine3.19 AS production
+# Etapa 2: Construcción del backend
+FROM node:18.17.1-alpine3.18 AS backend-builder
 
-ENV TZ=UTC
+WORKDIR /app
 
-RUN ln -snf /usr/share/zoneinfo/"$TZ" /etc/localtime && echo "$TZ" > /etc/timezone
+COPY backend/package*.json ./
 
-RUN apk update && apk add --no-cache supervisor nginx
-
-RUN apk update \
-     && docker-php-ext-install mysqli pdo pdo_mysql \
-     && docker-php-ext-enable pdo_mysql \
-     && apk add --no-cache freetype libpng libjpeg-turbo freetype-dev libpng-dev libjpeg-turbo-dev && \
-       docker-php-ext-configure gd \
-         --with-freetype \
-         --with-jpeg \
-       NPROC=$(grep -c ^processor /proc/cpuinfo 2>/dev/null || 1) && \
-       docker-php-ext-install -j$(nproc) gd && \
-       apk del --no-cache freetype-dev libpng-dev libjpeg-turbo-dev
-
-ENV APP_ENV=production
-
-WORKDIR /var/www/html
-
-# Create necessary Laravel directories if backend is not Laravel
-RUN mkdir -p public resources/views
+RUN apk add --no-cache g++ make py3-pip && \
+    npm ci
 
 COPY backend/ .
 
-# Copy frontend files without relying on specific paths
-COPY --from=front-builder /frontend-dist/app /var/www/html/public/
+RUN npm run build && \
+    npm ci --omit=dev && \
+    npm cache clean --force
 
-RUN chown -R www-data:www-data -- *
+# Etapa 3: Imagen de producción
+FROM nginx:1.25.0-alpine AS production
 
-RUN curl -sS https://getcomposer.org/installer | php -- --version=2.5.8 --install-dir=/usr/local/bin --filename=composer
+# Instalar supervisor
+RUN apk add --no-cache supervisor
 
-RUN if [ -f "composer.json" ]; then \
-        composer install --no-dev --no-interaction --optimize-autoloader --ignore-platform-reqs; \
-    fi
-
-EXPOSE 80
-
+# Copiar binario de Node.js y configuraciones de Nginx
+COPY --from=backend-builder /usr/local/bin/node /usr/local/bin/node
 COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
-COPY docker/nginx/http.d/default.conf /etc/nginx/http.d/default.conf
+COPY docker/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
 
+# Copiar artefactos construidos
+COPY --from=backend-builder /app/node_modules ./node_modules
+COPY --from=backend-builder /app/dist ./dist
+COPY --from=front-builder /app/dist/trinta ./dist/client
+
+# Configurar supervisor
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Comando para ejecutar la aplicación
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

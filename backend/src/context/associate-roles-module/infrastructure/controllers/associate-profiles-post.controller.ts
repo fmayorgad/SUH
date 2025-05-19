@@ -26,7 +26,7 @@ export class AssociateRolesPostController {
   
   @Permissions(PermissionEnum.CREATE)
   @AllowUnauthorizedRequest()
-  @ModuleName(ModulesEnum.PROFILES)
+  @ModuleName(ModulesEnum.VISITS)
   async execute(
     @Body(new ParseArrayPipe({ items: AssociationRoleModulePermissionDTO }))
     associations: AssociationRoleModulePermissionDTO[],

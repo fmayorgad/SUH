@@ -7,6 +7,7 @@ import { SnackbarService } from '../../../shared/snackmessage/snackmessage.compo
 interface Module {
   id: string;
   name: string;
+  description: string;
   permissions: Permission[];
 }
 
