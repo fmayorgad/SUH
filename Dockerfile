@@ -1,15 +1,15 @@
 # Etapa 1: Construcción del frontend
 FROM node:18.17.1-alpine3.18 AS front-builder
 
-ARG ANGULAR_ENV=test
+ARG ANGULAR_ENV=production
 
 WORKDIR /app
 
-COPY front/package*.json ./
+COPY frontend/package*.json ./
 
 RUN npm install --force
 
-COPY front/ .
+COPY frontend/ .
 
 RUN npm run build -- --configuration=${ANGULAR_ENV}
 
@@ -21,12 +21,12 @@ WORKDIR /app
 COPY backend/package*.json ./
 
 RUN apk add --no-cache g++ make py3-pip && \
-    npm ci
+    npm install --legacy-peer-deps
 
 COPY backend/ .
 
 RUN npm run build && \
-    npm ci --omit=dev && \
+    npm install --legacy-peer-deps && \
     npm cache clean --force
 
 # Etapa 3: Imagen de producción

@@ -1,11 +1,14 @@
 export const environment = {
   production: true,
-  url: '',
-  calendar: {
-    cell_types:{
-      NAME: 1,
-      VALUE: 2,
-      TOTAL: 3
+  ivc: {
+    protocol: 'http://',
+    server: 'localhost',
+    port : '4001',
+    defaultVersion: '1',
+  },
+  external: {
+    datosgov: {
+      url: 'https://www.datos.gov.co/api/id/c36g-9fc2.json?$query=select%20*%2C%20%3Aid%20limit%20100'
     }
-  }
-}; 
+  },
+};
