@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { PgsqlWeekGroupsRepository } from '../../infraestructure/persistence/pgsql.weekgroups.repository';
 import { dataPaginationResponse } from '@models/app.model';
+import { Payload } from '@models/payload.model';
 
 @Injectable()
 export class GetWeekGroups {
@@ -17,13 +18,22 @@ export class GetWeekGroups {
     @Inject('PgWeekGroupRepository') private readonly repository: PgsqlWeekGroupsRepository,
   ) {}
 
-  async getWeekGroups(filter: WeekgroupGetDTO): Promise<Weekgroup[] | dataPaginationResponse> {
+  async getWeekGroups(
+    filter: WeekgroupGetDTO, 
+    userPayload?: Payload
+  ): Promise<Weekgroup[] | dataPaginationResponse> {
     try {
-
       console.log('filter :>> ', filter);
-      const weekGroups = await this.repository.getWeekGroups(filter);
-
-      return weekGroups;
+      
+      // If no user payload or user is a PROGRAMADOR, show all data without filtering
+      if (!userPayload || userPayload.profile?.name === 'PROGRAMADOR') {
+        const weekGroups = await this.repository.getWeekGroups(filter);
+        return weekGroups;
+      } else {
+        // Otherwise, filter by user
+        const weekGroups = await this.repository.getWeekGroupsForUser(filter, userPayload.sub);
+        return weekGroups;
+      }
     } catch (error) {
       throw new HttpException(
         {

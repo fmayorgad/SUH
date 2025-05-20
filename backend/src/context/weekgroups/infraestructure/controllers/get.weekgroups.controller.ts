@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query, Req } from '@nestjs/common';
 import { ModuleName, Permissions } from '@decorators/index';
 import { PermissionEnum } from '@enums/permissions';
 import { ModulesEnum } from '@enums/modules';
@@ -7,6 +7,8 @@ import { FindByIdWeekGroup } from '../../application/findById/findbyId.weekgroup
 import { Weekgroup } from '@models/weekgroup.model';
 import { WeekgroupGetDTO } from '../dto/get.weekgroup.dto';
 import { dataPaginationResponse } from '@models/app.model';
+import { Payload } from '@models/payload.model';
+import { Request } from 'express';
 
 import {
 ApiBearerAuth,
@@ -31,10 +33,13 @@ constructor(
     summary: 'Obtener Grupos de Semanas',
     description: 'Obtiene todos los grupos de semanas registrados en el sistema',
 })
+@ApiConsumes('application/json')
 async getWeekGroups(
     @Query() filter: WeekgroupGetDTO,
+    @Req() request: Request & { user: Payload }
 ): Promise<Weekgroup[] | dataPaginationResponse> {
-    const weekGroups = await this.getWeekGroupsService.getWeekGroups(filter);
+    const userPayload = request.user;
+    const weekGroups = await this.getWeekGroupsService.getWeekGroups(filter, userPayload);
     return weekGroups;
 }
 
@@ -45,8 +50,13 @@ async getWeekGroups(
     summary: 'Obtener Grupo de Semana por ID',
     description: 'Obtiene un grupo de semana por su ID',
 })
-async getWeekGroupById(@Query('id') id: string): Promise<Weekgroup | null> {
-    const weekGroup = await this.findByIdService.findById(id);
+@ApiConsumes('application/json')
+async getWeekGroupById(
+    @Query('id') id: string,
+    @Req() request: Request & { user: Payload }
+): Promise<Weekgroup | null> {
+    const userPayload = request.user;
+    const weekGroup = await this.findByIdService.findById(id, userPayload);
     return weekGroup;
 }
 }

@@ -1,6 +1,7 @@
 import { WeekGroupRepository } from '../../domain/weekgroups.repository';
 import { Weekgroup } from '@models/weekgroup.model';
 import { PgsqlWeekGroupsRepository } from '../../infraestructure/persistence/pgsql.weekgroups.repository';
+import { Payload } from '@models/payload.model';
 
 import {
   BadRequestException,
@@ -17,11 +18,20 @@ export class FindByIdWeekGroup {
     private readonly repository: PgsqlWeekGroupsRepository,
   ) {}
 
-  async findById(id: string): Promise<Weekgroup> {
+  async findById(id: string, userPayload?: Payload): Promise<Weekgroup> {
     if (!id) {
       throw new BadRequestException('El ID es requerido');
     }
-    const weekGroup = await this.repository.findById(id);
+    
+    let weekGroup: Weekgroup | null;
+    
+    // If no user payload or user is a PROGRAMADOR, show all data without filtering
+    if (!userPayload || userPayload.profile?.name === 'PROGRAMADOR') {
+      weekGroup = await this.repository.findById(id);
+    } else {
+      // Otherwise, filter by user
+      weekGroup = await this.repository.findByIdForUser(id, userPayload.sub);
+    }
 
     if (!weekGroup) {
       throw new HttpException(

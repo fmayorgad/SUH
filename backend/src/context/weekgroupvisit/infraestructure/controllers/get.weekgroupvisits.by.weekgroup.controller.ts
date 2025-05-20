@@ -1,9 +1,11 @@
-import { Controller, Get, Param, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Param, ParseUUIDPipe, Req } from '@nestjs/common';
 import { ModuleName, Permissions } from '@decorators/index';
 import { PermissionEnum } from '@enums/permissions';
 import { ModulesEnum } from '@enums/modules';
 import { GetWeekgroupVisitsByWeekgroup } from '../../application/get/get.weekgroupvisits.by.weekgroup';
 import { WeekgroupVisit } from '@models/weekgroupvisit.model';
+import { Payload } from '@models/payload.model';
+import { Request } from 'express';
 
 import {
   ApiBearerAuth,
@@ -42,7 +44,9 @@ export class GetWeekgroupVisitsByWeekgroupController {
   })
   async getVisitsByWeekgroupId(
     @Param('weekgroupId', ParseUUIDPipe) weekgroupId: string,
+    @Req() request: Request & { user: Payload }
   ): Promise<WeekgroupVisit[]> {
-    return await this.getWeekgroupVisitsByWeekgroupService.execute(weekgroupId);
+    const userPayload = request.user;
+    return await this.getWeekgroupVisitsByWeekgroupService.execute(weekgroupId, userPayload);
   }
 } 
