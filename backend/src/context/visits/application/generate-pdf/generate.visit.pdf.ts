@@ -325,7 +325,7 @@ export class GenerateVisitPdf {
 
         if (visit.visitVerificadores && visit.visitVerificadores.length > 0) {
             // Prepare the rows for the verificadores table
-            const verificadoresRows = visit.visitVerificadores.map(verificador => {
+            const verificadoresRows = visit.visitVerificadores.filter(verificador => verificador.id !== visit.weekgroupVisit?.lead?.id).map(verificador => {
                 const user = verificador.user_id || {};
                 const fullName = `${user.name || 'N/A'} ${user.surname || ''} ${user.lastname || ''}`.trim();
                 const cedula = user.identification_number || 'N/A';
