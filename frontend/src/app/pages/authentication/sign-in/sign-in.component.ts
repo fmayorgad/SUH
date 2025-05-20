@@ -147,6 +147,7 @@ export class SignInComponent {
               horizontalPosition: 'right',
               verticalPosition: 'top',
             });
+            this.loading = false;
           },
         });
     } else {

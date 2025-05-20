@@ -40,15 +40,41 @@ export class PgsqlWeekGroupsRepository implements WeekGroupRepository {
 
       console.log('filter repos:>> ', filter);
 
-      const queryBuilder = this.repository
-        .createQueryBuilder('weekgroup')
-        .leftJoinAndSelect('weekgroup.leadData', 'leadData')
-        .leftJoinAndSelect('weekgroup.weekgroupusers', 'weekgroupusers')
-        .leftJoinAndSelect('weekgroup.weeks', 'weeks')
-        .leftJoinAndSelect('weekgroupusers.members', 'members')
-        .leftJoinAndSelect('weekgroup.weekgroupprestadores', 'weekgroupprestadores')
-        .leftJoinAndSelect('weekgroupprestadores.prestadores', 'prestadores')
-        .leftJoinAndSelect('prestadores.prestadorType', 'prestadorType');
+      // Use a subquery approach to filter weekgroups by userId but still display all members
+      let queryBuilder;
+      
+      if (filter.userId) {
+        // First, find IDs of weekgroups where user is lead or member
+        const weekgroupIdsQuery = this.repository
+          .createQueryBuilder('wg')
+          .select('wg.id')
+          .leftJoin('wg.weekgroupusers', 'wgu')
+          .where('(wg.lead = :userId OR wgu.id_user = :userId)', { userId: filter.userId });
+          
+        // Then use those IDs to filter in main query
+        queryBuilder = this.repository
+          .createQueryBuilder('weekgroup')
+          .leftJoinAndSelect('weekgroup.leadData', 'leadData')
+          .leftJoinAndSelect('weekgroup.weekgroupusers', 'weekgroupusers')
+          .leftJoinAndSelect('weekgroup.weeks', 'weeks')
+          .leftJoinAndSelect('weekgroupusers.members', 'members')
+          .leftJoinAndSelect('weekgroup.weekgroupprestadores', 'weekgroupprestadores')
+          .leftJoinAndSelect('weekgroupprestadores.prestadores', 'prestadores')
+          .leftJoinAndSelect('prestadores.prestadorType', 'prestadorType')
+          .where(`weekgroup.id IN (${weekgroupIdsQuery.getQuery()})`)
+          .setParameters(weekgroupIdsQuery.getParameters());
+      } else {
+        // Standard query without userId filter
+        queryBuilder = this.repository
+          .createQueryBuilder('weekgroup')
+          .leftJoinAndSelect('weekgroup.leadData', 'leadData')
+          .leftJoinAndSelect('weekgroup.weekgroupusers', 'weekgroupusers')
+          .leftJoinAndSelect('weekgroup.weeks', 'weeks')
+          .leftJoinAndSelect('weekgroupusers.members', 'members')
+          .leftJoinAndSelect('weekgroup.weekgroupprestadores', 'weekgroupprestadores')
+          .leftJoinAndSelect('weekgroupprestadores.prestadores', 'prestadores')
+          .leftJoinAndSelect('prestadores.prestadorType', 'prestadorType');
+      }
 
       if (searchText) {
         queryBuilder.andWhere('weekgroup.name LIKE :searchText', {
@@ -68,12 +94,6 @@ export class PgsqlWeekGroupsRepository implements WeekGroupRepository {
         queryBuilder.andWhere('weekgroupusers.id_user = :verificadores', {
           verificadores,
         });
-      }
-      
-      // Filter by userId if provided
-      if (filter.userId) {
-        queryBuilder.andWhere('(weekgroup.lead = :userId OR weekgroupusers.id_user = :userId)', 
-          { userId: filter.userId });
       }
       
       //pagination

@@ -28,11 +28,34 @@ export class PgsqlWeekgroupVisitRepository implements WeekgroupVisitRepository {
   }
 
   async getWeekgroupVisits(filter: WeekgroupVisitGetDTO): Promise<WeekgroupVisit[] | dataPaginationResponse> {
-    const query = this.weekgroupVisitRepository.createQueryBuilder('weekgroupvisit')
-      .leftJoinAndSelect('weekgroupvisit.weekgroup', 'weekgroup')
-      .leftJoinAndSelect('weekgroupvisit.lead', 'user')
-      .leftJoinAndSelect('weekgroupvisit.prestador', 'prestador')
-      .leftJoinAndSelect('weekgroup.weekgroupusers', 'weekgroupusers');
+    // Use a subquery approach to filter visits by userId but still display all members
+    let query;
+    
+    if (filter.userId) {
+      // First, find IDs of weekgroup visits where user is lead or member of the weekgroup
+      const visitsIdsQuery = this.weekgroupVisitRepository
+        .createQueryBuilder('v')
+        .select('v.id')
+        .leftJoin('v.weekgroup', 'wg')
+        .leftJoin('wg.weekgroupusers', 'wgu')
+        .where('(v.lead = :userId OR wgu.id_user = :userId)', { userId: filter.userId });
+        
+      // Then use those IDs to filter in main query
+      query = this.weekgroupVisitRepository.createQueryBuilder('weekgroupvisit')
+        .leftJoinAndSelect('weekgroupvisit.weekgroup', 'weekgroup')
+        .leftJoinAndSelect('weekgroupvisit.lead', 'user')
+        .leftJoinAndSelect('weekgroupvisit.prestador', 'prestador')
+        .leftJoinAndSelect('weekgroup.weekgroupusers', 'weekgroupusers')
+        .where(`weekgroupvisit.id IN (${visitsIdsQuery.getQuery()})`)
+        .setParameters(visitsIdsQuery.getParameters());
+    } else {
+      // Standard query without userId filter
+      query = this.weekgroupVisitRepository.createQueryBuilder('weekgroupvisit')
+        .leftJoinAndSelect('weekgroupvisit.weekgroup', 'weekgroup')
+        .leftJoinAndSelect('weekgroupvisit.lead', 'user')
+        .leftJoinAndSelect('weekgroupvisit.prestador', 'prestador')
+        .leftJoinAndSelect('weekgroup.weekgroupusers', 'weekgroupusers');
+    }
 
     if (filter.id) {
       query.andWhere('weekgroupvisit.id = :id', { id: filter.id });
@@ -66,12 +89,6 @@ export class PgsqlWeekgroupVisitRepository implements WeekgroupVisitRepository {
     if (filter.startDate && filter.endDate) {
       query.andWhere('weekgroupvisit.visitDate BETWEEN :startDate AND :endDate', 
         { startDate: filter.startDate, endDate: filter.endDate });
-    }
-
-    // Filter by userId if provided
-    if (filter.userId) {
-      query.andWhere('(weekgroupvisit.lead = :userId OR weekgroupusers.id_user = :userId)', 
-        { userId: filter.userId });
     }
 
     const result = await query.getMany();
@@ -126,17 +143,33 @@ export class PgsqlWeekgroupVisitRepository implements WeekgroupVisitRepository {
   }
 
   async getVisitsByWeekgroupId(weekgroupId: string, userId?: string): Promise<WeekgroupVisit[]> {
-    const query = this.weekgroupVisitRepository.createQueryBuilder('weekgroupvisit')
-      .leftJoinAndSelect('weekgroupvisit.weekgroup', 'weekgroup')
-      .leftJoinAndSelect('weekgroupvisit.lead', 'user')
-      .leftJoinAndSelect('weekgroupvisit.prestador', 'prestador')
-      .leftJoinAndSelect('weekgroup.weekgroupusers', 'weekgroupusers')
-      .where('weekgroupvisit.weekgroup = :weekgroupId', { weekgroupId });
+    let query;
     
-    // Filter by userId if provided
     if (userId) {
-      query.andWhere('(weekgroupvisit.lead = :userId OR weekgroupusers.id_user = :userId)', 
-        { userId });
+      // First, find IDs of weekgroup visits where user is lead or member of the weekgroup
+      const visitsIdsQuery = this.weekgroupVisitRepository
+        .createQueryBuilder('v')
+        .select('v.id')
+        .leftJoin('v.weekgroup', 'wg')
+        .leftJoin('wg.weekgroupusers', 'wgu')
+        .where('v.weekgroup = :weekgroupId', { weekgroupId })
+        .andWhere('(v.lead = :userId OR wgu.id_user = :userId)', { userId });
+        
+      // Then use those IDs to filter in main query
+      query = this.weekgroupVisitRepository.createQueryBuilder('weekgroupvisit')
+        .leftJoinAndSelect('weekgroupvisit.weekgroup', 'weekgroup')
+        .leftJoinAndSelect('weekgroupvisit.lead', 'user')
+        .leftJoinAndSelect('weekgroupvisit.prestador', 'prestador')
+        .leftJoinAndSelect('weekgroup.weekgroupusers', 'weekgroupusers')
+        .where(`weekgroupvisit.id IN (${visitsIdsQuery.getQuery()})`)
+        .setParameters(visitsIdsQuery.getParameters());
+    } else {
+      query = this.weekgroupVisitRepository.createQueryBuilder('weekgroupvisit')
+        .leftJoinAndSelect('weekgroupvisit.weekgroup', 'weekgroup')
+        .leftJoinAndSelect('weekgroupvisit.lead', 'user')
+        .leftJoinAndSelect('weekgroupvisit.prestador', 'prestador')
+        .leftJoinAndSelect('weekgroup.weekgroupusers', 'weekgroupusers')
+        .where('weekgroupvisit.weekgroup = :weekgroupId', { weekgroupId });
     }
     
     query.orderBy('weekgroupvisit.visitDate', 'DESC');  // Latest visits first
