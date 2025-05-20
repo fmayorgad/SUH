@@ -15,7 +15,7 @@ import { SnackbarService } from '../../shared/snackmessage/snackmessage.componen
 export class ProfilesComponent implements OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  displayedColumns: string[] = ['actions', 'name', 'description', 'createdAt', 'state'];
+  displayedColumns: string[] = ['actions', 'name','state'];
   dataSource = new MatTableDataSource<any>([]);
   loadingTableData = false;
   filterForm: FormGroup;
@@ -37,8 +37,7 @@ export class ProfilesComponent implements OnInit {
     private snackbarService: SnackbarService
   ) {
     this.filterForm = this.fb.group({
-      searchText: [''],
-      state: [[]]
+      
     });
   }
 
@@ -95,8 +94,7 @@ export class ProfilesComponent implements OnInit {
 
   onResetFilter() {
     this.filterForm.reset({
-      searchText: '',
-      state: []
+      
     });
     this.pageIndex = 0;
     this.loadProfiles();

@@ -1,37 +1,35 @@
-<h2 mat-dialog-title>Editando permisos: {{profileName | uppercase}}</h2>
+<div class="mediumVerticalDialogContainer">
 
-<app-veil [state]="loading" [message]="'Cargando módulos y permisos...'"></app-veil>
+  <h2 mat-dialog-title>Editando permisos: {{profileName | uppercase}}</h2>
+  <mat-dialog-content class="mat-typography">
+    <app-veil [state]="loading" [message]="'Cargando módulos y permisos...'"></app-veil>
+    <div class="permission-container">
+      <mat-accordion class="permissions-accordion">
+        <mat-expansion-panel *ngFor="let module of modules" [expanded]="panelOpenState[module.id]"
+          (opened)="panelOpenState[module.id] = true" (closed)="panelOpenState[module.id] = false">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              {{module.description}}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
 
-<div mat-dialog-content>
-  <div class="permission-container">
-    <mat-accordion class="permissions-accordion">
-      <mat-expansion-panel *ngFor="let module of modules" 
-                         [expanded]="panelOpenState[module.id]" 
-                         (opened)="panelOpenState[module.id] = true" 
-                         (closed)="panelOpenState[module.id] = false">
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            {{module.description}}
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        
-        <div class="permission-list">
-          <mat-checkbox *ngFor="let permission of permissions"
-                      [checked]="isPermissionAssigned(module.id, permission.id)"
-                      (change)="togglePermission(module.id, permission.id, $event)"
-                      class="permission-checkbox">
-            {{permission.name}}
-          </mat-checkbox>
-        </div>
-      </mat-expansion-panel>
-    </mat-accordion>
-  </div>
+          <div class="permission-list">
+            <mat-checkbox *ngFor="let permission of permissions"
+              [checked]="isPermissionAssigned(module.id, permission.id)"
+              (change)="togglePermission(module.id, permission.id, $event)" class="permission-checkbox">
+              {{permission.name}}
+            </mat-checkbox>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </div>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+
+    <button mat-button (click)="cancel()" color="warn">CANCELAR</button>
+    <button mat-raised-button (click)="savePermissions()" color="primary" [disabled]="saving">
+      <span *ngIf="!saving">GUARDAR</span>
+      <mat-spinner *ngIf="saving" diameter="20" class="button-spinner"></mat-spinner>
+    </button>
+  </mat-dialog-actions>
 </div>
-
-<div mat-dialog-actions align="end">
-  <button mat-button (click)="cancel()" color="warn">CANCELAR</button>
-  <button mat-raised-button (click)="savePermissions()" color="primary" [disabled]="saving">
-    <span *ngIf="!saving">GUARDAR</span>
-    <mat-spinner *ngIf="saving" diameter="20" class="button-spinner"></mat-spinner>
-  </button>
-</div> 

@@ -18,7 +18,7 @@ export class ProfileGetController {
   @ApiConsumes('application/json')
   @Get(':id')
   @Permissions(PermissionEnum.READ)
-  @ModuleName(ModulesEnum.VISITS)
+  @ModuleName(ModulesEnum.PROFILES)
   //@AllowUnauthorizedRequest()
   async execute(@Param('id', ParseUUIDPipe) id: string): Promise<Record<string, Profile>> {
     const role = await this.useCase.execute(id);
