@@ -231,7 +231,7 @@ export class WeeksComponent {
       this.loadingTableData = false;
       this.snackmessage.show({
         type: 'simple',
-        message: 'Error al consultar los usuarios.',
+        message: 'Error al consultar las Semanas.',
         severity: 'error',
       });
     }
