@@ -23,25 +23,20 @@ export class GetWeekgroupVisitsByWeekgroup {
         throw new BadRequestException('Weekgroup ID is required');
       }
 
-      // If no user payload or user is a PROGRAMADOR, show all data without filtering
-      if (!userPayload || userPayload.profile?.name === 'PROGRAMADOR') {
-        const weekgroupVisits = await this.repository.getVisitsByWeekgroupId(weekgroupId);
-        
-        if (!weekgroupVisits || weekgroupVisits.length === 0) {
-          return []; // Return empty array if no visits found
-        }
-        
-        return weekgroupVisits;
-      } else {
-        // Otherwise, filter by user
-        const weekgroupVisits = await this.repository.getVisitsByWeekgroupIdForUser(weekgroupId, userPayload.sub);
-        
-        if (!weekgroupVisits || weekgroupVisits.length === 0) {
-          return []; // Return empty array if no visits found
-        }
-        
-        return weekgroupVisits;
+      let userId: string | undefined;
+      
+      // If user is not a PROGRAMADOR, add userId to filter
+      if (userPayload && userPayload.sub && userPayload.profile?.name !== 'PROGRAMADOR') {
+        userId = userPayload.sub;
       }
+      
+      const weekgroupVisits = await this.repository.getVisitsByWeekgroupId(weekgroupId, userId);
+      
+      if (!weekgroupVisits || weekgroupVisits.length === 0) {
+        return []; // Return empty array if no visits found
+      }
+      
+      return weekgroupVisits;
     } catch (error) {
       if (error instanceof BadRequestException) {
         throw error;

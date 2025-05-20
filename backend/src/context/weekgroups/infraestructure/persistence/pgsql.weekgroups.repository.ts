@@ -70,6 +70,12 @@ export class PgsqlWeekGroupsRepository implements WeekGroupRepository {
         });
       }
       
+      // Filter by userId if provided
+      if (filter.userId) {
+        queryBuilder.andWhere('(weekgroup.lead = :userId OR weekgroupusers.id_user = :userId)', 
+          { userId: filter.userId });
+      }
+      
       //pagination
       if (filter?.skip) {
           queryBuilder.skip(filter?.skip).take(filter?.take);
@@ -156,128 +162,8 @@ export class PgsqlWeekGroupsRepository implements WeekGroupRepository {
     }
   }
 
-  async getWeekGroupsForUser(
-    filter: any,
-    userId: string
-  ): Promise<Weekgroup[] | dataPaginationResponse> {
-    try {
-      const { searchText, lead, verificadores } = filter;
-
-      console.log('filter repos (user filtered):>> ', filter);
-      console.log('userId:>> ', userId);
-
-      const queryBuilder = this.repository
-        .createQueryBuilder('weekgroup')
-        .leftJoinAndSelect('weekgroup.leadData', 'leadData')
-        .leftJoinAndSelect('weekgroup.weekgroupusers', 'weekgroupusers')
-        .leftJoinAndSelect('weekgroup.weeks', 'weeks')
-        .leftJoinAndSelect('weekgroupusers.members', 'members')
-        .leftJoinAndSelect('weekgroup.weekgroupprestadores', 'weekgroupprestadores')
-        .leftJoinAndSelect('weekgroupprestadores.prestadores', 'prestadores')
-        .leftJoinAndSelect('prestadores.prestadorType', 'prestadorType')
-        // Filter where the user is either the lead or a member of the weekgroup
-        .where('(weekgroup.lead = :userId OR weekgroupusers.id_user = :userId)', { userId });
-
-      if (searchText) {
-        queryBuilder.andWhere('weekgroup.name LIKE :searchText', {
-          searchText: `%${searchText}%`,
-        });
-      }
-
-      if (lead) {
-        queryBuilder.andWhere('weekgroup.lead IN (:...lead)', { lead });
-      }
-
-      if (isArray(verificadores)) {
-        queryBuilder.andWhere('weekgroupusers.id_user IN (:...verificadores)', {
-          verificadores,
-        });
-      } else if (verificadores) {
-        queryBuilder.andWhere('weekgroupusers.id_user = :verificadores', {
-          verificadores,
-        });
-      }
-      
-      //pagination
-      if (filter?.skip) {
-          queryBuilder.skip(filter?.skip).take(filter?.take);
-      }
-        
-      queryBuilder.orderBy('weeks.week_state', 'DESC');
-
-      const weekGroups = await queryBuilder.getMany();
-
-      // Get all prestador IDs from weekgroupprestadores
-      const prestadorIds: string[] = [];
-      weekGroups.forEach(weekgroup => {
-        if (weekgroup.weekgroupprestadores && weekgroup.weekgroupprestadores.length) {
-          weekgroup.weekgroupprestadores.forEach(wp => {
-            if (wp.prestadores?.id) {
-              prestadorIds.push(wp.prestadores.id);
-            }
-          });
-        }
-      });
-
-      // If we have any prestador ids, get their visits
-      if (prestadorIds.length > 0) {
-        const visitsQuery = await this.dataSource
-          .getRepository(WeekgroupVisitSchema)
-          .createQueryBuilder('visit')
-          .leftJoinAndSelect('visit.lead', 'lead')
-          .leftJoinAndSelect('visit.prestador', 'prestador')
-          .where('visit.prestador_id IN (:...ids)', { ids: prestadorIds })
-          .getMany();
-
-        // Create a map for quick lookup of visits by prestador ID
-        const visitsMap: { [key: string]: WeekgroupVisit[] } = {};
-        visitsQuery.forEach(visit => {
-          if (visit.prestador?.id) {
-            if (!visitsMap[visit.prestador.id]) {
-              visitsMap[visit.prestador.id] = [];
-            }
-            visitsMap[visit.prestador.id].push(visit);
-          }
-        });
-
-        // Add the visits to the weekgroupprestadores objects
-        weekGroups.forEach(weekgroup => {
-          if (weekgroup.weekgroupprestadores && weekgroup.weekgroupprestadores.length) {
-            weekgroup.weekgroupprestadores.forEach(wp => {
-              if (wp.prestadores?.id && visitsMap[wp.prestadores.id]) {
-                wp.visits = visitsMap[wp.prestadores.id];
-              }
-            });
-          }
-        });
-      }
-
-      const orderedWeeks = weekGroups.sort((a, b) => {
-        const stateOrder = { ACTIVA: 1, ATRASADA: 2, CERRADA: 3 };
-        return stateOrder[a.weeks.week_state] - stateOrder[b.weeks.week_state];
-      });
-
-      if (filter?.skip && filter?.take) {
-        const total = await queryBuilder.getCount();
-        const page = Math.floor(filter?.skip / filter?.take) + 1;
-        const limit = filter?.take;
-        return {
-          total,
-          page,
-          limit,
-          data: orderedWeeks,
-        };
-      }
-
-      return weekGroups;
-    } catch (error) {
-      console.error('Error fetching week groups for user:', error);
-      throw new Error('Failed to fetch week groups for user');
-    }
-  }
-
   async findById(id: string): Promise<Weekgroup | null> {
-    const weekgroup = await this.repository
+    const queryBuilder = this.repository
       .createQueryBuilder('weekgroup')
       .leftJoinAndSelect('weekgroup.leadData', 'leadData')
       .leftJoinAndSelect('weekgroup.weekgroupusers', 'weekgroupusers')
@@ -286,8 +172,9 @@ export class PgsqlWeekGroupsRepository implements WeekGroupRepository {
       .leftJoinAndSelect('weekgroup.weekgroupprestadores', 'weekgroupprestadores')
       .leftJoinAndSelect('weekgroupprestadores.prestadores', 'prestadores')
       .leftJoinAndSelect('prestadores.prestadorType', 'prestadorType')
-      .where('weekgroup.id = :id', { id })
-      .getOne();
+      .where('weekgroup.id = :id', { id });
+      
+    const weekgroup = await queryBuilder.getOne();
 
     // If we found the weekgroup and it has prestadores, get their visits
     if (weekgroup?.weekgroupprestadores?.length > 0) {
@@ -329,69 +216,6 @@ export class PgsqlWeekGroupsRepository implements WeekGroupRepository {
         // Add the visits to the weekgroupprestadores objects
         weekgroup.weekgroupprestadores.forEach(wp => {
           console.log('wp in findById :>> ', wp);
-          if (wp.prestadores?.id && visitsMap[wp.prestadores.id]) {
-            wp.visits = visitsMap[wp.prestadores.id];
-          }
-        });
-      }
-    }
-
-    return weekgroup;
-  }
-
-  async findByIdForUser(id: string, userId: string): Promise<Weekgroup | null> {
-    const weekgroup = await this.repository
-      .createQueryBuilder('weekgroup')
-      .leftJoinAndSelect('weekgroup.leadData', 'leadData')
-      .leftJoinAndSelect('weekgroup.weekgroupusers', 'weekgroupusers')
-      .leftJoinAndSelect('weekgroup.weeks', 'weeks')
-      .leftJoinAndSelect('weekgroupusers.members', 'members')
-      .leftJoinAndSelect('weekgroup.weekgroupprestadores', 'weekgroupprestadores')
-      .leftJoinAndSelect('weekgroupprestadores.prestadores', 'prestadores')
-      .leftJoinAndSelect('prestadores.prestadorType', 'prestadorType')
-      .where('weekgroup.id = :id', { id })
-      // Filter where the user is either the lead or a member of the weekgroup
-      .andWhere('(weekgroup.lead = :userId OR weekgroupusers.id_user = :userId)', { userId })
-      .getOne();
-
-    // If no weekgroup found with these conditions, return null
-    if (!weekgroup) {
-      return null;
-    }
-
-    // If we found the weekgroup and it has prestadores, get their visits
-    if (weekgroup?.weekgroupprestadores?.length > 0) {
-      // Get all prestador IDs
-      const prestadorIds: string[] = [];
-      weekgroup.weekgroupprestadores.forEach(wp => {
-        if (wp.prestadores?.id) {
-          prestadorIds.push(wp.prestadores.id);
-        }
-      });
-
-      // If we have prestador ids, get their visits
-      if (prestadorIds.length > 0) {
-        const visitsQuery = await this.dataSource
-          .getRepository(WeekgroupVisitSchema)
-          .createQueryBuilder('visit')
-          .leftJoinAndSelect('visit.lead', 'lead')
-          .leftJoinAndSelect('visit.prestador', 'prestador')
-          .where('visit.prestador_id IN (:...ids)', { ids: prestadorIds })
-          .getMany();
-
-        // Create a map for quick lookup of visits by prestador ID
-        const visitsMap = {};
-        visitsQuery.forEach(visit => {
-          if (visit.prestador?.id) {
-            if (!visitsMap[visit.prestador.id]) {
-              visitsMap[visit.prestador.id] = [];
-            }
-            visitsMap[visit.prestador.id] = visit;
-          }
-        });
-
-        // Add the visits to the weekgroupprestadores objects
-        weekgroup.weekgroupprestadores.forEach(wp => {
           if (wp.prestadores?.id && visitsMap[wp.prestadores.id]) {
             wp.visits = visitsMap[wp.prestadores.id];
           }

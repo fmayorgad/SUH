@@ -31,5 +31,10 @@ export class WeekgroupGetDTO {
   })
   readonly endDate: string;
 
-
+  @IsOptional()
+  @ApiProperty({ 
+    required: false,
+    description: 'User ID to filter results by (lead or member)'
+  })
+  userId?: string;
 }

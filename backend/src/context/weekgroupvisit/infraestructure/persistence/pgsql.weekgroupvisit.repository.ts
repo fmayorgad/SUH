@@ -31,7 +31,8 @@ export class PgsqlWeekgroupVisitRepository implements WeekgroupVisitRepository {
     const query = this.weekgroupVisitRepository.createQueryBuilder('weekgroupvisit')
       .leftJoinAndSelect('weekgroupvisit.weekgroup', 'weekgroup')
       .leftJoinAndSelect('weekgroupvisit.lead', 'user')
-      .leftJoinAndSelect('weekgroupvisit.prestador', 'prestador');
+      .leftJoinAndSelect('weekgroupvisit.prestador', 'prestador')
+      .leftJoinAndSelect('weekgroup.weekgroupusers', 'weekgroupusers');
 
     if (filter.id) {
       query.andWhere('weekgroupvisit.id = :id', { id: filter.id });
@@ -65,6 +66,12 @@ export class PgsqlWeekgroupVisitRepository implements WeekgroupVisitRepository {
     if (filter.startDate && filter.endDate) {
       query.andWhere('weekgroupvisit.visitDate BETWEEN :startDate AND :endDate', 
         { startDate: filter.startDate, endDate: filter.endDate });
+    }
+
+    // Filter by userId if provided
+    if (filter.userId) {
+      query.andWhere('(weekgroupvisit.lead = :userId OR weekgroupusers.id_user = :userId)', 
+        { userId: filter.userId });
     }
 
     const result = await query.getMany();
@@ -118,15 +125,23 @@ export class PgsqlWeekgroupVisitRepository implements WeekgroupVisitRepository {
     return result;
   }
 
-  async getVisitsByWeekgroupId(weekgroupId: string): Promise<WeekgroupVisit[]> {
-    const visits = await this.weekgroupVisitRepository.createQueryBuilder('weekgroupvisit')
+  async getVisitsByWeekgroupId(weekgroupId: string, userId?: string): Promise<WeekgroupVisit[]> {
+    const query = this.weekgroupVisitRepository.createQueryBuilder('weekgroupvisit')
       .leftJoinAndSelect('weekgroupvisit.weekgroup', 'weekgroup')
       .leftJoinAndSelect('weekgroupvisit.lead', 'user')
       .leftJoinAndSelect('weekgroupvisit.prestador', 'prestador')
-      .where('weekgroupvisit.weekgroup = :weekgroupId', { weekgroupId })
-      .orderBy('weekgroupvisit.visitDate', 'DESC')  // Latest visits first
-      .getMany();
+      .leftJoinAndSelect('weekgroup.weekgroupusers', 'weekgroupusers')
+      .where('weekgroupvisit.weekgroup = :weekgroupId', { weekgroupId });
     
+    // Filter by userId if provided
+    if (userId) {
+      query.andWhere('(weekgroupvisit.lead = :userId OR weekgroupusers.id_user = :userId)', 
+        { userId });
+    }
+    
+    query.orderBy('weekgroupvisit.visitDate', 'DESC');  // Latest visits first
+    
+    const visits = await query.getMany();
     return visits;
   }
 

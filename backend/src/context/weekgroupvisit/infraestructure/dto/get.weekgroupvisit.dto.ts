@@ -54,4 +54,11 @@ export class WeekgroupVisitGetDTO {
     description: 'State of the visit process (PENDIENTE, AGENDADA, COMPLETADA)'
   })
   readonly visitState: WeekGroupsPrestadoresEnum;
+
+  @IsOptional()
+  @ApiProperty({
+    required: false,
+    description: 'User ID to filter results by (lead or member)'
+  })
+  userId?: string;
 } 

@@ -23,15 +23,13 @@ export class GetWeekgroupVisits {
     userPayload?: Payload
   ): Promise<WeekgroupVisit[] | dataPaginationResponse> {
     try {
-      // If no user payload or user is a PROGRAMADOR, show all data without filtering
-      if (!userPayload || userPayload.profile?.name === 'PROGRAMADOR') {
-        const weekgroupVisits = await this.repository.getWeekgroupVisits(filter);
-        return weekgroupVisits;
-      } else {
-        // Otherwise, filter by user
-        const weekgroupVisits = await this.repository.getWeekgroupVisitsForUser(filter, userPayload.sub);
-        return weekgroupVisits;
+      // If user is not a PROGRAMADOR, add userId to filter to restrict results
+      if (userPayload && userPayload.sub && userPayload.profile?.name !== 'PROGRAMADOR') {
+        filter.userId = userPayload.sub;
       }
+      
+      const weekgroupVisits = await this.repository.getWeekgroupVisits(filter);
+      return weekgroupVisits;
     } catch (error) {
       throw new HttpException(
         {

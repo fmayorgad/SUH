@@ -9,6 +9,7 @@ import {
   HttpStatus,
   Inject,
   Injectable,
+  ForbiddenException
 } from '@nestjs/common';
 
 @Injectable()
@@ -23,16 +24,8 @@ export class FindByIdWeekGroup {
       throw new BadRequestException('El ID es requerido');
     }
     
-    let weekGroup: Weekgroup | null;
+    const weekGroup = await this.repository.findById(id);
     
-    // If no user payload or user is a PROGRAMADOR, show all data without filtering
-    if (!userPayload || userPayload.profile?.name === 'PROGRAMADOR') {
-      weekGroup = await this.repository.findById(id);
-    } else {
-      // Otherwise, filter by user
-      weekGroup = await this.repository.findByIdForUser(id, userPayload.sub);
-    }
-
     if (!weekGroup) {
       throw new HttpException(
         'No existe un grupo de semana con ese ID',
@@ -42,6 +35,16 @@ export class FindByIdWeekGroup {
           description: 'No existe un grupo de semana con ese ID',
         }, 
       );
+    }
+
+    // If user is not a PROGRAMADOR, check if they have access to this weekgroup
+    if (userPayload && userPayload.profile?.name !== 'PROGRAMADOR') {
+      const isLead = weekGroup.lead === userPayload.sub;
+      const isMember = weekGroup.weekgroupusers?.some(u => u.id_user === userPayload.sub);
+      
+      if (!isLead && !isMember) {
+        throw new ForbiddenException('No tienes permiso para acceder a este grupo de semanas');
+      }
     }
 
     return weekGroup;

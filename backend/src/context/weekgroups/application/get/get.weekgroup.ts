@@ -25,15 +25,13 @@ export class GetWeekGroups {
     try {
       console.log('filter :>> ', filter);
       
-      // If no user payload or user is a PROGRAMADOR, show all data without filtering
-      if (!userPayload || userPayload.profile?.name === 'PROGRAMADOR') {
-        const weekGroups = await this.repository.getWeekGroups(filter);
-        return weekGroups;
-      } else {
-        // Otherwise, filter by user
-        const weekGroups = await this.repository.getWeekGroupsForUser(filter, userPayload.sub);
-        return weekGroups;
+      // If user is not a PROGRAMADOR, add userId to filter to restrict results
+      if (userPayload && userPayload.sub && userPayload.profile?.name !== 'PROGRAMADOR') {
+        filter.userId = userPayload.sub;
       }
+      
+      const weekGroups = await this.repository.getWeekGroups(filter);
+      return weekGroups;
     } catch (error) {
       throw new HttpException(
         {
