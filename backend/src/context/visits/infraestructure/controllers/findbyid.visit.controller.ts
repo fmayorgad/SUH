@@ -4,7 +4,8 @@ import { FindByIdVisit } from '../../application/findbyid/findbyid.visit';
 import { ApiTags, ApiOperation, ApiParam, ApiResponse, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
 import { PermissionEnum } from '@enums/permissions';
 import { ModulesEnum } from '@enums/modules';
-import { ModuleName, Permissions } from '@decorators/index'; // Adjust path if needed
+import { ModuleName, Permissions, User } from '@decorators/index'; // Adjust path if needed
+import { Payload } from '@models/payload.model';
 
 @ApiTags('Visits')
 @ApiBearerAuth()
@@ -21,9 +22,13 @@ export class FindByIdVisitController {
   @ApiParam({ name: 'id', description: 'Visit ID', type: 'string' })
   @ApiResponse({ status: HttpStatus.OK, description: 'The visit has been found' })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Visit not found' })
-  async findById(@Param('id') id: string, @Res() res: Response) {
+  async findById(
+    @Param('id') id: string, 
+    @Res() res: Response,
+    @User() userPayload: Payload
+  ) {
     try {
-      const visit = await this.findByIdVisit.execute(id);
+      const visit = await this.findByIdVisit.execute(id, userPayload);
       
       if (!visit) {
         return res.status(HttpStatus.NOT_FOUND).json({

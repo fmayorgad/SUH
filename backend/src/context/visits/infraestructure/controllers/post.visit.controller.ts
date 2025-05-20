@@ -6,9 +6,10 @@ import { CreateVisitDTO } from '../dto/create.visit.dto';
 import { Visit } from '@models/visit.model';
 import { ModulesEnum } from '@enums/modules';
 import { PermissionEnum } from '@enums/permissions';
-import { ModuleName, Permissions, Metadata } from '@decorators/index';
+import { ModuleName, Permissions, Metadata, User } from '@decorators/index';
 import { Request } from 'express';
 import { AuditInterceptor } from 'src/core/infraestructure/interceptors/audit.interceptor';
+import { Payload } from '@models/payload.model';
 
 // Define local interface since we're using Express.Multer
 interface MulterFile {
@@ -67,7 +68,8 @@ export class PostVisitController {
   async createVisit(
     @Body() createVisitDto: CreateVisitDTO,
     @UploadedFiles() files: { serviciosFile?: MulterFile[], capacidadFile?: MulterFile[] },
-    @Req() request: Request & { user?: JwtPayload }
+    @Req() request: Request & { user?: JwtPayload },
+    @User() userPayload: Payload
   ) {
     
     // Extract user ID from JWT token (NestJS attaches this to request.user via AuthGuard)
@@ -79,6 +81,6 @@ export class PostVisitController {
       console.log('User ID from JWT:', userId);
     }
     
-    return await this.createVisitService.run(createVisitDto, files, userId);
+    return await this.createVisitService.run(createVisitDto, files, userId, userPayload);
   }
 } 

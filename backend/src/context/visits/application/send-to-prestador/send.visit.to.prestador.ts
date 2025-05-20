@@ -1,7 +1,8 @@
-import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, Logger, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { VisitRepository } from '../../domain/visit.repository';
 import { GenerateVisitPdf } from '../generate-pdf/generate.visit.pdf';
 import { EmailService } from 'src/core/infraestructure/services/email.service';
+import { Payload } from '@models/payload.model';
 import * as moment from 'moment';
 import { formatDate } from 'src/core/infraestructure/helpers/date.helper';
 import * as path from 'path';
@@ -18,12 +19,21 @@ export class SendVisitToPrestador {
     private readonly emailService: EmailService,
   ) {}
 
-  async execute(visitId: string): Promise<{ success: boolean; message: string }> {
+  async execute(visitId: string, userPayload?: Payload): Promise<{ success: boolean; message: string }> {
     try {
       // Get the visit with all its relations
       const visit = await this.visitRepository.findById(visitId);
       if (!visit) {
         throw new NotFoundException(`Visit with ID ${visitId} not found`);
+      }
+
+      // If user is not a PROGRAMADOR, validate user is the lead
+      if (userPayload && userPayload.profile?.name !== 'PROGRAMADOR') {
+        const isLead = visit.weekgroupVisit?.lead?.id === userPayload.sub;
+        
+        if (!isLead) {
+          throw new ForbiddenException('Solo el líder de la visita puede enviar al prestador');
+        }
       }
 
       // Generate the PDF

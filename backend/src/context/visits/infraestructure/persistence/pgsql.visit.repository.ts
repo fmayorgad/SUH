@@ -79,15 +79,44 @@ export class PgsqlVisitRepository implements VisitRepository {
   }
 
   async getVisits(filter: GetVisitDTO): Promise<Visit[] | dataPaginationResponse> {
-    const query = this.visitRepository.createQueryBuilder('visit')
-      .leftJoinAndSelect('visit.weekgroupVisit', 'weekgroupVisit')
-      .leftJoinAndSelect('weekgroupVisit.lead', 'lead')
-      .leftJoinAndSelect('visit.prestador', 'prestador')
-      .leftJoinAndSelect('visit.fiscalYear', 'fiscalYear')
-      .leftJoinAndSelect('visit.visitVerificadores', 'verificadores')
-      .leftJoinAndSelect('verificadores.user_id', 'user')
-      .leftJoinAndSelect('visit.visitServicios', 'visitServicios')
-      .leftJoinAndSelect('visitServicios.servicio_id', 'servicio');
+    // Use a subquery approach to filter visits by userId but preserve all members
+    let query;
+    
+    if (filter.userId) {
+      // First, find IDs of visits where user is lead or verificador
+      const visitsIdsQuery = this.visitRepository
+        .createQueryBuilder('v')
+        .select('v.id')
+        .leftJoin('v.weekgroupVisit', 'wgv')
+        .leftJoin('wgv.lead', 'lead')
+        .leftJoin('v.visitVerificadores', 'vv')
+        .leftJoin('vv.user_id', 'vuser')
+        .where('(lead.id = :userId OR vuser.id = :userId)', { userId: filter.userId });
+        
+      // Then use those IDs to filter in main query
+      query = this.visitRepository.createQueryBuilder('visit')
+        .leftJoinAndSelect('visit.weekgroupVisit', 'weekgroupVisit')
+        .leftJoinAndSelect('weekgroupVisit.lead', 'lead')
+        .leftJoinAndSelect('visit.prestador', 'prestador')
+        .leftJoinAndSelect('visit.fiscalYear', 'fiscalYear')
+        .leftJoinAndSelect('visit.visitVerificadores', 'verificadores')
+        .leftJoinAndSelect('verificadores.user_id', 'user')
+        .leftJoinAndSelect('visit.visitServicios', 'visitServicios')
+        .leftJoinAndSelect('visitServicios.servicio_id', 'servicio')
+        .where(`visit.id IN (${visitsIdsQuery.getQuery()})`)
+        .setParameters(visitsIdsQuery.getParameters());
+    } else {
+      // Standard query without userId filter
+      query = this.visitRepository.createQueryBuilder('visit')
+        .leftJoinAndSelect('visit.weekgroupVisit', 'weekgroupVisit')
+        .leftJoinAndSelect('weekgroupVisit.lead', 'lead')
+        .leftJoinAndSelect('visit.prestador', 'prestador')
+        .leftJoinAndSelect('visit.fiscalYear', 'fiscalYear')
+        .leftJoinAndSelect('visit.visitVerificadores', 'verificadores')
+        .leftJoinAndSelect('verificadores.user_id', 'user')
+        .leftJoinAndSelect('visit.visitServicios', 'visitServicios')
+        .leftJoinAndSelect('visitServicios.servicio_id', 'servicio');
+    }
 
     if (filter.searchText) {
       query.andWhere(new Brackets(qb => {

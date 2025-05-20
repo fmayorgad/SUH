@@ -6,7 +6,8 @@ import { Visit } from '@models/visit.model';
 import { dataPaginationResponse } from '@models/app.model';
 import { ModulesEnum } from '@enums/modules'; // Adjust path if needed
 import { PermissionEnum } from '@enums/permissions'; // Adjust path if needed
-import { ModuleName, Permissions } from '@decorators/index'; // Adjust path if needed
+import { ModuleName, Permissions, User } from '@decorators/index'; // Adjust path if needed
+import { Payload } from '@models/payload.model';
 
 @ApiTags('Visits')
 @ApiBearerAuth()
@@ -32,7 +33,8 @@ export class GetVisitController {
   })
   async getVisits(
     @Query() filterDto: GetVisitDTO,
+    @User() userPayload: Payload,
   ): Promise<Visit[] | dataPaginationResponse> {
-    return await this.getVisitsService.run(filterDto);
+    return await this.getVisitsService.run(filterDto, userPayload);
   }
 } 

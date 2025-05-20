@@ -1,4 +1,4 @@
-import { Injectable, Inject, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { VisitRepository } from '../../domain/visit.repository';
 import { CreateVisitDTO } from '../../infraestructure/dto/create.visit.dto';
 import { Visit } from '@models/visit.model';
@@ -13,6 +13,7 @@ import { Prestador } from '@models/prestador.model';
 import { FiscalYear } from '@models/fiscalyears.model';
 import { VisitSchema } from '@schemas/visit.schema';
 import { WeekGroupsPrestadoresEnum } from '@enums/weekgroupsprestadores';
+import { Payload } from '@models/payload.model';
 import * as ExcelJS from 'exceljs';
 import { PrestadorFiscalyearInformation } from '@models/prestador-fiscalyear-information.model';
 import { MunicipioSchema } from '@schemas/municipio.schema';
@@ -99,7 +100,8 @@ export class CreateVisit {
   async run(
     createVisitDto: CreateVisitDTO,
     files?: { serviciosFile?: MulterFile[], capacidadFile?: MulterFile[] },
-    userId?: string
+    userId?: string,
+    userPayload?: Payload
   ) {
     // Create a query runner for transaction management
     const queryRunner = this.dataSource.createQueryRunner();
@@ -124,6 +126,17 @@ export class CreateVisit {
 
       if (!weekgroupVisit) {
         throw new NotFoundException(`WeekgroupVisit with ID ${createVisitDto.weekgroupVisitId} not found`);
+      }
+
+      // If user is not a PROGRAMADOR, validate user is the lead
+      if (userPayload && userPayload.profile?.name !== 'PROGRAMADOR') {
+        const isLead = weekgroupVisit.lead?.id === userPayload.sub;
+        
+        if (!isLead) {
+          await queryRunner.rollbackTransaction();
+          await queryRunner.release();
+          throw new ForbiddenException('Solo el líder de la visita puede crear la visita');
+        }
       }
 
       const weekgroupFiscalYear = weekgroupVisit.weekgroup.weeks.fiscalyears;

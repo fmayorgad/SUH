@@ -71,6 +71,13 @@ export class GetVisitDTO {
   @IsOptional()
   readonly verificadores?: string[];
 
+  @ApiPropertyOptional({
+    description: 'User ID to filter results by (lead or verificador)',
+    required: false,
+  })
+  @IsOptional()
+  userId?: string;
+  
   // Add other filter properties as needed
   
 } 

@@ -1,10 +1,11 @@
 import { Controller, Post, Param, HttpCode, HttpStatus, UseInterceptors, Get } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { SendVisitToPrestador } from '../../application/send-to-prestador/send.visit.to.prestador';
-import { ModuleName, Permissions, Metadata } from '@decorators/index';
+import { ModuleName, Permissions, Metadata, User } from '@decorators/index';
 import { ModulesEnum } from '@enums/modules';
 import { PermissionEnum } from '@enums/permissions';
 import { AuditInterceptor } from 'src/core/infraestructure/interceptors/audit.interceptor';
+import { Payload } from '@models/payload.model';
 
 @ApiTags('Visits')
 @ApiBearerAuth()
@@ -36,7 +37,10 @@ export class SendToPrestadorController {
     status: HttpStatus.BAD_REQUEST,
     description: 'Bad request',
   })
-  async sendToPrestador(@Param('id') id: string) {
-    return await this.sendVisitToPrestador.execute(id);
+  async sendToPrestador(
+    @Param('id') id: string,
+    @User() userPayload: Payload
+  ) {
+    return await this.sendVisitToPrestador.execute(id, userPayload);
   }
 } 
