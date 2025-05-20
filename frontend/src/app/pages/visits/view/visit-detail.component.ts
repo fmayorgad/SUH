@@ -12,7 +12,7 @@ import { VeilComponent } from '@shared/veil/veil.component';
 import { InformationComponent } from './information/information.component';
 import { DocumentsComponent } from './documents/documents.component';
 import { CriteriaComponent } from './criteria/criteria.component';
-
+import { SnackbarService } from '@shared/snackmessage/snackmessage.component';
 @Component({
   selector: 'app-visit-detail',
   templateUrl: './visit-detail.component.html',
@@ -46,7 +46,7 @@ export class VisitDetailComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private visitsService: VisitsService,
-    private _snackBar: MatSnackBar
+    private snackmessage: SnackbarService
   ) { }
 
   ngOnInit(): void {
@@ -62,15 +62,16 @@ export class VisitDetailComponent implements OnInit {
     this.gettingData = true;
     try {
       const response = await this.visitsService.getVisitById(this.visitId);
+
       if (response.ok && response.data) {
         this.visitData = response.data;
         console.log('Visit data:', this.visitData);
       } else {
-        this.showError('Error al obtener los datos de la visita');
+        this.showError(response.message);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching visit data:', error);
-      this.showError('Error al obtener los datos de la visita');
+      this.showError(error.message);
     } finally {
       this.gettingData = false;
     }
@@ -90,15 +91,11 @@ export class VisitDetailComponent implements OnInit {
   }
 
   private showError(message: string) {
-    this._snackBar.openFromComponent(SnackmessageComponent, {
-      data: {
-        message: message,
-        type: 'error'
-      },
-      duration: 5000,
-      horizontalPosition: 'end',
-      verticalPosition: 'bottom',
-      panelClass: ['snackbar-error']
+    console.log('Error:', message);
+    this.snackmessage.show({
+      type: 'simple',
+      message: message,
+      severity: 'error',
     });
   }
 } 
