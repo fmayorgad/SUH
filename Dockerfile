@@ -21,12 +21,12 @@ WORKDIR /app
 COPY backend/package*.json ./
 
 RUN apk add --no-cache g++ make py3-pip && \
-    npm install --legacy-peer-deps
+    npm install --force
 
 COPY backend/ .
 
 RUN npm run build && \
-    npm install --legacy-peer-deps && \
+    npm install --force --omit=dev && \
     npm cache clean --force
 
 # Etapa 3: Imagen de producción
@@ -43,10 +43,7 @@ COPY docker/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
 # Copiar artefactos construidos
 COPY --from=backend-builder /app/node_modules ./node_modules
 COPY --from=backend-builder /app/dist ./dist
-COPY --from=front-builder /app/dist/trinta ./dist/client
-
-# Configurar supervisor
-COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY --from=front-builder /app/dist/trinta/browser ./dist/client
 
 # Comando para ejecutar la aplicación
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+CMD ["node", "dist/src/main.js"]
