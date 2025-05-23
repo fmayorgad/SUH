@@ -82,7 +82,7 @@ export class GenerateVisitPdf {
 
         // Start with date information (which was previously in addDocumentInfo)
         doc.font('Arial')
-            .text(`Santiago de Cali, ${this.formatDate(visit.date)}`, 50, 180);
+            .text(`Santiago de Cali, ${this.formatDate(new Date())}`, 50, 180);
 
         // Add document content
         this.addRecipientInfo(doc, visit);
@@ -324,8 +324,10 @@ export class GenerateVisitPdf {
         doc.moveDown(2);
 
         if (visit.visitVerificadores && visit.visitVerificadores.length > 0) {
+
+            
             // Prepare the rows for the verificadores table
-            const verificadoresRows = visit.visitVerificadores.filter(verificador => verificador.id !== visit.weekgroupVisit?.lead?.id).map(verificador => {
+            const verificadoresRows = visit.visitVerificadores.filter(verificador => verificador.user_id.id !== visit.weekgroupVisit?.lead?.id).map(verificador => {
                 const user = verificador.user_id || {};
                 const fullName = `${user.name || 'N/A'} ${user.surname || ''} ${user.lastname || ''}`.trim();
                 const cedula = user.identification_number || 'N/A';

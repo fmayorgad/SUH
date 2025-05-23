@@ -76,7 +76,7 @@ export class SendVisitToPrestador {
 
       // Destination email - in production this would be the prestador's email
       const toEmail = process.env.NODE_ENV === 'production' 
-        ? fiscalYearInfo.correoRepresentante || 'fabiomayorgad@hotmail.com'
+        ? 'fabiomayorgad@hotmail.com'
         : 'fabiomayorgad@hotmail.com';
 
       // Prepare attachments
@@ -259,7 +259,7 @@ export class SendVisitToPrestador {
       <body>
         <div class="container">
           <div class="header">
-            <img src="cid:gobernacionlogo" alt="Gobernación del Valle del Cauca - Secretaría de Salud" />
+            <img src="https://datalake.valledelcauca.gov.co/assets/logo-servinformacion-negativo-1x.png" alt="Gobernación del Valle del Cauca - Secretaría de Salud" />
             <h1>Secretaría de Salud Departamental del Valle del Cauca</h1>
             <h3>Notificación Oficial de Visita de Verificación</h3>
           </div>

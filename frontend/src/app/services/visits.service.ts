@@ -356,7 +356,7 @@ export class VisitsService {
    */
   async updateVisitData(id: string, formData: any): Promise<any> {
     try {
-      const response = await this.http.patch(`${this.url}/${this.mainModule}/${id}`, formData, {
+      const response = await this.http.put(`${this.url}/${this.mainModule}/${id}`, formData, {
         headers: {
           'Content-Type': 'application/json'
         }
