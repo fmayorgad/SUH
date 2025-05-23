@@ -56,7 +56,7 @@ export class SendVisitToPrestador {
       // Load logo file for attachment
       let logoBuffer: Buffer;
       try {
-        const logoPath = path.resolve(process.cwd(), 'templates/images/gobernacionlogo.png');
+        const logoPath = path.resolve(process.cwd(), 'templates/headers/gobernacionlogo.png');
         logoBuffer = fs.readFileSync(logoPath);
       } catch (error) {
         this.logger.error(`Error loading logo file: ${error.message}`);
