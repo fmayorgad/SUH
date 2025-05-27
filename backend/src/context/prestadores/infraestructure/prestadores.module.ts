@@ -9,6 +9,9 @@ import { MunicipioSchema } from '@schemas/municipio.schema';
 import {DepartamentoSchema} from '@schemas/departamento.schema';
 import { FindByNameIdentification } from '@context/prestadores/application/findyByNameIdentification';
 import {FiscalYearSchema} from '@schemas/fiscalyear.schema';
+import { PrestadorFiscalyearInformationSchema } from '@schemas/prestador-fiscalyear-information.schema';
+import { PrestadorFiscalyearServiciosSchema } from '@schemas/prestador-fiscalyear-servicios.schema';
+import { PrestadorFiscalyearCapacidadesSchema } from '@schemas/prestador-fiscalyear-capacidades.schema';
 import { ServicioSchema } from '@schemas/servicio.schema';
 
 const PrestadorRepositoryProvider = {
@@ -24,6 +27,9 @@ const PrestadorRepositoryProvider = {
       PrestadorTypeSchema,
       PrestadorSchema,
       FiscalYearSchema,
+      PrestadorFiscalyearInformationSchema,
+      PrestadorFiscalyearServiciosSchema,
+      PrestadorFiscalyearCapacidadesSchema,
       ServicioSchema
     ]),
     HttpModule,

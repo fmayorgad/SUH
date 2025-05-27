@@ -25,4 +25,5 @@ export * from './weekgroup_users.model';
 export * from './weekgroupvisit.model';
 export { WeekgroupVisit } from './weekgroupvisit.model';
 export { Visit } from './visit.model';
-export { PrestadorFiscalyearInformation } from './prestador-fiscalyear-information.model'; 
+export { PrestadorFiscalyearInformation } from './prestador-fiscalyear-information.model';
+export { PrestadorFiscalyearCapacidades } from './prestador-fiscalyear-capacidades.model'; 

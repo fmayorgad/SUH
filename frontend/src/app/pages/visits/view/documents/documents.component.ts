@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatStepperModule } from '@angular/material/stepper';
@@ -24,6 +24,7 @@ import { ViewCommunicationDocumentComponent } from '../dialogs/view-communicatio
 })
 export class DocumentsComponent implements OnInit {
   @Input() visitData: any;
+  @Output() visitDataChange = new EventEmitter<any>();
 
   constructor(
     public dialog: MatDialog,
@@ -61,7 +62,7 @@ export class DocumentsComponent implements OnInit {
       }).afterClosed().subscribe(result => {
         if (result) {
           // Reload parent component if needed
-          window.location.reload();
+          this.visitDataChange.emit(this.visitData);
         }
       });
     }

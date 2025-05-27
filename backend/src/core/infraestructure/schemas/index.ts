@@ -23,6 +23,7 @@ export * from './weekgroupusers.schema';
 export { WeekgroupVisitSchema } from './weekgroupvisit.schema';
 export { VisitSchema } from './visit.schema';
 export { PrestadorFiscalyearInformationSchema } from './prestador-fiscalyear-information.schema';
+export { PrestadorFiscalyearCapacidadesSchema } from './prestador-fiscalyear-capacidades.schema';
 export { VisitVerificadoresSchema } from './visit_verificadores.schema';
 export { VisitServiciosSchema } from './visit_servicios.schema';
 

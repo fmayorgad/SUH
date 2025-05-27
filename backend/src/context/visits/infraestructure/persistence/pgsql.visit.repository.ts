@@ -347,7 +347,7 @@ export class PgsqlVisitRepository implements VisitRepository {
         visit.prestador && 
         visit.fiscalYear && 
         (updateVisitDto.nombre_representante_legal !== undefined || 
-         updateVisitDto.correoRepresentante !== undefined)
+         updateVisitDto.correo_representante !== undefined)
       ) {
         // Get the fiscal year information record
         const fiscalYearInfo = await queryRunner.manager.findOne(PrestadorFiscalyearInformation, {
@@ -366,8 +366,8 @@ export class PgsqlVisitRepository implements VisitRepository {
             fiscalYearInfoUpdated = true;
           }
 
-          if (updateVisitDto.correoRepresentante !== undefined) {
-            fiscalYearInfo.correoRepresentante = updateVisitDto.correoRepresentante;
+          if (updateVisitDto.correo_representante !== undefined) {
+            fiscalYearInfo.correoRepresentante = updateVisitDto.correo_representante;
             fiscalYearInfoUpdated = true;
           }
 

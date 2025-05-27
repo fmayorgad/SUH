@@ -36,7 +36,7 @@ export class UpdateVisitDto {
   })
   @IsOptional()
   @IsString()
-  correoRepresentante?: string;
+  correo_representante?: string;
 
   @ApiProperty({
     description: 'Visit date',

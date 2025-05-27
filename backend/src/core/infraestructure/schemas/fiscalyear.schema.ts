@@ -52,6 +52,11 @@ export const FiscalYearSchema = new EntitySchema<FiscalYear>({
       type: 'one-to-many',
       target: 'PrestadorFiscalyearServicios',
       inverseSide: 'fiscalYear',
+    },
+    prestadorFiscalyearCapacidades: {
+      type: 'one-to-many',
+      target: 'PrestadorFiscalyearCapacidades',
+      inverseSide: 'fiscalYear',
     }
   }
 });

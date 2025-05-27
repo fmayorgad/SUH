@@ -15,7 +15,7 @@ export class GenerateVisitPdf {
     constructor(
         @Inject('PgsqlVisitRepository')
         private readonly visitRepository: VisitRepository,
-    ) { 
+    ) {
         // Initialize paths on constructor
         this.headerPath = path.resolve(process.cwd(), 'templates/headers/gobernacionlogo.png');
         this.footerPath = path.resolve(process.cwd(), 'templates/footers/footer.png');
@@ -149,11 +149,11 @@ export class GenerateVisitPdf {
         // Save current cursor position
         const currentY = doc.y;
         const currentX = doc.x;
-        
+
         // Save current font and font size
         const currentFont = (doc as any)._font ? (doc as any)._font.name : 'Arial';
         const currentFontSize = (doc as any)._fontSize || 12;
-        
+
         // Add header image at the top of the page
         try {
             doc.image(this.headerPath, 50, 20, {
@@ -191,7 +191,7 @@ export class GenerateVisitPdf {
         // Restore cursor position to continue adding content
         doc.x = currentX;
         doc.y = currentY;
-        
+
         // Restore original font and font size
         doc.font(currentFont).fontSize(currentFontSize);
     }
@@ -220,6 +220,9 @@ export class GenerateVisitPdf {
 
         doc.font('Arial')
             .text(visit.prestador?.fiscalYearInformation[0]?.correoSede || 'N/A');
+
+        doc.font('Arial')
+            .text(visit.prestador?.fiscalYearInformation[0]?.correoRepresentante || 'N/A');
     }
 
     private addSubject(doc: PDFKit.PDFDocument) {
@@ -325,7 +328,7 @@ export class GenerateVisitPdf {
 
         if (visit.visitVerificadores && visit.visitVerificadores.length > 0) {
 
-            
+
             // Prepare the rows for the verificadores table
             const verificadoresRows = visit.visitVerificadores.filter(verificador => verificador.user_id.id !== visit.weekgroupVisit?.lead?.id).map(verificador => {
                 const user = verificador.user_id || {};
@@ -358,69 +361,69 @@ export class GenerateVisitPdf {
         doc.moveDown(2);
 
         doc.font('Arial')
-        .fontSize(12)
-        .text('Adicional a la comisión técnica mencionada anteriormente, en caso de ser necesario esta podrá ser modificada por uno o varios de los verificadores relacionados en: "ANEXO. LISTADO DE VERIFICADORES" (ver documento adjunto)',
-            {
-                width: 500,
-                align: 'justify'
-            }
-        );
+            .fontSize(12)
+            .text('Adicional a la comisión técnica mencionada anteriormente, en caso de ser necesario esta podrá ser modificada por uno o varios de los verificadores relacionados en: "ANEXO. LISTADO DE VERIFICADORES" (ver documento adjunto)',
+                {
+                    width: 500,
+                    align: 'justify'
+                }
+            );
 
         doc.moveDown(1);
 
         doc.font('Arial')
-        .fontSize(12)
-        .text('Agradecemos de antemano su disposición para que la visita se desarrolle de manera adecuada y oportuna.',
-            {
-                width: 500,
-                align: 'justify'
-            }
-        );
+            .fontSize(12)
+            .text('Agradecemos de antemano su disposición para que la visita se desarrolle de manera adecuada y oportuna.',
+                {
+                    width: 500,
+                    align: 'justify'
+                }
+            );
 
         doc.moveDown(1);
 
         doc.font('Arial')
-        .fontSize(12)
-        .text('NOTA: "Comunicada la visita de verificación, el prestador de servicios de salud no podrá presentar novedades mientras esta no haya concluido", Resolución 3100 de 2019, Artículo 17.',
-            {
-                width: 500,
-                align: 'justify'
-            }
-        );
+            .fontSize(12)
+            .text('NOTA: "Comunicada la visita de verificación, el prestador de servicios de salud no podrá presentar novedades mientras esta no haya concluido", Resolución 3100 de 2019, Artículo 17.',
+                {
+                    width: 500,
+                    align: 'justify'
+                }
+            );
 
         doc.moveDown(2);
 
         doc.font('Arial')
-        .fontSize(12)
-        .text('Atentamente,',
-            {
-                width: 500,
-                align: 'justify'
-            }
-        );
+            .fontSize(12)
+            .text('Atentamente,',
+                {
+                    width: 500,
+                    align: 'justify'
+                }
+            );
 
         doc.moveDown(3);
 
         doc.font('Arial')
-        .fontSize(12)
-        .text(visit?.fiscalYear?.subsecretario_name || 'N/A');
-        
+            .fontSize(12)
+            .text(visit?.fiscalYear?.subsecretario_name || 'N/A');
+
 
         doc.font('Arial')
-        .fontSize(12)
-        .text('Subsecretario de Aseguramiento y Desarrollo de Servicios de Salud');
+            .fontSize(12)
+            .text('Subsecretario de Aseguramiento y Desarrollo de Servicios de Salud');
 
         doc.moveDown(2);
 
         doc.font('Arial')
-        .fontSize(7)
-        .text(`Redactó y Transcribió: ${visit.weekgroupVisit?.lead?.name || 'N/A'} ${visit.weekgroupVisit?.lead?.surname || ''} ${visit.weekgroupVisit?.lead?.lastname || ''} - ${visit.weekgroupVisit?.lead?.status}`);
+            .fontSize(7)
+            .text(`Redactó y Transcribió: ${visit.weekgroupVisit?.lead?.name || 'N/A'} ${visit.weekgroupVisit?.lead?.surname || ''} ${visit.weekgroupVisit?.lead?.lastname || ''} - ${visit.weekgroupVisit?.lead?.status}`);
 
         doc.font('Arial')
-        .fontSize(7)
-        .text(`Archívese en carpeta de prestador: ${visit.prestador?.fiscalYearInformation[0].codigo_habilitacion || 'N/A'} ${visit.prestador?.fiscalYearInformation[0].nombre_prestador || 'N/A'} `);
+            .fontSize(7)
+            .text(`Archívese en carpeta de prestador: ${visit.prestador?.fiscalYearInformation[0].codigo_habilitacion || 'N/A'} ${visit.prestador?.fiscalYearInformation[0].nombre_prestador || 'N/A'} `);
 
-      
+
     }
 
 

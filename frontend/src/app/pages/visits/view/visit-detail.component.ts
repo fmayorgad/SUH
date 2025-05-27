@@ -49,13 +49,18 @@ export class VisitDetailComponent implements OnInit {
     private snackmessage: SnackbarService
   ) { }
 
-  ngOnInit(): void {
+
+  requestData(){
     this.route.params.subscribe(params => {
       this.visitId = params['id'];
       if (this.visitId) {
         this.getVisitData();
       }
     });
+  }
+
+  ngOnInit(): void {
+    this.requestData();
   }
 
   async getVisitData() {
@@ -75,6 +80,11 @@ export class VisitDetailComponent implements OnInit {
     } finally {
       this.gettingData = false;
     }
+  }
+
+  onVisitDataChange(event: any) {
+    this.visitData = event;
+    this.requestData();
   }
 
   getVisitStateName(state: string): string {

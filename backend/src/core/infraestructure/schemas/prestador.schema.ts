@@ -61,5 +61,10 @@ export const PrestadorSchema = new EntitySchema<Prestador>({
             target: 'PrestadorFiscalyearServicios',
             inverseSide: 'prestador',
         },
+        fiscalYearCapacidades: {
+            type: 'one-to-many',
+            target: 'PrestadorFiscalyearCapacidades',
+            inverseSide: 'prestador',
+        },
     },
 });

@@ -121,7 +121,7 @@
             <app-visit-information [visitData]="visitData"></app-visit-information>
         </mat-tab>
         <mat-tab label="Documentación de la Visita">
-            <app-visit-documents [visitData]="visitData"></app-visit-documents>
+            <app-visit-documents [visitData]="visitData" (visitDataChange)="onVisitDataChange($event)"></app-visit-documents>
         </mat-tab>
         <mat-tab label="Criterios Verificados">
             <app-visit-criteria [visitData]="visitData"></app-visit-criteria>
