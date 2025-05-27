@@ -329,6 +329,158 @@
                     </div>
                 </div>
             </mat-tab>
+            
+            <!-- Nueva pestaña: Capacidad Instalada -->
+            <mat-tab label="Capacidad Instalada">
+                <div class="capacidad-container p-15">
+                    <div class="alert alert-bg-warning d-flex align-items-center" role="alert"
+                        *ngIf="!visitData?.prestador?.fiscalYearCapacidades || visitData?.prestador?.fiscalYearCapacidades.length === 0">
+                        <i class="material-icons align-middle mr-2">warning</i>
+                        No hay información de capacidad instalada disponible para este prestador.
+                    </div>
+
+                    <div *ngIf="visitData?.prestador?.fiscalYearCapacidades && visitData?.prestador?.fiscalYearCapacidades.length > 0">
+                        <div class="capacidad-data">
+                            <!-- Recursos de Internación -->
+                            <div class="capacidad-section">
+                                <h4 class="section-title">Recursos de Internación</h4>
+                                <div class="capacidad-grid">
+                                    <div class="capacidad-card" *ngIf="visitData.prestador.fiscalYearCapacidades[0]?.camas_concepto">
+                                        <div class="capacidad-header">
+                                            <mat-icon class="capacidad-icon">single_bed</mat-icon>
+                                            <h5>Camas</h5>
+                                        </div>
+                                        <div class="capacidad-info">
+                                            <div class="info-item">
+                                                <span class="info-label">Concepto:</span>
+                                                <span class="info-value">{{visitData.prestador.fiscalYearCapacidades[0]?.camas_concepto}}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">Cantidad:</span>
+                                                <span class="info-value quantity">{{visitData.prestador.fiscalYearCapacidades[0]?.camas_cantidad}}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="capacidad-card" *ngIf="visitData.prestador.fiscalYearCapacidades[0]?.camillas_concepto">
+                                        <div class="capacidad-header">
+                                            <mat-icon class="capacidad-icon">airline_seat_flat</mat-icon>
+                                            <h5>Camillas</h5>
+                                        </div>
+                                        <div class="capacidad-info">
+                                            <div class="info-item">
+                                                <span class="info-label">Concepto:</span>
+                                                <span class="info-value">{{visitData.prestador.fiscalYearCapacidades[0]?.camillas_concepto}}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">Cantidad:</span>
+                                                <span class="info-value quantity">{{visitData.prestador.fiscalYearCapacidades[0]?.camillas_cantidad}}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Infraestructura -->
+                            <div class="capacidad-section">
+                                <h4 class="section-title">Infraestructura</h4>
+                                <div class="capacidad-grid">
+                                    <div class="capacidad-card" *ngIf="visitData.prestador.fiscalYearCapacidades[0]?.salas_concepto">
+                                        <div class="capacidad-header">
+                                            <mat-icon class="capacidad-icon">meeting_room</mat-icon>
+                                            <h5>Salas</h5>
+                                        </div>
+                                        <div class="capacidad-info">
+                                            <div class="info-item">
+                                                <span class="info-label">Concepto:</span>
+                                                <span class="info-value">{{visitData.prestador.fiscalYearCapacidades[0]?.salas_concepto}}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="capacidad-card" *ngIf="visitData.prestador.fiscalYearCapacidades[0]?.sillas_concepto">
+                                        <div class="capacidad-header">
+                                            <mat-icon class="capacidad-icon">chair</mat-icon>
+                                            <h5>Sillas</h5>
+                                        </div>
+                                        <div class="capacidad-info">
+                                            <div class="info-item">
+                                                <span class="info-label">Concepto:</span>
+                                                <span class="info-value">{{visitData.prestador.fiscalYearCapacidades[0]?.sillas_concepto}}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="capacidad-card" *ngIf="visitData.prestador.fiscalYearCapacidades[0]?.consultorios_concepto">
+                                        <div class="capacidad-header">
+                                            <mat-icon class="capacidad-icon">medical_services</mat-icon>
+                                            <h5>Consultorios</h5>
+                                        </div>
+                                        <div class="capacidad-info">
+                                            <div class="info-item">
+                                                <span class="info-label">Concepto:</span>
+                                                <span class="info-value">{{visitData.prestador.fiscalYearCapacidades[0]?.consultorios_concepto}}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">Cantidad:</span>
+                                                <span class="info-value quantity">{{visitData.prestador.fiscalYearCapacidades[0]?.consultorios_cantidad}}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Transporte Sanitario -->
+                            <div class="capacidad-section">
+                                <h4 class="section-title">Transporte Sanitario</h4>
+                                <div class="capacidad-grid">
+                                    <div class="capacidad-card" *ngIf="visitData.prestador.fiscalYearCapacidades[0]?.unidad_movil_concepto">
+                                        <div class="capacidad-header">
+                                            <mat-icon class="capacidad-icon">local_shipping</mat-icon>
+                                            <h5>Unidad Móvil</h5>
+                                        </div>
+                                        <div class="capacidad-info">
+                                            <div class="info-item">
+                                                <span class="info-label">Concepto:</span>
+                                                <span class="info-value">{{visitData.prestador.fiscalYearCapacidades[0]?.unidad_movil_concepto}}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">Cantidad:</span>
+                                                <span class="info-value quantity">{{visitData.prestador.fiscalYearCapacidades[0]?.unidad_movil_cantidad}}</span>
+                                            </div>
+                                            <div class="info-item" *ngIf="visitData.prestador.fiscalYearCapacidades[0]?.unidad_movil_placa">
+                                                <span class="info-label">Placa:</span>
+                                                <span class="info-value placa">{{visitData.prestador.fiscalYearCapacidades[0]?.unidad_movil_placa}}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="capacidad-card" *ngIf="visitData.prestador.fiscalYearCapacidades[0]?.ambulancias_concepto">
+                                        <div class="capacidad-header">
+                                            <mat-icon class="capacidad-icon">emergency</mat-icon>
+                                            <h5>Ambulancias</h5>
+                                        </div>
+                                        <div class="capacidad-info">
+                                            <div class="info-item">
+                                                <span class="info-label">Concepto:</span>
+                                                <span class="info-value">{{visitData.prestador.fiscalYearCapacidades[0]?.ambulancias_concepto}}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">Cantidad:</span>
+                                                <span class="info-value quantity">{{visitData.prestador.fiscalYearCapacidades[0]?.ambulancias_cantidad}}</span>
+                                            </div>
+                                            <div class="info-item" *ngIf="visitData.prestador.fiscalYearCapacidades[0]?.ambulancias_placa">
+                                                <span class="info-label">Placa:</span>
+                                                <span class="info-value placa">{{visitData.prestador.fiscalYearCapacidades[0]?.ambulancias_placa}}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </mat-tab>
         </mat-tab-group>
     </mat-card-content>
 </mat-card>

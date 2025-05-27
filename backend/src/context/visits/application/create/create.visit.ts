@@ -416,10 +416,10 @@ export class CreateVisit {
     // Skip the header row and process data rows (start from row 2)
     for (let rowNumber = 2; rowNumber <= worksheet.rowCount; rowNumber++) {
       const row = worksheet.getRow(rowNumber);
-      
+
       // Check if the row is not empty (has a value in column A)
       const grupo = row.getCell(1).value?.toString().trim();
-      
+
       if (grupo) {
         const concepto = row.getCell(2).value?.toString().trim() || '';
         const cantidad = row.getCell(3).value?.toString().trim() || '';
