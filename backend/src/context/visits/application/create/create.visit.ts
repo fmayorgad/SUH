@@ -29,6 +29,8 @@ import { VisitVerificadoresSchema } from '@schemas/visit_verificadores.schema';
 import { UserSchema } from '@schemas/user.schema';
 import { Users } from '@models/user.model';
 import { VisitServicios } from '@models/visit_servicios.model';
+import { PrestadorFiscalyearCapacidades } from '@models/prestador-fiscalyear-capacidades.model';
+import { PrestadorFiscalyearCapacidadesSchema } from '@schemas/prestador-fiscalyear-capacidades.schema';
 // Define local interface for Multer file
 interface MulterFile {
   fieldname: string;
@@ -63,6 +65,8 @@ export class CreateVisit {
     private readonly visitVerificadoresRepository: Repository<VisitVerificadores>,
     @InjectRepository(UserSchema)
     private readonly usersRepository: Repository<Users>,
+    @InjectRepository(PrestadorFiscalyearCapacidadesSchema)
+    private readonly prestadorFiscalyearCapacidadesRepository: Repository<PrestadorFiscalyearCapacidades>,
     private readonly dataSource: DataSource,
   ) { }
 
@@ -215,6 +219,19 @@ export class CreateVisit {
       //store the prestador_fiscalyear_services using the transaction
       const prestadorFiscalyearServiciosRepo = queryRunner.manager.getRepository(PrestadorFiscalyearServicios);
       await prestadorFiscalyearServiciosRepo.save(prestadorFiscalyearServices);
+
+      // Process and store capacidad data if available
+      if (capacidadData && capacidadData.length > 0) {
+        const prestadorFiscalyearCapacidades = this.generatePrestadorFiscalyearCapacidades(
+          weekgroupVisit.prestador,
+          weekgroupFiscalYear,
+          capacidadData
+        );
+        
+        // Store the prestador_fiscalyear_capacidades using the transaction
+        const prestadorFiscalyearCapacidadesRepo = queryRunner.manager.getRepository(PrestadorFiscalyearCapacidades);
+        await prestadorFiscalyearCapacidadesRepo.save(prestadorFiscalyearCapacidades);
+      }
 
       const visitToStoreData = {
         ...createVisitDto,
@@ -396,61 +413,32 @@ export class CreateVisit {
     const worksheet = workbook.getWorksheet(1); // Get the first worksheet
     const data = [];
 
-    // Find how many columns to read (up to column CR or until finding "correo representante")
-    let maxColumn = 0;
-    let headers = [];
-
-    // Process header row (row 1)
-    const headerRow = worksheet.getRow(1);
-    let foundCorreoPrestador = false;
-
-    // Read all column headers until column CR (96) or until "correo representante" is found
-    for (let colIndex = 1; colIndex <= 96; colIndex++) {
-      const headerValue = headerRow.getCell(colIndex).value?.toString().trim().toLowerCase() || '';
-
-      if (headerValue) {
-        headers.push(headerValue);
-        maxColumn = colIndex;
-
-        // If we found the "correo representante" column, we can stop
-        if (headerValue === 'correo representante') {
-          foundCorreoPrestador = true;
-          break;
+    // Skip the header row and process data rows (start from row 2)
+    for (let rowNumber = 2; rowNumber <= worksheet.rowCount; rowNumber++) {
+      const row = worksheet.getRow(rowNumber);
+      
+      // Check if the row is not empty (has a value in column A)
+      const grupo = row.getCell(1).value?.toString().trim();
+      
+      if (grupo) {
+        const concepto = row.getCell(2).value?.toString().trim() || '';
+        const cantidad = row.getCell(3).value?.toString().trim() || '';
+        let placa = '';
+        
+        // Only process plate number for "UNIDAD MÓVIL" and "AMBULANCIAS"
+        if (grupo === 'UNIDAD MÓVIL' || grupo === 'AMBULANCIAS') {
+          placa = row.getCell(4).value?.toString().trim() || '';
         }
-      } else if (colIndex > 5 && !headerValue) {
-        // If we find an empty header after column 5, we can assume there are no more headers
-        // unless we've just not reached "correo representante" yet
-        if (!foundCorreoPrestador && colIndex < 96) {
-          continue;
-        } else {
-          break;
-        }
+        
+        // Add the row data to our result
+        data.push({
+          grupo,
+          concepto,
+          cantidad,
+          placa
+        });
       }
     }
-
-    // Process data rows
-    worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
-      if (rowNumber > 1) { // Skip header row
-        const rowData = {};
-
-        // Use headers as keys
-        for (let colIndex = 1; colIndex <= maxColumn; colIndex++) {
-          if (headers[colIndex - 1]) {
-            const cellValue = row.getCell(colIndex).value;
-
-            // Special handling for email columns
-            if (headers[colIndex - 1] === 'correo representante' ||
-              headers[colIndex - 1] === 'email') {
-              rowData[headers[colIndex - 1]] = this.extractEmail(cellValue);
-            } else {
-              rowData[headers[colIndex - 1]] = cellValue?.toString() || '';
-            }
-          }
-        }
-
-        data.push(rowData);
-      }
-    });
 
     return data;
   }
@@ -573,6 +561,64 @@ export class CreateVisit {
     }
 
     return prestadorFiscalyearInformation;
+  }
+
+  private generatePrestadorFiscalyearCapacidades(
+    prestador: Prestador,
+    fiscalYear: FiscalYear,
+    capacidadData: any[]
+  ): PrestadorFiscalyearCapacidades {
+    const capacidades = new PrestadorFiscalyearCapacidades();
+    
+    // Set common properties
+    capacidades.prestador = prestador;
+    capacidades.fiscalYear = fiscalYear;
+    capacidades.state = generalStateTypes.ACTIVO;
+    
+    // Process each row from the Excel data
+    for (const item of capacidadData) {
+      const grupo = item.grupo.toUpperCase();
+      
+      switch (grupo) {
+        case 'CAMAS':
+          capacidades.camas = grupo;
+          capacidades.camas_concepto = item.concepto;
+          capacidades.camas_cantidad = item.cantidad;
+          break;
+          
+        case 'CAMILLAS':
+          capacidades.camillas_concepto = item.concepto;
+          capacidades.camillas_cantidad = item.cantidad;
+          break;
+          
+        case 'SALAS':
+          capacidades.salas_concepto = item.concepto;
+          break;
+          
+        case 'SILLAS':
+          capacidades.sillas_concepto = item.concepto;
+          break;
+          
+        case 'CONSULTORIOS':
+          capacidades.consultorios_concepto = item.concepto;
+          capacidades.consultorios_cantidad = item.cantidad;
+          break;
+          
+        case 'UNIDAD MÓVIL':
+          capacidades.unidad_movil_concepto = item.concepto;
+          capacidades.unidad_movil_cantidad = item.cantidad;
+          capacidades.unidad_movil_placa = item.placa;
+          break;
+          
+        case 'AMBULANCIAS':
+          capacidades.ambulancias_concepto = item.concepto;
+          capacidades.ambulancias_cantidad = item.cantidad;
+          capacidades.ambulancias_placa = item.placa;
+          break;
+      }
+    }
+    
+    return capacidades;
   }
 
 }

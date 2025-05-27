@@ -11,6 +11,7 @@ import { PrestadorSchema } from '@schemas/prestador.schema';
 import { FiscalYearSchema } from '@schemas/fiscalyear.schema';
 import { PrestadorFiscalyearInformationSchema } from '@schemas/prestador-fiscalyear-information.schema';
 import { PrestadorFiscalyearServiciosSchema } from '@schemas/prestador-fiscalyear-servicios.schema';
+import { PrestadorFiscalyearCapacidadesSchema } from '@schemas/prestador-fiscalyear-capacidades.schema';
 import { ServicioSchema } from '@schemas/servicio.schema';
 import { UserSchema } from '@schemas/user.schema';
 
@@ -81,6 +82,7 @@ const controllers = [
       FiscalYearSchema,
       PrestadorFiscalyearInformationSchema,
       PrestadorFiscalyearServiciosSchema,
+      PrestadorFiscalyearCapacidadesSchema,
       ServicioSchema,
       UserSchema,
     ]),

@@ -109,8 +109,6 @@ export class CompleteVisitGroupDialogComponent implements OnInit, AfterViewInit 
     // Create FormData for file upload
     const formData = new FormData();
 
-
-
     // Add form values to formData
     const formValues = this.completeVisitForm.value;
     for (const key in formValues) {
@@ -131,7 +129,40 @@ export class CompleteVisitGroupDialogComponent implements OnInit, AfterViewInit 
       }
     }
 
+    // Validate required files
+    if (!this.serviciosFile) {
+      this.snackmessage.openFromComponent(SnackmessageComponent, {
+        duration: 5000,
+        data: {
+          type: 'simple',
+          title: 'Error',
+          icon: 'error',
+          message: 'El archivo de Servicios es requerido',
+        },
+        panelClass: 'snackError',
+        horizontalPosition: 'right',
+        verticalPosition: 'bottom',
+      });
+      this.loading = false;
+      return;
+    }
 
+    if (!this.capacidadFile) {
+      this.snackmessage.openFromComponent(SnackmessageComponent, {
+        duration: 5000,
+        data: {
+          type: 'simple',
+          title: 'Error',
+          icon: 'error',
+          message: 'El archivo de Capacidad Instalada es requerido',
+        },
+        panelClass: 'snackError',
+        horizontalPosition: 'right',
+        verticalPosition: 'bottom',
+      });
+      this.loading = false;
+      return;
+    }
    
     // Add the files if they exist
     if (this.serviciosFile) {

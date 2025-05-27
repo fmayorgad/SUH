@@ -106,7 +106,7 @@
                             Prestador a Visitar
                         </th>
                         <td style="cursor: pointer; max-width: 350px;" mat-cell *matCellDef="let element" class="pl-0">
-                            <a>{{element.prestador.name}}</a>
+                            <a style="text-wrap: auto;">{{element.prestador.name}}</a>
                         </td>
                     </ng-container>
 
@@ -141,7 +141,7 @@
 
                     <ng-container matColumnDef="state">
                         <th class="text-center" mat-header-cell *matHeaderCellDef>
-                            Programación del Grupo de Visita
+                            Programación
                         </th>
                         <td mat-cell class="text-center" *matCellDef="let element">
                             <span class="trinta-badge deactive fw-medium d-inline-block" *ngIf="!element.visit">

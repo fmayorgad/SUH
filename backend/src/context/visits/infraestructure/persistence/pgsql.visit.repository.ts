@@ -68,6 +68,9 @@ export class PgsqlVisitRepository implements VisitRepository {
       .leftJoinAndSelect('prestador.fiscalYearServicios', 'fiscalYearServicios')
       .leftJoinAndSelect('fiscalYearServicios.fiscalYear', 'serviciosFiscalYear')
       .leftJoinAndSelect('fiscalYearServicios.servicio', 'prestadorServicio')
+      // Join the fiscal year capacidades information
+      .leftJoinAndSelect('prestador.fiscalYearCapacidades', 'fiscalYearCapacidades')
+      .leftJoinAndSelect('fiscalYearCapacidades.fiscalYear', 'capacidadesFiscalYear')
       .leftJoinAndSelect('visit.fiscalYear', 'fiscalYear')
       .leftJoinAndSelect('visit.creator', 'creator')
       // Then apply the filter condition on the already joined tables
