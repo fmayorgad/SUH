@@ -21,8 +21,17 @@ import { ServiciosService } from '@services/servicios.service';
 import { Servicio } from '@interfaces/servicio.interface';
 import { SelectCustomComponent, Record } from '@shared/SelectCustomComponent/SelectCustom.component';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { VisitsService } from '@services/visits.service';
 import moment from 'moment';
+
+interface Recorrido {
+  name: string;
+  servicios: string[];
+  verificadores: string[];
+}
+
 @Component({
   selector: 'app-dialog-complete-visit-group',
   templateUrl: 'completevisitgroup.dialog.component.html',
@@ -46,6 +55,8 @@ import moment from 'moment';
     MatIconModule,
     SelectCustomComponent,
     MatChipsModule,
+    MatTableModule,
+    MatTooltipModule,
   ],
   styles: [`
     .selected-chips-container {
@@ -63,6 +74,35 @@ import moment from 'moment';
       margin-left: 5px;
       cursor: pointer;
     }
+    .recorridos-table {
+      margin-top: 15px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #e0e0e0;
+    }
+    .recorrido-name {
+      font-weight: 500;
+      color: #333;
+    }
+    .verificadores-chips .mat-mdc-chip {
+      margin: 2px;
+      font-size: 12px;
+      background-color: #e3f2fd;
+      color: #1976d2;
+    }
+    .count-badge {
+      background: linear-gradient(135deg, #e8f5e8, #c8e6c9);
+      color: #2e7d32;
+      padding: 4px 12px;
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .mat-mdc-header-cell {
+      background-color: #f5f5f5;
+      font-weight: 600;
+      color: #333;
+    }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [MatDatepickerModule, MatNativeDateModule, DatePipe],
@@ -78,6 +118,10 @@ export class CompleteVisitGroupDialogComponent implements OnInit, AfterViewInit 
   loadingServicios = false;
   selectedServicios: Record[] = []; // Store selected services for display in chips
 
+  // Recorridos functionality
+  recorridos: Recorrido[] = [];
+  recorridosDisplayColumns: string[] = ['name', 'verificadores', 'servicios', 'actions'];
+
   constructor(
     private fb: FormBuilder,
     private snackmessage: MatSnackBar,
@@ -89,7 +133,6 @@ export class CompleteVisitGroupDialogComponent implements OnInit, AfterViewInit 
   ) { }
 
   readonly panelOpenState = signal(false);
-  recorridos = [];
 
   // Properties for file handling
   serviciosFile: File | null = null;
@@ -103,6 +146,90 @@ export class CompleteVisitGroupDialogComponent implements OnInit, AfterViewInit 
     this.showAlert = false;
   }
 
+  // Recorridos methods
+  canAddRecorrido(): boolean {
+    const name = this.completeVisitForm.get('recorridoName')?.value;
+    const verificadores = this.completeVisitForm.get('recorridoVerificadores')?.value;
+    const servicios = this.completeVisitForm.get('recorridoServicios')?.value;
+
+    return name && name.length >= 5 && 
+           verificadores && verificadores.length > 0 && 
+           servicios && servicios.length > 0;
+  }
+
+  addRecorrido(): void {
+    if (!this.canAddRecorrido()) {
+      return;
+    }
+
+    const name = this.completeVisitForm.get('recorridoName')?.value;
+    const verificadores = this.completeVisitForm.get('recorridoVerificadores')?.value;
+    const servicios = this.completeVisitForm.get('recorridoServicios')?.value;
+
+    // Convert servicios to array of IDs if they're objects
+    const serviciosIds = Array.isArray(servicios) 
+      ? servicios.map(s => typeof s === 'object' ? s.id : s)
+      : [typeof servicios === 'object' ? servicios.id : servicios];
+
+    const newRecorrido: Recorrido = {
+      name: name,
+      verificadores: verificadores,
+      servicios: serviciosIds
+    };
+
+    this.recorridos.push(newRecorrido);
+
+    // Clear the form fields
+    this.completeVisitForm.patchValue({
+      recorridoName: '',
+      recorridoVerificadores: [],
+      recorridoServicios: []
+    });
+
+    this.snackmessage.openFromComponent(SnackmessageComponent, {
+      duration: 3000,
+      data: {
+        type: 'simple',
+        title: 'Éxito',
+        icon: 'check_circle',
+        message: `Recorrido "${newRecorrido.name}" agregado correctamente`,
+      },
+      panelClass: 'snackSuccess',
+      horizontalPosition: 'right',
+      verticalPosition: 'bottom',
+    });
+  }
+
+  removeRecorrido(index: number): void {
+    if (index >= 0 && index < this.recorridos.length) {
+      const removedRecorrido = this.recorridos[index];
+      this.recorridos.splice(index, 1);
+      
+      this.snackmessage.openFromComponent(SnackmessageComponent, {
+        duration: 3000,
+        data: {
+          type: 'simple',
+          title: 'Información',
+          icon: 'info',
+          message: `Recorrido "${removedRecorrido.name}" eliminado`,
+        },
+        panelClass: 'snackInfo',
+        horizontalPosition: 'right',
+        verticalPosition: 'bottom',
+      });
+    }
+  }
+
+  getUserName(userId: string): string {
+    const user = this.incomingData?.weekgroup?.weekgroupusers?.find(
+      (wu: any) => wu.members.id === userId
+    );
+    if (user) {
+      return `${user.members.name} ${user.members.surname || ''} ${user.members.lastname || ''}`.trim();
+    }
+    return 'Usuario desconocido';
+  }
+
   async onSubmit(): Promise<void> {
     this.loading = true;
 
@@ -112,7 +239,8 @@ export class CompleteVisitGroupDialogComponent implements OnInit, AfterViewInit 
     // Add form values to formData
     const formValues = this.completeVisitForm.value;
     for (const key in formValues) {
-      if (key !== 'serviciosFile' && key !== 'capacidadFile') {
+      if (key !== 'serviciosFile' && key !== 'capacidadFile' && 
+          key !== 'recorridoName' && key !== 'recorridoVerificadores' && key !== 'recorridoServicios') {
         // Handle arrays like members and servicios
         if (Array.isArray(formValues[key])) {
           formValues[key].forEach((item: any, index: number) => {
@@ -127,6 +255,19 @@ export class CompleteVisitGroupDialogComponent implements OnInit, AfterViewInit 
           }
         }
       }
+    }
+
+    // Add recorridos to formData
+    if (this.recorridos.length > 0) {
+      this.recorridos.forEach((recorrido, index) => {
+        formData.append(`recorridos[${index}][name]`, recorrido.name);
+        recorrido.servicios.forEach((servicioId, servicioIndex) => {
+          formData.append(`recorridos[${index}][servicios][${servicioIndex}]`, servicioId);
+        });
+        recorrido.verificadores.forEach((verificadorId, verificadorIndex) => {
+          formData.append(`recorridos[${index}][verificadores][${verificadorIndex}]`, verificadorId);
+        });
+      });
     }
 
     // Validate required files
@@ -175,7 +316,6 @@ export class CompleteVisitGroupDialogComponent implements OnInit, AfterViewInit 
 
     // Add the weekgroupVisitId
     formData.append('weekgroupVisitId', this.incomingData.visit.id);
-
 
     try {
       const response = await this.visitsService.createVisit(formData);
@@ -226,7 +366,6 @@ export class CompleteVisitGroupDialogComponent implements OnInit, AfterViewInit 
       });
     } finally {
       this.loading = false;
-    
     }
   }
 
@@ -248,10 +387,6 @@ export class CompleteVisitGroupDialogComponent implements OnInit, AfterViewInit 
     }
   }
 
-  addRecorridos(): void {
-    console.log('addRecorridos called');
-  }
-
   filterByWeekRange = (date: Date | null): boolean => {
     if (!date || !this.incomingData?.weekgroup?.weeks?.startDate) return false;
 
@@ -259,7 +394,6 @@ export class CompleteVisitGroupDialogComponent implements OnInit, AfterViewInit 
 		const endDate = moment(this.incomingData.weekgroup.weeks.endDate);
     const currentDate = moment(date);
 
- 
     return currentDate >= startDate && currentDate <= endDate;
   }
 
@@ -420,6 +554,11 @@ export class CompleteVisitGroupDialogComponent implements OnInit, AfterViewInit 
       interdependencias_verificadores: [[]],
       interdependencias_todos: [''],
       interdependencias_propios: [''],
+
+      // Recorridos form controls
+      recorridoName: [''],
+      recorridoVerificadores: [[]],
+      recorridoServicios: [[]]
     });
   }
 

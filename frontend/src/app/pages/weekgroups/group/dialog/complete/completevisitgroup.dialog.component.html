@@ -589,66 +589,108 @@
                             <!--  <h5>Agregar: Recorrido {{recorridos.length+1}}</h5> -->
 
                            <div class="row">
-                                <div class="col-sm-10">
-                                    <div class="col-sm-12">
-                                        <mat-form-field>
-                                            <i-feather name="users"></i-feather>
-                                            <mat-label>Miembros Asistentes</mat-label>
-                                            <mat-select formControlName="members" multiple>
-                                                <mat-option *ngFor="let user of incomingData?.weekgroup?.weekgroupusers"
-                                                    [value]="user.members.id">
-                                                    {{user.members?.name}} {{user.members?.surname}} {{user.members?.lastname}}
-                                                </mat-option>
-                                            </mat-select>
-                                            <mat-error
-                                                *ngIf="completeVisitForm.get('members')?.hasError('required') && completeVisitForm.get('members')?.touched">
-                                                Debes seleccionar al menos un miembro asistente.
-                                            </mat-error>
-                                        </mat-form-field>
-                                    </div>
-
-                                    <div class="col-sm-12">
-                                        <select-custom [label]="'Servicios a verificar'" [icon]="'list'"
-                                            [placeholder]="'Busca servicios por código o nombre...'"
-                                            [options]="serviciosOptions" [incomingData]="incomingData.data?.servicios || []"
-                                            formControlName="servicios" />
-                                        <mat-error class="customError"
-                                            *ngIf="completeVisitForm.get('servicios')?.hasError('required') && completeVisitForm.get('servicios')?.touched">
-                                            Debe seleccionar al menos un servicio
-                                        </mat-error>
-        
-                                        <!-- Selected Servicios Chips -->
-                                        <div class="selected-chips-container mt-10"
-                                            *ngIf="(serviciosSelect?.selectedOptions && serviciosSelect.selectedOptions.length > 0) || (selectedServicios && selectedServicios.length > 0)">
-                                            <h6 class="mb-5 fz-14 regularText">Servicios seleccionados:</h6>
-                                            <mat-chip-set>
-                                                <!-- Use serviciosSelect if available, otherwise fall back to selectedServicios -->
-                                                <ng-container
-                                                    *ngIf="serviciosSelect?.selectedOptions && serviciosSelect.selectedOptions.length > 0; else fallbackChips">
-                                                    <mat-chip *ngFor="let servicio of serviciosSelect?.selectedOptions"
-                                                        [removable]="true" (removed)="removeServicio(servicio.id)"
-                                                        class="servicio-chip">
-                                                        {{servicio.text}}
-                                                        <i-feather name="x" class="remove-icon" matChipRemove></i-feather>
-                                                    </mat-chip>
-                                                </ng-container>
-        
-                                                <ng-template #fallbackChips>
-                                                    <mat-chip *ngFor="let servicio of selectedServicios || []"
-                                                        [removable]="true" (removed)="removeServicio(servicio.id)"
-                                                        class="servicio-chip">
-                                                        {{servicio.text || servicio.name}}
-                                                        <i-feather name="x" class="remove-icon" matChipRemove></i-feather>
-                                                    </mat-chip>
-                                                </ng-template>
-                                            </mat-chip-set>
-                                        </div>
-                                    </div>
+                                <div class="col-sm-12">
+                                    <h5 style="margin-top: 30px; margin-bottom: 20px; color: #3f51b5;">Agregar Recorridos</h5>
                                 </div>
-                                <div class="col-sm-2">
-                                    <div class="col-sm-12">
-                                        <button (click)="addRecorridos()" type="button" mat-raised-button
-                                            color="primary">Agregar</button>
+                                
+                                <div class="col-sm-12">
+                                    <mat-form-field>
+                                        <i-feather name="edit-3"></i-feather>
+                                        <mat-label>Nombre del Recorrido</mat-label>
+                                        <input matInput formControlName="recorridoName" placeholder="Ingrese el nombre del recorrido" minlength="5">
+                                        <mat-error *ngIf="completeVisitForm.get('recorridoName')?.hasError('minlength')">
+                                            El nombre debe tener al menos 5 caracteres
+                                        </mat-error>
+                                    </mat-form-field>
+                                </div>
+
+                                <div class="col-sm-6">
+                                    <mat-form-field>
+                                        <i-feather name="users"></i-feather>
+                                        <mat-label>Verificadores para el Recorrido</mat-label>
+                                        <mat-select formControlName="recorridoVerificadores" multiple>
+                                            <mat-option *ngFor="let user of incomingData?.weekgroup?.weekgroupusers"
+                                                [value]="user.members.id">
+                                                {{user.members?.name}} {{user.members?.surname}} {{user.members?.lastname}}
+                                            </mat-option>
+                                        </mat-select>
+                                    </mat-form-field>
+                                </div>
+
+                                <div class="col-sm-6">
+                                    <select-custom [label]="'Servicios para el Recorrido'" [icon]="'list'"
+                                        [placeholder]="'Busca servicios por código o nombre...'"
+                                        [options]="serviciosOptions" [incomingData]="[]"
+                                        formControlName="recorridoServicios" />
+                                </div>
+
+                                <div class="col-sm-12" style="margin-top: 15px;">
+                                    <button 
+                                        type="button" 
+                                        mat-raised-button 
+                                        color="primary"
+                                        [disabled]="!canAddRecorrido()"
+                                        (click)="addRecorrido()">
+                                        <mat-icon>add</mat-icon>
+                                        Agregar Recorrido
+                                    </button>
+                                </div>
+
+                                <!-- Recorridos List -->
+                                <div class="col-sm-12" *ngIf="recorridos.length > 0" style="margin-top: 30px;">
+                                    <h6 style="margin-bottom: 15px; color: #3f51b5;">Recorridos Agregados ({{recorridos.length}})</h6>
+                                    
+                                    <div class="recorridos-table">
+                                        <table mat-table [dataSource]="recorridos" class="w-100">
+                                            <!-- Name Column -->
+                                            <ng-container matColumnDef="name">
+                                                <th mat-header-cell *matHeaderCellDef>Nombre</th>
+                                                <td mat-cell *matCellDef="let recorrido">
+                                                    <span class="recorrido-name">{{recorrido.name}}</span>
+                                                </td>
+                                            </ng-container>
+
+                                            <!-- Verificadores Column -->
+                                            <ng-container matColumnDef="verificadores">
+                                                <th mat-header-cell *matHeaderCellDef>Verificadores</th>
+                                                <td mat-cell *matCellDef="let recorrido">
+                                                    <div class="verificadores-chips">
+                                                        <mat-chip-set>
+                                                            <mat-chip *ngFor="let verificadorId of recorrido.verificadores">
+                                                                {{getUserName(verificadorId)}}
+                                                            </mat-chip>
+                                                        </mat-chip-set>
+                                                    </div>
+                                                </td>
+                                            </ng-container>
+
+                                            <!-- Servicios Column -->
+                                            <ng-container matColumnDef="servicios">
+                                                <th mat-header-cell *matHeaderCellDef>Servicios</th>
+                                                <td mat-cell *matCellDef="let recorrido">
+                                                    <div class="servicios-count">
+                                                        <span class="count-badge">{{recorrido.servicios.length}} servicio(s)</span>
+                                                    </div>
+                                                </td>
+                                            </ng-container>
+
+                                            <!-- Actions Column -->
+                                            <ng-container matColumnDef="actions">
+                                                <th mat-header-cell *matHeaderCellDef>Acciones</th>
+                                                <td mat-cell *matCellDef="let recorrido; let i = index">
+                                                    <button 
+                                                        mat-icon-button 
+                                                        color="warn" 
+                                                        (click)="removeRecorrido(i)"
+                                                        matTooltip="Eliminar recorrido">
+                                                        <mat-icon>delete</mat-icon>
+                                                    </button>
+                                                </td>
+                                            </ng-container>
+
+                                            <tr mat-header-row *matHeaderRowDef="recorridosDisplayColumns"></tr>
+                                            <tr mat-row *matRowDef="let row; columns: recorridosDisplayColumns;"></tr>
+                                        </table>
                                     </div>
                                 </div>
                             </div>
