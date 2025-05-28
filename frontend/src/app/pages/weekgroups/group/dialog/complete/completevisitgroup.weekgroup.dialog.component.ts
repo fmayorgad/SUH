@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, ViewChild, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, Inject, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -10,7 +10,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { NgScrollbarModule } from 'ngx-scrollbar';
-import { ChangeDetectionStrategy, signal } from '@angular/core';
+import { signal } from '@angular/core';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { SnackmessageComponent } from '@shared/snackmessage/snackmessage.component';
@@ -104,7 +104,7 @@ interface Recorrido {
       color: #333;
     }
   `],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+
   providers: [MatDatepickerModule, MatNativeDateModule, DatePipe],
 })
 export class CompleteVisitGroupDialogComponent implements OnInit, AfterViewInit {
@@ -130,8 +130,7 @@ export class CompleteVisitGroupDialogComponent implements OnInit, AfterViewInit 
     private datePipe: DatePipe,
     private serviciosService: ServiciosService,
     public dialogRef: MatDialogRef<CompleteVisitGroupDialogComponent>,
-    private visitsService: VisitsService,
-    private cdr: ChangeDetectorRef
+    private visitsService: VisitsService
   ) { }
 
   readonly panelOpenState = signal(false);
@@ -156,7 +155,8 @@ export class CompleteVisitGroupDialogComponent implements OnInit, AfterViewInit 
 
     return name && name.length >= 5 && 
            verificadores && verificadores.length > 0 && 
-           servicios && servicios.length > 0;
+           servicios && servicios.length > 0 &&
+           this.selectedServicios.length > 0; // Ensure there are servicios available to select
   }
 
   addRecorrido(): void {
@@ -189,9 +189,6 @@ export class CompleteVisitGroupDialogComponent implements OnInit, AfterViewInit 
       recorridoServicios: []
     });
 
-    // Trigger change detection
-    this.cdr.detectChanges();
-
     this.snackmessage.openFromComponent(SnackmessageComponent, {
       duration: 3000,
       data: {
@@ -211,9 +208,6 @@ export class CompleteVisitGroupDialogComponent implements OnInit, AfterViewInit 
       const removedRecorrido = this.recorridos[index];
       this.recorridos.splice(index, 1);
       this.recorridosDataSource.data = [...this.recorridos];
-      
-      // Trigger change detection
-      this.cdr.detectChanges();
       
       this.snackmessage.openFromComponent(SnackmessageComponent, {
         duration: 3000,
@@ -238,6 +232,11 @@ export class CompleteVisitGroupDialogComponent implements OnInit, AfterViewInit 
       return `${user.members.name} ${user.members.surname || ''} ${user.members.lastname || ''}`.trim();
     }
     return 'Usuario desconocido';
+  }
+
+  getServicioName(servicioId: string): string {
+    const servicio = this.selectedServicios.find(s => s.id === servicioId);
+    return servicio ? (servicio.text || servicio.name || 'Servicio desconocido') : 'Servicio desconocido';
   }
 
   async onSubmit(): Promise<void> {

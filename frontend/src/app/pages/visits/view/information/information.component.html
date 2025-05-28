@@ -511,6 +511,80 @@
     </mat-card-content>
 </mat-card>
 
+<!-- Recorridos de la Visita -->
+<mat-card class="trinta-card mb-25 bg-white border-none d-block"
+    *ngIf="visitData?.visitRecorridos && visitData?.visitRecorridos.length > 0">
+    <mat-card-header>
+        <mat-card-title>
+            <h4 class="mt-0 mb-0">
+                Recorridos de Verificación
+            </h4>
+        </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+        <mat-tab-group class="tabContainerNotAfected">
+            <mat-tab *ngFor="let recorrido of visitData?.visitRecorridos; let i = index" 
+                     [label]="recorrido.name">
+                <div class="p-15">
+                    <div class="recorrido-info-container">
+                        <!-- Verificadores Section -->
+                        <div class="recorrido-section mb-20">
+                            <h5 class="section-title">
+                                <mat-icon class="me-2">people</mat-icon>
+                                Verificadores Asignados
+                            </h5>
+                            <div class="verificadores-list">
+                                <div class="verificador-item" 
+                                     *ngFor="let verificadorId of recorrido.verificadores; let j = index">
+                                    <div *ngFor="let member of visitData?.visitVerificadores">
+                                        <div *ngIf="member.user_id.id === verificadorId" 
+                                             class="verificador-card">
+                                            <div class="verificador-avatar bg{{j}} avatarElement rounded-circle justify-content-center align-items-center d-flex fw-semibold text-center">
+                                                {{(member.user_id.name || '')[0]}}{{((member.user_id.lastname || member.user_id.surname) || '')[0]}}
+                                            </div>
+                                            <div class="verificador-info">
+                                                <span class="verificador-name">
+                                                    {{member.user_id.name}} {{member.user_id.surname || ''}} {{member.user_id.lastname || ''}}
+                                                </span>
+                                                <small class="verificador-role text-muted">Verificador</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Servicios Section -->
+                        <div class="recorrido-section">
+                            <h5 class="section-title">
+                                <mat-icon class="me-2">medical_services</mat-icon>
+                                Servicios a Verificar
+                            </h5>
+                            <div class="servicios-grid">
+                                <div class="servicio-card" 
+                                     *ngFor="let servicioId of recorrido.servicios">
+                                    <div *ngFor="let visitServicio of visitData?.visitServicios">
+                                        <div *ngIf="visitServicio.servicio_id.id === servicioId" 
+                                             class="servicio-info">
+                                            <div class="servicio-header">
+                                                <mat-icon class="servicio-icon">medical_services</mat-icon>
+                                                <div class="servicio-details">
+                                                    <span class="servicio-name">{{visitServicio.servicio_id.name}}</span>
+                                                    <small class="servicio-code">{{visitServicio.servicio_id.code}}</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </mat-tab>
+        </mat-tab-group>
+    </mat-card-content>
+</mat-card>
+
 <!-- Componentes del Acta -->
 <mat-card class="trinta-card mb-25 bg-white border-none d-block">
     <mat-card-header>
@@ -524,15 +598,23 @@
         <mat-tab-group class="tabContainerNotAfected">
             <mat-tab label="Talento Humano">
                 <div class="p-15">
-                    <h5>Verificadores Asignados</h5>
-                    <div class="d-flex align-items-center flex-wrap mb-15">
-                        <div *ngFor="let verificadorId of visitData?.th_verificadores; let i = index">
+                    <h5 class="section-title">
+                        <mat-icon class="me-2">people</mat-icon>
+                        Verificadores Asignados
+                    </h5>
+                    <div class="verificadores-list mb-20">
+                        <div class="verificador-item" *ngFor="let verificadorId of visitData?.th_verificadores; let i = index">
                             <div *ngFor="let member of visitData?.visitVerificadores">
-                                <div *ngIf="member.user_id.id === verificadorId"
-                                    [matTooltip]="member.user_id.name + ' ' + (member.user_id.surname || '') + ' ' + (member.user_id.lastname || '')"
-                                    class="mr-5 bg{{i}} avatarElement rounded-circle justify-content-center align-items-center d-flex fw-semibold text-center w-50 h-50">
-                                    {{(member.user_id.name || '')[0]}}{{((member.user_id.lastname ||
-                                    member.user_id.surname) || '')[0]}}
+                                <div *ngIf="member.user_id.id === verificadorId" class="verificador-card">
+                                    <div class="verificador-avatar bg{{i}} avatarElement rounded-circle justify-content-center align-items-center d-flex fw-semibold text-center">
+                                        {{(member.user_id.name || '')[0]}}{{((member.user_id.lastname || member.user_id.surname) || '')[0]}}
+                                    </div>
+                                    <div class="verificador-info">
+                                        <span class="verificador-name">
+                                            {{member.user_id.name}} {{member.user_id.surname || ''}} {{member.user_id.lastname || ''}}
+                                        </span>
+                                        <small class="verificador-role text-muted">Verificador</small>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -564,16 +646,23 @@
 
             <mat-tab label="Infraestructura">
                 <div class="p-15">
-                    <h5>Verificadores Asignados</h5>
-                    <div class="d-flex align-items-center flex-wrap mb-15"
-                        *ngIf="visitData?.infra_verificadores">
-                        <div *ngFor="let verificadorId of visitData?.infra_verificadores; let i = index">
+                    <h5 class="section-title">
+                        <mat-icon class="me-2">people</mat-icon>
+                        Verificadores Asignados
+                    </h5>
+                    <div class="verificadores-list mb-20" *ngIf="visitData?.infra_verificadores">
+                        <div class="verificador-item" *ngFor="let verificadorId of visitData?.infra_verificadores; let i = index">
                             <div *ngFor="let member of visitData?.visitVerificadores">
-                                <div *ngIf="member.user_id.id === verificadorId"
-                                    [matTooltip]="member.user_id.name + ' ' + (member.user_id.surname || '') + ' ' + (member.user_id.lastname || '')"
-                                    class="mr-5 bg{{i}} avatarElement rounded-circle justify-content-center align-items-center d-flex fw-semibold text-center w-50 h-50">
-                                    {{(member.user_id.name || '')[0]}}{{((member.user_id.lastname ||
-                                    member.user_id.surname) || '')[0]}}
+                                <div *ngIf="member.user_id.id === verificadorId" class="verificador-card">
+                                    <div class="verificador-avatar bg{{i}} avatarElement rounded-circle justify-content-center align-items-center d-flex fw-semibold text-center">
+                                        {{(member.user_id.name || '')[0]}}{{((member.user_id.lastname || member.user_id.surname) || '')[0]}}
+                                    </div>
+                                    <div class="verificador-info">
+                                        <span class="verificador-name">
+                                            {{member.user_id.name}} {{member.user_id.surname || ''}} {{member.user_id.lastname || ''}}
+                                        </span>
+                                        <small class="verificador-role text-muted">Verificador</small>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -606,16 +695,23 @@
 
             <mat-tab label="Dotación">
                 <div class="p-15">
-                    <h5>Verificadores Asignados</h5>
-                    <div class="d-flex align-items-center flex-wrap mb-15"
-                        *ngIf="visitData?.dotacion_verificadores">
-                        <div *ngFor="let verificadorId of visitData?.dotacion_verificadores; let i = index">
+                    <h5 class="section-title">
+                        <mat-icon class="me-2">people</mat-icon>
+                        Verificadores Asignados
+                    </h5>
+                    <div class="verificadores-list mb-20" *ngIf="visitData?.dotacion_verificadores">
+                        <div class="verificador-item" *ngFor="let verificadorId of visitData?.dotacion_verificadores; let i = index">
                             <div *ngFor="let member of visitData?.visitVerificadores">
-                                <div *ngIf="member.user_id.id === verificadorId"
-                                    [matTooltip]="member.user_id.name + ' ' + (member.user_id.surname || '') + ' ' + (member.user_id.lastname || '')"
-                                    class="mr-5 bg{{i}} avatarElement rounded-circle justify-content-center align-items-center d-flex fw-semibold text-center w-50 h-50">
-                                    {{(member.user_id.name || '')[0]}}{{((member.user_id.lastname ||
-                                    member.user_id.surname) || '')[0]}}
+                                <div *ngIf="member.user_id.id === verificadorId" class="verificador-card">
+                                    <div class="verificador-avatar bg{{i}} avatarElement rounded-circle justify-content-center align-items-center d-flex fw-semibold text-center">
+                                        {{(member.user_id.name || '')[0]}}{{((member.user_id.lastname || member.user_id.surname) || '')[0]}}
+                                    </div>
+                                    <div class="verificador-info">
+                                        <span class="verificador-name">
+                                            {{member.user_id.name}} {{member.user_id.surname || ''}} {{member.user_id.lastname || ''}}
+                                        </span>
+                                        <small class="verificador-role text-muted">Verificador</small>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -648,16 +744,23 @@
 
             <mat-tab label="Medicamentos, Dispositivos e Insumos">
                 <div class="p-15">
-                    <h5>Verificadores Asignados</h5>
-                    <div class="d-flex align-items-center flex-wrap mb-15"
-                        *ngIf="visitData?.mdi_verificadores">
-                        <div *ngFor="let verificadorId of visitData?.mdi_verificadores; let i = index">
+                    <h5 class="section-title">
+                        <mat-icon class="me-2">people</mat-icon>
+                        Verificadores Asignados
+                    </h5>
+                    <div class="verificadores-list mb-20" *ngIf="visitData?.mdi_verificadores">
+                        <div class="verificador-item" *ngFor="let verificadorId of visitData?.mdi_verificadores; let i = index">
                             <div *ngFor="let member of visitData?.visitVerificadores">
-                                <div *ngIf="member.user_id.id === verificadorId"
-                                    [matTooltip]="member.user_id.name + ' ' + (member.user_id.surname || '') + ' ' + (member.user_id.lastname || '')"
-                                    class="mr-5 bg{{i}} avatarElement rounded-circle justify-content-center align-items-center d-flex fw-semibold text-center w-50 h-50">
-                                    {{(member.user_id.name || '')[0]}}{{((member.user_id.lastname ||
-                                    member.user_id.surname) || '')[0]}}
+                                <div *ngIf="member.user_id.id === verificadorId" class="verificador-card">
+                                    <div class="verificador-avatar bg{{i}} avatarElement rounded-circle justify-content-center align-items-center d-flex fw-semibold text-center">
+                                        {{(member.user_id.name || '')[0]}}{{((member.user_id.lastname || member.user_id.surname) || '')[0]}}
+                                    </div>
+                                    <div class="verificador-info">
+                                        <span class="verificador-name">
+                                            {{member.user_id.name}} {{member.user_id.surname || ''}} {{member.user_id.lastname || ''}}
+                                        </span>
+                                        <small class="verificador-role text-muted">Verificador</small>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -690,17 +793,23 @@
 
             <mat-tab label="Procedimientos">
                 <div class="p-15">
-                    <h5>Verificadores Asignados</h5>
-                    <div class="d-flex align-items-center flex-wrap mb-15"
-                        *ngIf="visitData?.procedimientos_verificadores">
-                        <div
-                            *ngFor="let verificadorId of visitData?.procedimientos_verificadores; let i = index">
+                    <h5 class="section-title">
+                        <mat-icon class="me-2">people</mat-icon>
+                        Verificadores Asignados
+                    </h5>
+                    <div class="verificadores-list mb-20" *ngIf="visitData?.procedimientos_verificadores">
+                        <div class="verificador-item" *ngFor="let verificadorId of visitData?.procedimientos_verificadores; let i = index">
                             <div *ngFor="let member of visitData?.visitVerificadores">
-                                <div *ngIf="member.user_id.id === verificadorId"
-                                    [matTooltip]="member.user_id.name + ' ' + (member.user_id.surname || '') + ' ' + (member.user_id.lastname || '')"
-                                    class="mr-5 bg{{i}} avatarElement rounded-circle justify-content-center align-items-center d-flex fw-semibold text-center w-50 h-50">
-                                    {{(member.user_id.name || '')[0]}}{{((member.user_id.lastname ||
-                                    member.user_id.surname) || '')[0]}}
+                                <div *ngIf="member.user_id.id === verificadorId" class="verificador-card">
+                                    <div class="verificador-avatar bg{{i}} avatarElement rounded-circle justify-content-center align-items-center d-flex fw-semibold text-center">
+                                        {{(member.user_id.name || '')[0]}}{{((member.user_id.lastname || member.user_id.surname) || '')[0]}}
+                                    </div>
+                                    <div class="verificador-info">
+                                        <span class="verificador-name">
+                                            {{member.user_id.name}} {{member.user_id.surname || ''}} {{member.user_id.lastname || ''}}
+                                        </span>
+                                        <small class="verificador-role text-muted">Verificador</small>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -733,16 +842,23 @@
 
             <mat-tab label="Historia Clínica y Registros">
                 <div class="p-15">
-                    <h5>Verificadores Asignados</h5>
-                    <div class="d-flex align-items-center flex-wrap mb-15"
-                        *ngIf="visitData?.hcr_verificadores">
-                        <div *ngFor="let verificadorId of visitData?.hcr_verificadores; let i = index">
+                    <h5 class="section-title">
+                        <mat-icon class="me-2">people</mat-icon>
+                        Verificadores Asignados
+                    </h5>
+                    <div class="verificadores-list mb-20" *ngIf="visitData?.hcr_verificadores">
+                        <div class="verificador-item" *ngFor="let verificadorId of visitData?.hcr_verificadores; let i = index">
                             <div *ngFor="let member of visitData?.visitVerificadores">
-                                <div *ngIf="member.user_id.id === verificadorId"
-                                    [matTooltip]="member.user_id.name + ' ' + (member.user_id.surname || '') + ' ' + (member.user_id.lastname || '')"
-                                    class="mr-5 bg{{i}} avatarElement rounded-circle justify-content-center align-items-center d-flex fw-semibold text-center w-50 h-50">
-                                    {{(member.user_id.name || '')[0]}}{{((member.user_id.lastname ||
-                                    member.user_id.surname) || '')[0]}}
+                                <div *ngIf="member.user_id.id === verificadorId" class="verificador-card">
+                                    <div class="verificador-avatar bg{{i}} avatarElement rounded-circle justify-content-center align-items-center d-flex fw-semibold text-center">
+                                        {{(member.user_id.name || '')[0]}}{{((member.user_id.lastname || member.user_id.surname) || '')[0]}}
+                                    </div>
+                                    <div class="verificador-info">
+                                        <span class="verificador-name">
+                                            {{member.user_id.name}} {{member.user_id.surname || ''}} {{member.user_id.lastname || ''}}
+                                        </span>
+                                        <small class="verificador-role text-muted">Verificador</small>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -775,23 +891,28 @@
 
             <mat-tab label="Interdependencias">
                 <div class="p-15">
-                    <h5>Verificadores Asignados</h5>
-                    <div class="d-flex align-items-center flex-wrap mb-15"
-                        *ngIf="visitData?.interdependencias_verificadores">
-                        <div
-                            *ngFor="let verificadorId of visitData?.interdependencias_verificadores; let i = index">
+                    <h5 class="section-title">
+                        <mat-icon class="me-2">people</mat-icon>
+                        Verificadores Asignados
+                    </h5>
+                    <div class="verificadores-list mb-20" *ngIf="visitData?.interdependencias_verificadores">
+                        <div class="verificador-item" *ngFor="let verificadorId of visitData?.interdependencias_verificadores; let i = index">
                             <div *ngFor="let member of visitData?.visitVerificadores">
-                                <div *ngIf="member.user_id.id === verificadorId"
-                                    [matTooltip]="member.user_id.name + ' ' + (member.user_id.surname || '') + ' ' + (member.user_id.lastname || '')"
-                                    class="mr-5 bg{{i}} avatarElement rounded-circle justify-content-center align-items-center d-flex fw-semibold text-center w-50 h-50">
-                                    {{(member.user_id.name || '')[0]}}{{((member.user_id.lastname ||
-                                    member.user_id.surname) || '')[0]}}
+                                <div *ngIf="member.user_id.id === verificadorId" class="verificador-card">
+                                    <div class="verificador-avatar bg{{i}} avatarElement rounded-circle justify-content-center align-items-center d-flex fw-semibold text-center">
+                                        {{(member.user_id.name || '')[0]}}{{((member.user_id.lastname || member.user_id.surname) || '')[0]}}
+                                    </div>
+                                    <div class="verificador-info">
+                                        <span class="verificador-name">
+                                            {{member.user_id.name}} {{member.user_id.surname || ''}} {{member.user_id.lastname || ''}}
+                                        </span>
+                                        <small class="verificador-role text-muted">Verificador</small>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <p *ngIf="!visitData?.interdependencias_verificadores">No hay verificadores asignados
-                    </p>
+                    <p *ngIf="!visitData?.interdependencias_verificadores">No hay verificadores asignados</p>
 
                     <div class="findings-container">
                         <div class="findings-card">
