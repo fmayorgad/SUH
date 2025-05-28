@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, Inject, OnInit, ViewChild, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -21,7 +21,7 @@ import { ServiciosService } from '@services/servicios.service';
 import { Servicio } from '@interfaces/servicio.interface';
 import { SelectCustomComponent, Record } from '@shared/SelectCustomComponent/SelectCustom.component';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatTableModule } from '@angular/material/table';
+import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { VisitsService } from '@services/visits.service';
 import moment from 'moment';
@@ -120,6 +120,7 @@ export class CompleteVisitGroupDialogComponent implements OnInit, AfterViewInit 
 
   // Recorridos functionality
   recorridos: Recorrido[] = [];
+  recorridosDataSource = new MatTableDataSource<Recorrido>([]);
   recorridosDisplayColumns: string[] = ['name', 'verificadores', 'servicios', 'actions'];
 
   constructor(
@@ -129,7 +130,8 @@ export class CompleteVisitGroupDialogComponent implements OnInit, AfterViewInit 
     private datePipe: DatePipe,
     private serviciosService: ServiciosService,
     public dialogRef: MatDialogRef<CompleteVisitGroupDialogComponent>,
-    private visitsService: VisitsService
+    private visitsService: VisitsService,
+    private cdr: ChangeDetectorRef
   ) { }
 
   readonly panelOpenState = signal(false);
@@ -178,6 +180,7 @@ export class CompleteVisitGroupDialogComponent implements OnInit, AfterViewInit 
     };
 
     this.recorridos.push(newRecorrido);
+    this.recorridosDataSource.data = [...this.recorridos];
 
     // Clear the form fields
     this.completeVisitForm.patchValue({
@@ -185,6 +188,9 @@ export class CompleteVisitGroupDialogComponent implements OnInit, AfterViewInit 
       recorridoVerificadores: [],
       recorridoServicios: []
     });
+
+    // Trigger change detection
+    this.cdr.detectChanges();
 
     this.snackmessage.openFromComponent(SnackmessageComponent, {
       duration: 3000,
@@ -204,6 +210,10 @@ export class CompleteVisitGroupDialogComponent implements OnInit, AfterViewInit 
     if (index >= 0 && index < this.recorridos.length) {
       const removedRecorrido = this.recorridos[index];
       this.recorridos.splice(index, 1);
+      this.recorridosDataSource.data = [...this.recorridos];
+      
+      // Trigger change detection
+      this.cdr.detectChanges();
       
       this.snackmessage.openFromComponent(SnackmessageComponent, {
         duration: 3000,
