@@ -7,6 +7,7 @@ import { Prestador } from "@models/prestador.model";
 import { FiscalYear } from "@models/fiscalyears.model";
 import { Users } from "@models/user.model";
 import { VisitServicios } from "@models/visit_servicios.model";
+import { VisitRecorridos } from "@models/visit_recorridos.model";
 
 export class Visit extends BaseModel {
   start?: Date;
@@ -49,6 +50,7 @@ export class Visit extends BaseModel {
   //Relations
   visitVerificadores?: VisitVerificadores[];
   visitServicios?: VisitServicios[];
+  visitRecorridos?: VisitRecorridos[];
   prestador?: Prestador;
   fiscalYear?: FiscalYear;
   creator?: Users;

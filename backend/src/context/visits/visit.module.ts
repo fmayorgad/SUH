@@ -4,6 +4,7 @@ import { VisitSchema } from '@schemas/visit.schema';
 import { WeekgroupVisitSchema } from '@schemas/weekgroupvisit.schema'; // Import if needed for relations
 import { VisitVerificadoresSchema } from '@schemas/visit_verificadores.schema';
 import { VisitServiciosSchema } from '@schemas/visit_servicios.schema';
+import { VisitRecorridosSchema } from '@schemas/visit_recorridos.schema';
 
 //schemas
 import { MunicipioSchema } from '@schemas/municipio.schema';
@@ -77,6 +78,7 @@ const controllers = [
       WeekgroupVisitSchema,
       VisitVerificadoresSchema,
       VisitServiciosSchema,
+      VisitRecorridosSchema,
       MunicipioSchema,
       PrestadorSchema,
       FiscalYearSchema,

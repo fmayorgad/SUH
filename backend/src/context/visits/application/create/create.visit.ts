@@ -31,6 +31,8 @@ import { Users } from '@models/user.model';
 import { VisitServicios } from '@models/visit_servicios.model';
 import { PrestadorFiscalyearCapacidades } from '@models/prestador-fiscalyear-capacidades.model';
 import { PrestadorFiscalyearCapacidadesSchema } from '@schemas/prestador-fiscalyear-capacidades.schema';
+import { VisitRecorridos } from '@models/visit_recorridos.model';
+import { VisitRecorridosSchema } from '@schemas/visit_recorridos.schema';
 // Define local interface for Multer file
 interface MulterFile {
   fieldname: string;
@@ -67,6 +69,8 @@ export class CreateVisit {
     private readonly usersRepository: Repository<Users>,
     @InjectRepository(PrestadorFiscalyearCapacidadesSchema)
     private readonly prestadorFiscalyearCapacidadesRepository: Repository<PrestadorFiscalyearCapacidades>,
+    @InjectRepository(VisitRecorridosSchema)
+    private readonly visitRecorridosRepository: Repository<VisitRecorridos>,
     private readonly dataSource: DataSource,
   ) { }
 
@@ -254,6 +258,11 @@ export class CreateVisit {
         await this.createVisitServicios(createVisitDto.servicios, visit.id, queryRunner);
       }
 
+      // Create visit recorridos if provided in the DTO
+      if (createVisitDto.recorridos && createVisitDto.recorridos.length > 0) {
+        await this.createVisitRecorridos(createVisitDto.recorridos, visit.id, queryRunner);
+      }
+
       //if the visit is created successfully, we need to update the weekgroupvisit visit_state to 'completed'
       await queryRunner.manager.update(
         WeekgroupVisit,
@@ -339,6 +348,66 @@ export class CreateVisit {
     // Save all visit servicios using the transaction
     const visitServiciosRepo = queryRunner.manager.getRepository(VisitServicios);
     await visitServiciosRepo.save(visitServicios);
+  }
+
+  private async createVisitRecorridos(recorridos: any[], visitId: string, queryRunner: QueryRunner): Promise<void> {
+    // Validate that all servicios exist
+    const allServicioIds = recorridos.flatMap(recorrido => recorrido.servicios);
+    const uniqueServicioIds = [...new Set(allServicioIds)];
+    
+    if (uniqueServicioIds.length > 0) {
+      const servicios = await this.servicioRepository.find({
+        where: { id: In(uniqueServicioIds) }
+      });
+
+      if (servicios.length !== uniqueServicioIds.length) {
+        const foundServicioIds = servicios.map(servicio => servicio.id);
+        const missingServicioIds = uniqueServicioIds.filter(id => !foundServicioIds.includes(id));
+        throw new BadRequestException(
+          [`No se encontraron los siguientes servicios: ${missingServicioIds.join(', ')}`],
+          {
+            cause: new Error(),
+            description: 'Algunos servicios en los recorridos no existen',
+          },
+        );
+      }
+    }
+
+    // Validate that all verificadores exist
+    const allVerificadorIds = recorridos.flatMap(recorrido => recorrido.verificadores || []);
+    const uniqueVerificadorIds = [...new Set(allVerificadorIds)];
+    
+    if (uniqueVerificadorIds.length > 0) {
+      const users = await this.usersRepository.find({
+        where: { id: In(uniqueVerificadorIds) }
+      });
+
+      if (users.length !== uniqueVerificadorIds.length) {
+        const foundUserIds = users.map(user => user.id);
+        const missingUserIds = uniqueVerificadorIds.filter(id => !foundUserIds.includes(id));
+        throw new BadRequestException(
+          [`No se encontraron los siguientes verificadores: ${missingUserIds.join(', ')}`],
+          {
+            cause: new Error(),
+            description: 'Algunos verificadores en los recorridos no existen',
+          },
+        );
+      }
+    }
+
+    // Create VisitRecorridos entities
+    const visitRecorridos = recorridos.map(recorrido => {
+      const visitRecorrido = new VisitRecorridos();
+      visitRecorrido.visit_id = visitId;
+      visitRecorrido.name = recorrido.name;
+      visitRecorrido.servicios = recorrido.servicios;
+      visitRecorrido.verificadores = recorrido.verificadores || [];
+      return visitRecorrido;
+    });
+
+    // Save all visit recorridos using the transaction
+    const visitRecorridosRepo = queryRunner.manager.getRepository(VisitRecorridos);
+    await visitRecorridosRepo.save(visitRecorridos);
   }
 
   private async readServiciosExcel(file: MulterFile): Promise<any[]> {

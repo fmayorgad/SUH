@@ -1,7 +1,36 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNotEmpty, IsUUID, IsOptional, IsEnum, IsDateString, IsString, IsArray } from 'class-validator';
+import { IsNotEmpty, IsUUID, IsOptional, IsEnum, IsDateString, IsString, IsArray, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 import { VisitStatesEnum } from '@enums/visit-states.enum';
 import { generalStateTypes } from '@enums/general-state-type';
+
+export class CreateVisitRecorridoDTO {
+  @ApiProperty({
+    description: 'Name of the recorrido',
+    type: String,
+  })
+  @IsNotEmpty()
+  @IsString()
+  name: string;
+
+  @ApiProperty({
+    description: 'Array of servicio UUIDs',
+    type: [String],
+  })
+  @IsNotEmpty()
+  @IsArray()
+  @IsUUID(4, { each: true })
+  servicios: string[];
+
+  @ApiPropertyOptional({
+    description: 'Array of verificador UUIDs',
+    type: [String],
+  })
+  @IsOptional()
+  @IsArray()
+  @IsUUID(4, { each: true })
+  verificadores?: string[];
+}
 
 export class CreateVisitDTO {
   @ApiPropertyOptional({
@@ -263,4 +292,14 @@ export class CreateVisitDTO {
   @IsOptional()
   @IsArray()
   servicios?: string[];
+
+  @ApiPropertyOptional({
+    description: 'Array of visit recorridos',
+    type: [CreateVisitRecorridoDTO],
+  })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateVisitRecorridoDTO)
+  recorridos?: CreateVisitRecorridoDTO[];
 } 
