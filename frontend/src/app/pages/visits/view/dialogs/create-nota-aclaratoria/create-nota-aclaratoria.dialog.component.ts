@@ -35,9 +35,11 @@ export class CreateNotaAclaratoriaDialogComponent implements OnInit {
   loading = false;
   
   notaAclaratoriaForm = new FormGroup({
+    name: new FormControl('', [Validators.required]),
     numeroActaInforme: new FormControl('', [Validators.required]),
     tipoDocumento: new FormControl('', [Validators.required]),
-    contenido: new FormControl('', [Validators.required])
+    contenido: new FormControl('', [Validators.required]),
+    justification: new FormControl('', [Validators.required])
   });
 
   // Quill editor configuration without image upload
@@ -79,9 +81,11 @@ export class CreateNotaAclaratoriaDialogComponent implements OnInit {
       try {
         const formData = {
           visitId: this.data.visitId,
+          name: this.notaAclaratoriaForm.value.name,
           numeroActaInforme: this.notaAclaratoriaForm.value.numeroActaInforme,
           tipoDocumento: this.notaAclaratoriaForm.value.tipoDocumento,
-          contenido: this.notaAclaratoriaForm.value.contenido
+          contenido: this.notaAclaratoriaForm.value.contenido,
+          justification: this.notaAclaratoriaForm.value.justification
         };
 
         const response = await this.visitsService.createNotaAclaratoria(formData);
