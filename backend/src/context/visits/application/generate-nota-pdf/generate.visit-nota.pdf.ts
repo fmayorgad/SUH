@@ -532,12 +532,18 @@ export class GenerateVisitNotaPdf {
                 }
                 currentList = { type: 'ordered-list', items: [] };
             } else if (part.match(/^<ul[^>]*>/i)) {
-                // Start unordered list
+                // Start unordered list - check for data-list attribute to determine bullet vs number
                 if (currentBlock) {
                     blocks.push(currentBlock);
                     currentBlock = null;
                 }
-                currentList = { type: 'unordered-list', items: [] };
+                
+                // Check if this should be a bullet list based on data-list attribute
+                const isBulletList = part.includes('data-list="bullet"') || part.includes("data-list='bullet'");
+                currentList = { 
+                    type: isBulletList ? 'unordered-list' : 'unordered-list', // Always unordered for ul
+                    items: [] 
+                };
             } else if (part.match(/^<\/(?:ol|ul)>/i)) {
                 // End list
                 if (currentList) {
@@ -629,7 +635,7 @@ export class GenerateVisitNotaPdf {
     }
 
     /**
-     * Render a single line with bold formatting support
+     * Render a single line with bold formatting support and proper spacing
      */
     private renderLineWithBoldSupport(doc: PDFKit.PDFDocument, content: string, options: any) {
         // Split by bold tags to handle mixed formatting
@@ -653,7 +659,10 @@ export class GenerateVisitNotaPdf {
                    .fontSize(12)
                    .fillColor('#000000');
                 
-                doc.text(cleanText, {
+                // Add space before the text if it's not the first part and doesn't start with space
+                const textToRender = hasContent && !cleanText.startsWith(' ') ? ' ' + cleanText : cleanText;
+                
+                doc.text(textToRender, {
                     ...options,
                     continued: true
                 });
@@ -793,15 +802,18 @@ export class GenerateVisitNotaPdf {
                            .fontSize(12)
                            .fillColor('#000000');
                         
+                        // Add space before the text if it's not the first part and doesn't start with space
+                        const textToRender = lineHasContent && !cleanText.startsWith(' ') ? ' ' + cleanText : cleanText;
+                        
                         // Render text at current position
-                        doc.text(cleanText, currentLineX, currentY, {
+                        doc.text(textToRender, currentLineX, currentY, {
                             width: options.width,
                             continued: true,
                             lineBreak: false
                         });
                         
                         // Update position for next part
-                        currentLineX += doc.widthOfString(cleanText);
+                        currentLineX += doc.widthOfString(textToRender);
                         lineHasContent = true;
                     }
                 }
