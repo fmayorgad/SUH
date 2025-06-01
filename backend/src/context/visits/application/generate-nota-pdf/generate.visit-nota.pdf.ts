@@ -216,9 +216,12 @@ export class GenerateVisitNotaPdf {
     }
 
     private addHeaderAndFooter(doc: PDFKit.PDFDocument) {
-        // Save current cursor position
+        // Save current cursor position only if it's not a new blank page
         const currentY = doc.y;
         const currentX = doc.x;
+        const isNewPage = currentY <= 165; // If we're at the top, it's likely a new page
+
+        this.logger.log(`addHeaderAndFooter called - currentY: ${currentY}, currentX: ${currentX}, isNewPage: ${isNewPage}`);
 
         // Save current font and font size
         const currentFont = (doc as any)._font ? (doc as any)._font.name : 'Arial';
@@ -258,12 +261,23 @@ export class GenerateVisitNotaPdf {
             this.logger.error(`Error adding footer image to PDF: ${error.message}`);
         }
 
-        // Restore cursor position to continue adding content
-        doc.x = currentX;
-        doc.y = currentY;
+        // Handle cursor position restoration properly
+        if (isNewPage) {
+            // For new pages, set cursor to content area (after header)
+            doc.x = 50;
+            doc.y = 165; // Start content below header
+            this.logger.log(`New page detected - setting cursor to x:50, y:165`);
+        } else {
+            // For existing pages, restore original position if it makes sense
+            const restoredY = Math.max(currentY, 165); // Don't go above header area
+            doc.x = currentX;
+            doc.y = restoredY;
+            this.logger.log(`Existing page - restoring cursor to x:${currentX}, y:${restoredY}`);
+        }
 
         // Restore original font and font size
         doc.font(currentFont).fontSize(currentFontSize);
+        this.logger.log(`Cursor final position - x:${doc.x}, y:${doc.y}`);
     }
 
     private addRecipientInfo(doc: PDFKit.PDFDocument, visit: any) {
@@ -618,12 +632,23 @@ export class GenerateVisitNotaPdf {
      * Render a paragraph with bold formatting and line break support
      */
     private renderParagraphWithFormatting(doc: PDFKit.PDFDocument, content: string, options: any) {
+        // Check if we have enough space for this paragraph
+        const estimatedHeight = this.estimateTextHeight(doc, content, options.width) + 30;
+        if (doc.y + estimatedHeight > 750) { // Check if we need a new page
+            doc.addPage(); // This will trigger the pageAdded event and add header/footer
+        }
+        
         // First handle line breaks
         const lines = content.split(/<br\s*\/?>/gi);
         
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i].trim();
             if (line) {
+                // Check if we need a new page for this line
+                if (doc.y + 20 > 750) {
+                    doc.addPage();
+                }
+                
                 this.renderLineWithBoldSupport(doc, line, options);
             }
             
@@ -687,6 +712,12 @@ export class GenerateVisitNotaPdf {
             const item = items[i];
             
             if (item.trim()) {
+                // Check if we have enough space for this list item
+                const estimatedHeight = this.estimateTextHeight(doc, item, options.width - 70) + 20;
+                if (doc.y + estimatedHeight > 750) { // Check if we need a new page
+                    doc.addPage(); // This will trigger the pageAdded event and add header/footer
+                }
+                
                 // Set indented position for list (standard document indentation)
                 const listIndent = 70; // Indent list from left margin (20px indent)
                 doc.x = listIndent;
@@ -730,6 +761,12 @@ export class GenerateVisitNotaPdf {
             const item = items[i];
             
             if (item.trim()) {
+                // Check if we have enough space for this list item
+                const estimatedHeight = this.estimateTextHeight(doc, item, options.width - 70) + 20;
+                if (doc.y + estimatedHeight > 750) { // Check if we need a new page
+                    doc.addPage(); // This will trigger the pageAdded event and add header/footer
+                }
+                
                 // Set indented position for list (standard document indentation)
                 const listIndent = 70; // Indent list from left margin (20px indent)
                 doc.x = listIndent;
@@ -760,6 +797,18 @@ export class GenerateVisitNotaPdf {
                 }
             }
         }
+    }
+
+    /**
+     * Estimate text height for page break calculations
+     */
+    private estimateTextHeight(doc: PDFKit.PDFDocument, text: string, width: number): number {
+        const cleanText = this.cleanHtmlContent(text);
+        const fontSize = 12;
+        const lineHeight = fontSize * 1.2;
+        const charsPerLine = Math.floor(width / (fontSize * 0.6)); // Rough estimate
+        const lines = Math.ceil(cleanText.length / charsPerLine);
+        return lines * lineHeight;
     }
 
     /**
