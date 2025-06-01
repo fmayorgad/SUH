@@ -8,6 +8,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ViewVisitDocumentComponent } from '@pages/visits/view/dialogs/view/view.dialog.component';
 import { VisitsService } from '@services/visits.service';
 import { ViewCommunicationDocumentComponent } from '../dialogs/view-communication/view-communication.component';
+import { CreateNotaAclaratoriaDialogComponent } from '../dialogs/create-nota-aclaratoria/create-nota-aclaratoria.dialog.component';
 
 @Component({
   selector: 'app-visit-documents',
@@ -75,6 +76,29 @@ export class DocumentsComponent implements OnInit {
     if (stepNumber === 1) {
       return this.visitData?.notification_sended ? 'Completado' : 'En proceso';
     }
+    if (stepNumber === 2) {
+      return this.visitData?.notification_sended ? 'En proceso' : 'Pendiente';
+    }
     return 'Pendiente';
+  }
+
+  /**
+   * Opens the create nota aclaratoria dialog
+   */
+  openCreateNotaAclaratoria() {
+    this.dialog.open(CreateNotaAclaratoriaDialogComponent, {
+      data: {
+        visitId: this.visitData?.id
+      },
+      width: '80vw',
+      maxWidth: '800px',
+      height: 'auto',
+      maxHeight: '90vh'
+    }).afterClosed().subscribe(result => {
+      if (result) {
+        // Optionally reload or update data if needed
+        this.visitDataChange.emit(this.visitData);
+      }
+    });
   }
 } 

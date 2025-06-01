@@ -1,0 +1,62 @@
+<div class="mediumVerticalDialogContainer">
+    <h3 mat-dialog-title>
+        Crear Nota Aclaratoria
+    </h3>
+    <mat-dialog-content class="mat-typography">
+        <mat-card class="trinta-card mb-25 bg-white border-none d-block">
+            <mat-card-content>
+                <form [formGroup]="notaAclaratoriaForm">
+                    <div class="row">
+                        <div class="col-sm-12 col-md-6">
+                            <mat-form-field>
+                                <i-feather name="file-text"></i-feather>
+                                <mat-label>No. Acta/Informe</mat-label>
+                                <input matInput placeholder="Ej: 001-2024" formControlName="numeroActaInforme">
+                                <mat-error *ngIf="notaAclaratoriaForm.controls.numeroActaInforme.hasError('required')">
+                                    El campo es <strong>requerido</strong>.
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+
+                        <div class="col-sm-12 col-md-6">
+                            <mat-form-field>
+                                <i-feather name="folder"></i-feather>
+                                <mat-label>Tipo de Documento</mat-label>
+                                <mat-select formControlName="tipoDocumento">
+                                    <mat-option value="informe">Informe</mat-option>
+                                    <mat-option value="acta_visita">Acta de visita</mat-option>
+                                </mat-select>
+                                <mat-error *ngIf="notaAclaratoriaForm.controls.tipoDocumento.hasError('required')">
+                                    El campo es <strong>requerido</strong>.
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+
+                        <div class="col-sm-12">
+                            <mat-label style="display: block; margin-bottom: 8px; font-weight: 500;">Contenido de la Nota</mat-label>
+                            <quill-editor 
+                                formControlName="contenido"
+                                [modules]="quillModules"
+                                [placeholder]="'Escriba el contenido de la nota aclaratoria...'"
+                                [style]="{ 'min-height': '200px' }">
+                            </quill-editor>
+                            <mat-error *ngIf="notaAclaratoriaForm.controls.contenido.hasError('required')" 
+                                       style="display: block; margin-top: 4px; color: #f44336; font-size: 12px;">
+                                El contenido es <strong>requerido</strong>.
+                            </mat-error>
+                        </div>
+                    </div>
+                </form>
+            </mat-card-content>
+        </mat-card>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+        <button mat-button color="warn" mat-dialog-close>
+            Cancelar
+        </button>
+        <button mat-button (click)="onSubmit()" [disabled]="loading || notaAclaratoriaForm.invalid">
+            <span *ngIf="!loading">Crear Nota</span>
+            <mat-spinner *ngIf="loading" diameter="20" mode="indeterminate"></mat-spinner>
+        </button>
+    </mat-dialog-actions>
+</div> 

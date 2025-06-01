@@ -388,4 +388,34 @@ export class VisitsService {
       throw error;
     }
   }
+
+  /**
+   * Creates a new nota aclaratoria
+   * @param notaData The nota aclaratoria data
+   * @returns Promise with created nota data or error
+   */
+  async createNotaAclaratoria(notaData: any): Promise<any | TrackHttpError> {
+    const controller = new AbortController();
+    try {
+      const request = await fetch(`${this.url}/${this.mainModule}/notas`, {
+        method: 'POST',
+        signal: controller.signal,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(notaData),
+      });
+
+      const data = await request.json();
+      data.ok = request.ok;
+
+      return data;
+    } catch (error) {
+      console.error('Error creating nota aclaratoria:', error);
+      throw error;
+    } finally {
+      controller.abort();
+    }
+  }
 } 
