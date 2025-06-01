@@ -61,6 +61,7 @@ export class PgsqlVisitRepository implements VisitRepository {
       .leftJoinAndSelect('visit.visitServicios', 'visitServicios')
       .leftJoinAndSelect('visitServicios.servicio_id', 'servicio')
       .leftJoinAndSelect('visit.visitRecorridos', 'visitRecorridos')
+      .leftJoinAndSelect('visit.visitNotas', 'visitNotas')
       .leftJoinAndSelect('visit.prestador', 'prestador')
       // First join the fiscal year information without conditions
       .leftJoinAndSelect('prestador.fiscalYearInformation', 'fiscalYearInformation')
@@ -108,6 +109,7 @@ export class PgsqlVisitRepository implements VisitRepository {
         .leftJoinAndSelect('visit.visitServicios', 'visitServicios')
         .leftJoinAndSelect('visitServicios.servicio_id', 'servicio')
         .leftJoinAndSelect('visit.visitRecorridos', 'visitRecorridos')
+        .leftJoinAndSelect('visit.visitNotas', 'visitNotas')
         .where(`visit.id IN (${visitsIdsQuery.getQuery()})`)
         .setParameters(visitsIdsQuery.getParameters());
     } else {
@@ -121,7 +123,8 @@ export class PgsqlVisitRepository implements VisitRepository {
         .leftJoinAndSelect('verificadores.user_id', 'user')
         .leftJoinAndSelect('visit.visitServicios', 'visitServicios')
         .leftJoinAndSelect('visitServicios.servicio_id', 'servicio')
-        .leftJoinAndSelect('visit.visitRecorridos', 'visitRecorridos');
+        .leftJoinAndSelect('visit.visitRecorridos', 'visitRecorridos')
+        .leftJoinAndSelect('visit.visitNotas', 'visitNotas');
     }
 
     if (filter.searchText) {

@@ -92,6 +92,48 @@
                     <div class="documents-list">
                         <h6 class="mb-3">Documentos disponibles:</h6>
                         
+                        <!-- Existing Visit Notes -->
+                        <div class="existing-notes-section mb-4" *ngIf="visitData?.visitNotas && visitData?.visitNotas.length > 0">
+                            <h6 class="mb-3">Notas de Visita Existentes:</h6>
+                            <div class="notes-list">
+                                <div class="note-item" *ngFor="let nota of visitData?.visitNotas">
+                                    <div class="note-info">
+                                        <div class="note-icon">
+                                            <mat-icon>description</mat-icon>
+                                        </div>
+                                        <div class="note-details">
+                                            <h6 class="note-title">{{ nota.type || 'Nota de Visita' }}</h6>
+                                            <p class="note-description">
+                                                Acta N°: {{ nota.acta_number || 'N/A' }}
+                                            </p>
+                                            <p class="note-justification" *ngIf="nota.justification">
+                                                <strong>Justificación:</strong> {{ nota.justification }}
+                                            </p>
+                                            <p class="note-date" *ngIf="nota.createdAt">
+                                                <small><strong>Creada:</strong> {{ nota.createdAt | date:'dd/MM/yyyy HH:mm' }}</small>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="note-actions">
+                                        <button mat-raised-button color="accent" (click)="viewNota(nota)">
+                                            <mat-icon>visibility</mat-icon>
+                                            Ver
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- No notes message -->
+                        <div class="no-notes-message mb-4" *ngIf="!visitData?.visitNotas || visitData?.visitNotas.length === 0">
+                            <div class="alert alert-info">
+                                <mat-icon>info</mat-icon>
+                                <div>
+                                    <p class="mb-0">No hay notas de visita creadas aún.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <!-- Crear Nota Aclaratoria -->
                         <div class="document-item">
                             <div class="document-info">

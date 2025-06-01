@@ -143,3 +143,90 @@
     }
   }
 }
+
+// Visit notes styles
+.existing-notes-section {
+  .notes-list {
+    .note-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      border-radius: 8px;
+      margin-bottom: 12px;
+      transition: all 0.3s ease;
+      background: #f8f9fa;
+      
+      &:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transform: translateY(-1px);
+        border-color: #ff9800;
+      }
+      
+      .note-info {
+        display: flex;
+        align-items: flex-start;
+        flex: 1;
+        
+        .note-icon {
+          margin-right: 12px;
+          margin-top: 4px;
+          
+          mat-icon {
+            font-size: 24px;
+            height: 24px;
+            width: 24px;
+            color: #ff9800;
+          }
+        }
+        
+        .note-details {
+          flex: 1;
+          
+          .note-title {
+            margin: 0 0 6px 0;
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+          }
+          
+          .note-description {
+            margin: 0 0 4px 0;
+            font-size: 13px;
+            color: #666;
+          }
+          
+          .note-justification {
+            margin: 0 0 4px 0;
+            font-size: 13px;
+            color: #555;
+          }
+          
+          .note-date {
+            margin: 0;
+            font-size: 12px;
+            color: #888;
+          }
+        }
+      }
+      
+      .note-actions {
+        display: flex;
+        gap: 8px;
+        
+        button {
+          mat-icon {
+            margin-right: 4px;
+          }
+        }
+      }
+    }
+  }
+}
+
+.no-notes-message {
+  .alert {
+    text-align: center;
+  }
+}

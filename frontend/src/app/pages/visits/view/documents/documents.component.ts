@@ -96,9 +96,35 @@ export class DocumentsComponent implements OnInit {
       maxHeight: '90vh'
     }).afterClosed().subscribe(result => {
       if (result) {
-        // Optionally reload or update data if needed
+        // Reload visit data to show the new note
         this.visitDataChange.emit(this.visitData);
       }
     });
+  }
+
+  /**
+   * Opens a dialog to view a specific visit note
+   */
+  viewNota(nota: any) {
+    // For now, we'll use a simple alert to show the note content
+    // You can create a dedicated dialog component for viewing notes later
+    const noteContent = `
+      Tipo: ${nota.type || 'N/A'}
+      Acta N°: ${nota.acta_number || 'N/A'}
+      Justificación: ${nota.justification || 'N/A'}
+      Contenido: ${nota.body || 'N/A'}
+      Fecha de creación: ${nota.createdAt ? new Date(nota.createdAt).toLocaleString('es-ES') : 'N/A'}
+    `;
+    
+    alert(`Detalles de la Nota:\n\n${noteContent}`);
+    
+    // TODO: Create a proper dialog component for viewing notes
+    // this.dialog.open(ViewNotaDialogComponent, {
+    //   data: { nota },
+    //   width: '80vw',
+    //   maxWidth: '800px',
+    //   height: 'auto',
+    //   maxHeight: '90vh'
+    // });
   }
 } 

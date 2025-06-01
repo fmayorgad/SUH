@@ -185,6 +185,7 @@ export const VisitSchema = new EntitySchema<Visit>({
             type: 'one-to-many',
             target: 'VisitNota',
             inverseSide: 'visit',
+            cascade: true,
         },
         prestador: {
             type: 'many-to-one',

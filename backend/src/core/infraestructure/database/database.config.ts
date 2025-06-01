@@ -5,6 +5,8 @@ import { PrestadorFiscalyearInformationSchema } from '@schemas/prestador-fiscaly
 import { PrestadorFiscalyearServiciosSchema } from '@schemas/prestador-fiscalyear-servicios.schema';
 import { PrestadorFiscalyearCapacidadesSchema } from '@schemas/prestador-fiscalyear-capacidades.schema';
 import { ServicioSchema } from '@schemas/servicio.schema';
+import { VisitSchema } from '@schemas/visit.schema';
+import { VisitNotaSchema } from '@schemas/visit-nota.schema';
 require('dotenv').config();
 
 export const USM_DATABASE_CONFIG: TypeOrmModuleOptions = {
@@ -15,7 +17,7 @@ export const USM_DATABASE_CONFIG: TypeOrmModuleOptions = {
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   autoLoadEntities: true,
-  entities: [WeekgroupVisitSchema, PrestadorFiscalyearInformationSchema, PrestadorFiscalyearServiciosSchema, PrestadorFiscalyearCapacidadesSchema, ServicioSchema],
+  entities: [WeekgroupVisitSchema, PrestadorFiscalyearInformationSchema, PrestadorFiscalyearServiciosSchema, PrestadorFiscalyearCapacidadesSchema, ServicioSchema, VisitSchema, VisitNotaSchema],
   logger: null,//Number.parseInt(process.env.DB_LOGGING, 10) ? new DatabaseLogger() : null,
   synchronize: !!Number.parseInt(process.env.DB_SYNC, 10),
 };

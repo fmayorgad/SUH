@@ -4,15 +4,19 @@ import { Repository } from 'typeorm';
 import { VisitNota } from '@models/visit-nota.model';
 import { VisitNotaRepository } from '../../domain/visit-nota.repository';
 import { CreateVisitNotaDTO } from '../dto/create.visit-nota.dto';
+import { VisitNotaSchema } from '@schemas/visit-nota.schema';
 
 @Injectable()
 export class PgsqlVisitNotaRepository implements VisitNotaRepository {
   constructor(
-    @InjectRepository(VisitNota)
+    @InjectRepository(VisitNotaSchema)
     private readonly visitNotaRepository: Repository<VisitNota>,
   ) {}
 
   async create(createVisitNotaDto: CreateVisitNotaDTO): Promise<VisitNota> {
+
+    console.log("createVisitNotaDto", createVisitNotaDto);
+    
     const visitNota = this.visitNotaRepository.create({
       visit_id: createVisitNotaDto.visitId,
       body: createVisitNotaDto.contenido,
