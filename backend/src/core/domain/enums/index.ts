@@ -1,5 +1,6 @@
 export * from './general-state-type';
 export * from './modules';
+export * from './nota-types.enum';
 export * from './permissions';
 export * from './profiles';
 export * from './visit-types.enum';

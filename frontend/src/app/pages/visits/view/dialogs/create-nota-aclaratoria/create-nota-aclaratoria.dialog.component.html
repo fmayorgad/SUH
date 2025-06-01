@@ -34,8 +34,8 @@
                                 <i-feather name="folder"></i-feather>
                                 <mat-label>Tipo de Documento</mat-label>
                                 <mat-select formControlName="tipoDocumento">
-                                    <mat-option value="informe">Informe</mat-option>
-                                    <mat-option value="acta_visita">Acta de visita</mat-option>
+                                    <mat-option value="INFORME">Informe</mat-option>
+                                    <mat-option value="ACTA_VISITA">Acta de visita</mat-option>
                                 </mat-select>
                                 <mat-error *ngIf="notaAclaratoriaForm.controls.tipoDocumento.hasError('required')">
                                     El campo es <strong>requerido</strong>.

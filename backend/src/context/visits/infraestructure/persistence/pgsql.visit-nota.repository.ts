@@ -1,0 +1,41 @@
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { VisitNota } from '@models/visit-nota.model';
+import { VisitNotaRepository } from '../../domain/visit-nota.repository';
+import { CreateVisitNotaDTO } from '../dto/create.visit-nota.dto';
+
+@Injectable()
+export class PgsqlVisitNotaRepository implements VisitNotaRepository {
+  constructor(
+    @InjectRepository(VisitNota)
+    private readonly visitNotaRepository: Repository<VisitNota>,
+  ) {}
+
+  async create(createVisitNotaDto: CreateVisitNotaDTO): Promise<VisitNota> {
+    const visitNota = this.visitNotaRepository.create({
+      visit_id: createVisitNotaDto.visitId,
+      body: createVisitNotaDto.contenido,
+      acta_number: createVisitNotaDto.numeroActaInforme,
+      type: createVisitNotaDto.tipoDocumento,
+      justification: createVisitNotaDto.justification,
+      nota_sended: false,
+    });
+
+    return await this.visitNotaRepository.save(visitNota);
+  }
+
+  async findById(id: string): Promise<VisitNota | null> {
+    return await this.visitNotaRepository.findOne({
+      where: { id },
+      relations: ['visit', 'visit.prestador', 'visit.fiscalYear', 'visit.weekgroupVisit', 'visit.weekgroupVisit.lead'],
+    });
+  }
+
+  async findByVisitId(visitId: string): Promise<VisitNota[]> {
+    return await this.visitNotaRepository.find({
+      where: { visit_id: visitId },
+      relations: ['visit'],
+    });
+  }
+} 

@@ -8,6 +8,7 @@ import { FiscalYear } from "@models/fiscalyears.model";
 import { Users } from "@models/user.model";
 import { VisitServicios } from "@models/visit_servicios.model";
 import { VisitRecorridos } from "@models/visit_recorridos.model";
+import { VisitNota } from "@models/visit-nota.model";
 
 export class Visit extends BaseModel {
   start?: Date;
@@ -51,6 +52,7 @@ export class Visit extends BaseModel {
   visitVerificadores?: VisitVerificadores[];
   visitServicios?: VisitServicios[];
   visitRecorridos?: VisitRecorridos[];
+  visitNotas?: VisitNota[];
   prestador?: Prestador;
   fiscalYear?: FiscalYear;
   creator?: Users;
