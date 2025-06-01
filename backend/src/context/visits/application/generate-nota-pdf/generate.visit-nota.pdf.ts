@@ -421,11 +421,428 @@ export class GenerateVisitNotaPdf {
         }
     }
 
+    /**
+     * Render HTML content to PDF with basic styling support for Quill editor
+     * Supports only: bold text (<strong>, <b>), ordered lists (<ol><li>), unordered lists (<ul><li>)
+     * This matches the limited toolbar configuration in the frontend Quill editor
+     */
+    private renderHtmlContent(doc: PDFKit.PDFDocument, html: string, options: any = {}) {
+        if (!html) return;
+
+        const defaultOptions = {
+            width: 500,
+            align: 'justify',
+            ...options
+        };
+
+        // Parse and render HTML content properly
+        this.parseAndRenderQuillHtml(doc, html, defaultOptions);
+    }
+
+    /**
+     * Parse and render HTML from Quill editor with support for bold and lists only
+     */
+    private parseAndRenderQuillHtml(doc: PDFKit.PDFDocument, html: string, options: any) {
+        // Clean up HTML entities
+        let cleanHtml = html
+            .replace(/&nbsp;/g, ' ')
+            .replace(/&amp;/g, '&')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&quot;/g, '"');
+
+        // Process the HTML content block by block
+        this.processHtmlBlocks(doc, cleanHtml, options);
+    }
+
+    /**
+     * Process HTML content block by block (paragraphs, lists)
+     */
+    private processHtmlBlocks(doc: PDFKit.PDFDocument, html: string, options: any) {
+        // Parse the HTML into structured blocks
+        const blocks = this.parseHtmlContent(html);
+        
+        for (let i = 0; i < blocks.length; i++) {
+            const block = blocks[i];
+            
+            if (block.type === 'paragraph' && block.content.trim()) {
+                this.renderParagraphWithFormatting(doc, block.content, options);
+                // Add generous spacing after paragraph (except for the last block)
+                if (i < blocks.length - 1) {
+                    doc.moveDown(1.5); // Increased from 1.0 to 1.5 for more breathing room
+                }
+            } else if (block.type === 'ordered-list') {
+                this.renderOrderedList(doc, block.items, options);
+                // Reset position to left margin after list
+                doc.x = 50;
+                // Add generous spacing after list
+                if (i < blocks.length - 1) {
+                    doc.moveDown(1.5); // Increased from 1.0 to 1.5 for more breathing room
+                }
+            } else if (block.type === 'unordered-list') {
+                this.renderUnorderedList(doc, block.items, options);
+                // Reset position to left margin after list
+                doc.x = 50;
+                // Add generous spacing after list
+                if (i < blocks.length - 1) {
+                    doc.moveDown(1.5); // Increased from 1.0 to 1.5 for more breathing room
+                }
+            }
+        }
+    }
+
+    /**
+     * Parse HTML content into structured blocks
+     */
+    private parseHtmlContent(html: string): Array<any> {
+        const blocks: Array<any> = [];
+        
+        // Split by major block elements but keep the tags for processing
+        const parts = html.split(/(<\/?(?:p|ol|ul|li)[^>]*>)/gi);
+        
+        let currentBlock = null;
+        let currentList = null;
+        let currentListItem = '';
+        let inListItem = false;
+        
+        for (let i = 0; i < parts.length; i++) {
+            const part = parts[i].trim();
+            if (!part) continue;
+            
+            if (part.match(/^<p[^>]*>/i)) {
+                // Start paragraph
+                if (currentList) {
+                    // We're in a list, finish it first
+                    this.finishCurrentList(blocks, currentList, currentListItem);
+                    currentList = null;
+                    currentListItem = '';
+                }
+                currentBlock = { type: 'paragraph', content: '' };
+            } else if (part.match(/^<\/p>/i)) {
+                // End paragraph
+                if (currentBlock && currentBlock.content.trim()) {
+                    blocks.push(currentBlock);
+                }
+                currentBlock = null;
+            } else if (part.match(/^<ol[^>]*>/i)) {
+                // Start ordered list
+                if (currentBlock) {
+                    blocks.push(currentBlock);
+                    currentBlock = null;
+                }
+                currentList = { type: 'ordered-list', items: [] };
+            } else if (part.match(/^<ul[^>]*>/i)) {
+                // Start unordered list
+                if (currentBlock) {
+                    blocks.push(currentBlock);
+                    currentBlock = null;
+                }
+                currentList = { type: 'unordered-list', items: [] };
+            } else if (part.match(/^<\/(?:ol|ul)>/i)) {
+                // End list
+                if (currentList) {
+                    if (currentListItem.trim()) {
+                        currentList.items.push(currentListItem.trim());
+                    }
+                    blocks.push(currentList);
+                    currentList = null;
+                    currentListItem = '';
+                    inListItem = false;
+                }
+            } else if (part.match(/^<li[^>]*>/i)) {
+                // Start list item
+                if (currentListItem.trim()) {
+                    currentList.items.push(currentListItem.trim());
+                }
+                currentListItem = '';
+                inListItem = true;
+            } else if (part.match(/^<\/li>/i)) {
+                // End list item
+                if (currentListItem.trim() && currentList) {
+                    currentList.items.push(currentListItem.trim());
+                }
+                currentListItem = '';
+                inListItem = false;
+            } else if (!part.match(/^<[^>]+>$/)) {
+                // This is actual content
+                if (currentList && inListItem) {
+                    // We're in a list item
+                    currentListItem += (currentListItem ? ' ' : '') + part;
+                } else if (currentList) {
+                    // We're in a list but not in a specific item
+                    currentListItem += (currentListItem ? ' ' : '') + part;
+                } else if (currentBlock) {
+                    // We're in a paragraph
+                    currentBlock.content += (currentBlock.content ? ' ' : '') + part;
+                } else {
+                    // Create a new paragraph block
+                    currentBlock = { type: 'paragraph', content: part };
+                }
+            }
+        }
+        
+        // Handle any remaining content
+        if (currentBlock && currentBlock.content.trim()) {
+            blocks.push(currentBlock);
+        }
+        
+        if (currentList) {
+            if (currentListItem.trim()) {
+                currentList.items.push(currentListItem.trim());
+            }
+            blocks.push(currentList);
+        }
+        
+        return blocks;
+    }
+
+    /**
+     * Helper method to finish current list processing
+     */
+    private finishCurrentList(blocks: Array<any>, currentList: any, currentListItem: string) {
+        if (currentListItem.trim()) {
+            currentList.items.push(currentListItem.trim());
+        }
+        if (currentList.items.length > 0) {
+            blocks.push(currentList);
+        }
+    }
+
+    /**
+     * Render a paragraph with bold formatting and line break support
+     */
+    private renderParagraphWithFormatting(doc: PDFKit.PDFDocument, content: string, options: any) {
+        // First handle line breaks
+        const lines = content.split(/<br\s*\/?>/gi);
+        
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (line) {
+                this.renderLineWithBoldSupport(doc, line, options);
+            }
+            
+            // Add generous line break spacing between lines (except for the last one)
+            if (i < lines.length - 1) {
+                doc.moveDown(1.2); // Increased from 0.8 to 1.2 for even more space
+            }
+        }
+    }
+
+    /**
+     * Render a single line with bold formatting support
+     */
+    private renderLineWithBoldSupport(doc: PDFKit.PDFDocument, content: string, options: any) {
+        // Split by bold tags to handle mixed formatting
+        const parts = content.split(/(<\/?(?:strong|b)[^>]*>)/gi);
+        
+        let isBold = false;
+        let hasContent = false;
+        
+        for (const part of parts) {
+            if (part.match(/^<(?:strong|b)[^>]*>/i)) {
+                isBold = true;
+                continue;
+            } else if (part.match(/^<\/(?:strong|b)>/i)) {
+                isBold = false;
+                continue;
+            }
+            
+            const cleanText = this.cleanHtmlContent(part);
+            if (cleanText.trim()) {
+                doc.font(isBold ? 'Arial-Bold' : 'Arial')
+                   .fontSize(12)
+                   .fillColor('#000000');
+                
+                doc.text(cleanText, {
+                    ...options,
+                    continued: true
+                });
+                hasContent = true;
+            }
+        }
+        
+        // End the continued text properly only if we had content
+        if (hasContent) {
+            doc.text('', { continued: false });
+        }
+    }
+
+    /**
+     * Render ordered list with proper indentation and spacing like a normal document
+     */
+    private renderOrderedList(doc: PDFKit.PDFDocument, items: string[], options: any) {
+        // Add some spacing before the list starts
+        doc.moveDown(0.3);
+        
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+            
+            if (item.trim()) {
+                // Set indented position for list (standard document indentation)
+                const listIndent = 70; // Indent list from left margin (20px indent)
+                doc.x = listIndent;
+                const startY = doc.y;
+                
+                // Render number
+                doc.font('Arial').fontSize(12).fillColor('#000000');
+                doc.text(`${i + 1}. `, listIndent, startY);
+                
+                // Calculate the width of the number and space
+                const numberText = `${i + 1}. `;
+                const numberWidth = doc.widthOfString(numberText);
+                
+                // Set position for content (right after the number)
+                const contentX = listIndent + numberWidth;
+                
+                // Render content with bold support
+                this.renderListItemContent(doc, item, {
+                    ...options,
+                    width: options.width - (contentX - 50) - 10, // Adjust width for indentation
+                    startX: contentX,
+                    startY: startY
+                });
+                
+                // Add generous space between list items for better readability
+                if (i < items.length - 1) {
+                    doc.moveDown(0.8); // Increased from 0.6 to 0.8
+                }
+            }
+        }
+    }
+
+    /**
+     * Render unordered list with proper indentation and spacing like a normal document
+     */
+    private renderUnorderedList(doc: PDFKit.PDFDocument, items: string[], options: any) {
+        // Add some spacing before the list starts
+        doc.moveDown(0.3);
+        
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+            
+            if (item.trim()) {
+                // Set indented position for list (standard document indentation)
+                const listIndent = 70; // Indent list from left margin (20px indent)
+                doc.x = listIndent;
+                const startY = doc.y;
+                
+                // Render bullet
+                doc.font('Arial').fontSize(12).fillColor('#000000');
+                doc.text('• ', listIndent, startY);
+                
+                // Calculate the width of the bullet and space
+                const bulletText = '• ';
+                const bulletWidth = doc.widthOfString(bulletText);
+                
+                // Set position for content (right after the bullet)
+                const contentX = listIndent + bulletWidth;
+                
+                // Render content with bold support
+                this.renderListItemContent(doc, item, {
+                    ...options,
+                    width: options.width - (contentX - 50) - 10, // Adjust width for indentation
+                    startX: contentX,
+                    startY: startY
+                });
+                
+                // Add generous space between list items for better readability
+                if (i < items.length - 1) {
+                    doc.moveDown(0.8); // Increased from 0.6 to 0.8
+                }
+            }
+        }
+    }
+
+    /**
+     * Render list item content with bold support and proper positioning
+     */
+    private renderListItemContent(doc: PDFKit.PDFDocument, content: string, options: any) {
+        // Handle line breaks in list items
+        const lines = content.split(/<br\s*\/?>/gi);
+        
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (line) {
+                // Set position for this line
+                const currentY = i === 0 ? options.startY : doc.y;
+                const currentX = options.startX;
+                
+                // Handle bold formatting within the line
+                const parts = line.split(/(<\/?(?:strong|b)[^>]*>)/gi);
+                
+                let isBold = false;
+                let lineHasContent = false;
+                let currentLineX = currentX;
+                
+                // Set initial position
+                doc.x = currentX;
+                doc.y = currentY;
+                
+                for (const part of parts) {
+                    if (part.match(/^<(?:strong|b)[^>]*>/i)) {
+                        isBold = true;
+                        continue;
+                    } else if (part.match(/^<\/(?:strong|b)>/i)) {
+                        isBold = false;
+                        continue;
+                    }
+                    
+                    const cleanText = this.cleanHtmlContent(part);
+                    if (cleanText.trim()) {
+                        doc.font(isBold ? 'Arial-Bold' : 'Arial')
+                           .fontSize(12)
+                           .fillColor('#000000');
+                        
+                        // Render text at current position
+                        doc.text(cleanText, currentLineX, currentY, {
+                            width: options.width,
+                            continued: true,
+                            lineBreak: false
+                        });
+                        
+                        // Update position for next part
+                        currentLineX += doc.widthOfString(cleanText);
+                        lineHasContent = true;
+                    }
+                }
+                
+                // End the continued text if we had content
+                if (lineHasContent) {
+                    doc.text('', { continued: false });
+                }
+            }
+            
+            // Add generous line break spacing between lines in list item (except for the last one)
+            if (i < lines.length - 1) {
+                doc.moveDown(1.2); // Increased from 0.8 to 1.2 for more space
+            }
+        }
+        
+        // Ensure we're positioned correctly for the next list item
+        doc.moveDown(0.3); // Increased from 0.2
+    }
+
+    /**
+     * Clean HTML content by removing tags and entities
+     */
+    private cleanHtmlContent(content: string): string {
+        if (!content) return '';
+        
+        return content
+            // Remove all HTML tags
+            .replace(/<[^>]*>/g, '')
+            // Clean up extra whitespace
+            .replace(/\s+/g, ' ')
+            .trim();
+    }
+
+    /**
+     * Convert HTML to plain text (fallback method)
+     */
     private convertHtmlToPlainText(html: string): string {
         if (!html) return '';
         
         // Basic HTML to plain text conversion
-        // Remove HTML tags but preserve some formatting
         let text = html
             .replace(/<br\s*\/?>/gi, '\n')
             .replace(/<\/p>/gi, '\n\n')
@@ -439,92 +856,6 @@ export class GenerateVisitNotaPdf {
             .trim();
 
         return text;
-    }
-
-    /**
-     * Render HTML content to PDF with basic styling support
-     */
-    private renderHtmlContent(doc: PDFKit.PDFDocument, html: string, options: any = {}) {
-        if (!html) return;
-
-        const defaultOptions = {
-            width: 500,
-            align: 'justify',
-            ...options
-        };
-
-        // Split content by HTML tags to handle basic formatting
-        const parts = this.parseHtmlToParts(html);
-        
-        for (const part of parts) {
-            if (part.type === 'text' && part.content.trim()) {
-                doc.font('Arial').fontSize(12).text(part.content, defaultOptions);
-            } else if (part.type === 'bold' && part.content.trim()) {
-                doc.font('Arial-Bold').fontSize(12).text(part.content, defaultOptions);
-            } else if (part.type === 'italic' && part.content.trim()) {
-                // Since we don't have italic Arial, use regular font
-                doc.font('Arial').fontSize(12).text(part.content, defaultOptions);
-            } else if (part.type === 'break') {
-                doc.moveDown(0.5);
-            } else if (part.type === 'paragraph') {
-                doc.moveDown(1);
-            }
-        }
-    }
-
-    /**
-     * Parse HTML into parts with basic formatting information
-     */
-    private parseHtmlToParts(html: string): Array<{type: string, content: string}> {
-        const parts: Array<{type: string, content: string}> = [];
-        
-        // Clean up HTML entities first
-        let cleanHtml = html
-            .replace(/&nbsp;/g, ' ')
-            .replace(/&amp;/g, '&')
-            .replace(/&lt;/g, '<')
-            .replace(/&gt;/g, '>')
-            .replace(/&quot;/g, '"');
-
-        // Handle line breaks
-        cleanHtml = cleanHtml.replace(/<br\s*\/?>/gi, '|||BREAK|||');
-        
-        // Handle paragraphs
-        cleanHtml = cleanHtml.replace(/<\/p>/gi, '|||PARAGRAPH|||');
-        cleanHtml = cleanHtml.replace(/<p[^>]*>/gi, '');
-
-        // Handle bold tags
-        cleanHtml = cleanHtml.replace(/<(strong|b)[^>]*>(.*?)<\/(strong|b)>/gi, '|||BOLD_START|||$2|||BOLD_END|||');
-        
-        // Handle italic tags
-        cleanHtml = cleanHtml.replace(/<(em|i)[^>]*>(.*?)<\/(em|i)>/gi, '|||ITALIC_START|||$2|||ITALIC_END|||');
-
-        // Remove remaining HTML tags
-        cleanHtml = cleanHtml.replace(/<[^>]*>/g, '');
-
-        // Split by our markers and process
-        const tokens = cleanHtml.split(/(\|\|\|[A-Z_]+\|\|\|)/);
-        let currentType = 'text';
-
-        for (const token of tokens) {
-            if (token === '|||BREAK|||') {
-                parts.push({ type: 'break', content: '' });
-            } else if (token === '|||PARAGRAPH|||') {
-                parts.push({ type: 'paragraph', content: '' });
-            } else if (token === '|||BOLD_START|||') {
-                currentType = 'bold';
-            } else if (token === '|||BOLD_END|||') {
-                currentType = 'text';
-            } else if (token === '|||ITALIC_START|||') {
-                currentType = 'italic';
-            } else if (token === '|||ITALIC_END|||') {
-                currentType = 'text';
-            } else if (token && !token.startsWith('|||')) {
-                parts.push({ type: currentType, content: token });
-            }
-        }
-
-        return parts;
     }
 
     private formatDate(date: Date | string): string {

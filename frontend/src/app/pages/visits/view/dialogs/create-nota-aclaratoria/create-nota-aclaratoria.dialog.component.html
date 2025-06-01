@@ -60,12 +60,14 @@
 
                         <div class="col-sm-12">
                             <mat-label style="display: block; margin-bottom: 8px; font-weight: 500;">Contenido de la Nota</mat-label>
-                            <quill-editor 
-                                formControlName="contenido"
-                                [modules]="quillModules"
-                                [placeholder]="'Escriba el contenido de la nota aclaratoria...'"
-                                [style]="{ 'min-height': '200px' }">
-                            </quill-editor>
+                            <div class="quill-editor-container">
+                                <quill-editor 
+                                    formControlName="contenido"
+                                    [modules]="quillModules"
+                                    [placeholder]="'Escriba el contenido de la nota aclaratoria...'"
+                                    [style]="{ 'min-height': '200px', 'width': '100%' }">
+                                </quill-editor>
+                            </div>
                             <mat-error *ngIf="notaAclaratoriaForm.controls.contenido.hasError('required')" 
                                        style="display: block; margin-top: 4px; color: #f44336; font-size: 12px;">
                                 El contenido es <strong>requerido</strong>.
