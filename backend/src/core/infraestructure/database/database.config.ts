@@ -18,6 +18,6 @@ export const USM_DATABASE_CONFIG: TypeOrmModuleOptions = {
   database: process.env.DB_NAME,
   autoLoadEntities: true,
   entities: [WeekgroupVisitSchema, PrestadorFiscalyearInformationSchema, PrestadorFiscalyearServiciosSchema, PrestadorFiscalyearCapacidadesSchema, ServicioSchema, VisitSchema, VisitNotaSchema],
-  logger: null,//Number.parseInt(process.env.DB_LOGGING, 10) ? new DatabaseLogger() : null,
+  logger: Number.parseInt(process.env.DB_LOGGING, 10) ? new DatabaseLogger() : null,
   synchronize: !!Number.parseInt(process.env.DB_SYNC, 10),
 };

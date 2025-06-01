@@ -6,7 +6,7 @@ import { PermissionEnum } from '@enums/permissions';
 import { ModulesEnum } from '@enums/modules';
 import { ModuleName, Permissions } from '@decorators/index';
 
-@ApiTags('Visit Notas')
+@ApiTags('Visits')
 @ApiBearerAuth()
 @Controller('visits')
 export class VisitNotaController {

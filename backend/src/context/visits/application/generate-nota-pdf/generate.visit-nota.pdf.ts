@@ -22,6 +22,8 @@ export class GenerateVisitNotaPdf {
 
     async execute(id: string): Promise<Buffer | null> {
         try {
+            this.logger.log(`Starting PDF generation for visit nota ID: ${id}`);
+            
             // Fetch the visit nota data from the repository
             const visitNota = await this.visitNotaRepository.findById(id);
 
@@ -30,75 +32,148 @@ export class GenerateVisitNotaPdf {
                 return null;
             }
 
+            this.logger.log(`Visit nota found with basic info: ID=${visitNota.id}, type=${visitNota.type}, acta_number=${visitNota.acta_number}`);
+            
+            // Log the visit structure
+            if (visitNota.visit) {
+                this.logger.log(`Visit data structure: ID=${visitNota.visit.id}, sade=${visitNota.visit.sade}`);
+                
+                if (visitNota.visit.prestador) {
+                    this.logger.log(`Prestador data: ID=${visitNota.visit.prestador.id}, nombreSede=${visitNota.visit.prestador.nombreSede}`);
+                    
+                    if (visitNota.visit.prestador.fiscalYearInformation) {
+                        this.logger.log(`FiscalYearInformation array length: ${visitNota.visit.prestador.fiscalYearInformation.length}`);
+                        if (visitNota.visit.prestador.fiscalYearInformation.length > 0) {
+                            const fiscalInfo = visitNota.visit.prestador.fiscalYearInformation[0];
+                            this.logger.log(`FiscalYearInformation[0]: representante_legal=${fiscalInfo.representante_legal}, nombre_prestador=${fiscalInfo.nombre_prestador}`);
+                        }
+                    } else {
+                        this.logger.error(`FiscalYearInformation is null or undefined`);
+                    }
+                } else {
+                    this.logger.error(`Visit prestador is null or undefined`);
+                }
+            } else {
+                this.logger.error(`Visit is null or undefined`);
+            }
+
             // Generate PDF using PDFKit
             const pdfBuffer = await this.generatePdf(visitNota);
 
+            this.logger.log(`PDF generation completed successfully for visit nota ID: ${id}`);
             return pdfBuffer;
         } catch (error) {
             this.logger.error(`Error generating PDF for visit nota ${id}:`, error);
+            this.logger.error(`Error stack: ${error.stack}`);
             throw error;
         }
     }
 
     private async generatePdf(visitNota: any): Promise<Buffer> {
-        // Store current visit nota for use in header
-        this.currentVisitNota = visitNota;
+        try {
+            this.logger.log(`Starting generatePdf method`);
+            
+            // Store current visit nota for use in header
+            this.currentVisitNota = visitNota;
 
-        // Create a document with A4 size
-        const doc = new PDFDocument({
-            autoFirstPage: false,
-            size: 'A4',
-            margins: {
-                top: 165, // Increased top margin to accommodate header
-                left: 50,
-                bottom: 70,
-                right: 50
-            },
-            info: {
-                Title: `Nota Aclaratoria ${visitNota.acta_number}`,
-                Author: 'Secretaría de Salud del Valle del Cauca',
-                Subject: 'Nota Aclaratoria de Visita de Verificación',
-            }
-        });
-
-        // Register Arial fonts
-        this.registerFonts(doc);
-
-        // Buffer to store PDF data
-        const buffers: Buffer[] = [];
-        doc.on('data', (chunk) => buffers.push(chunk));
-
-        this.logger.log(`Using header image from: ${this.headerPath}`);
-        this.logger.log(`Using footer image from: ${this.footerPath}`);
-
-        // Set up event listener for new pages to add header and footer automatically
-        doc.on('pageAdded', () => {
-            this.addHeaderAndFooter(doc);
-        });
-
-        // Create the first page (header and footer will be added by the pageAdded event)
-        doc.addPage();
-
-        // Start with date information
-        doc.font('Arial')
-            .text(`Santiago de Cali, ${this.formatDate(new Date())}`, 50, 180);
-
-        // Add document content
-        this.addRecipientInfo(doc, visitNota.visit);
-        this.addSubject(doc, visitNota);
-        this.addMainContent(doc, visitNota);
-        this.addSignature(doc, visitNota);
-
-        // Finalize the PDF
-        doc.end();
-
-        // Return a promise that resolves with the PDF buffer
-        return new Promise((resolve) => {
-            doc.on('end', () => {
-                const pdfData = Buffer.concat(buffers);
-                resolve(pdfData);
+            // Create a document with A4 size
+            const doc = new PDFDocument({
+                autoFirstPage: false,
+                size: 'A4',
+                margins: {
+                    top: 165, // Increased top margin to accommodate header
+                    left: 50,
+                    bottom: 70,
+                    right: 50
+                },
+                info: {
+                    Title: `Nota Aclaratoria ${visitNota.acta_number}`,
+                    Author: 'Secretaría de Salud del Valle del Cauca',
+                    Subject: 'Nota Aclaratoria de Visita de Verificación',
+                }
             });
-        });
+
+            // Register Arial fonts
+            this.registerFonts(doc);
+
+            // Buffer to store PDF data
+            const buffers: Buffer[] = [];
+            doc.on('data', (chunk) => buffers.push(chunk));
+
+            this.logger.log(`Using header image from: ${this.headerPath}`);
+            this.logger.log(`Using footer image from: ${this.footerPath}`);
+
+            // Set up event listener for new pages to add header and footer automatically
+            doc.on('pageAdded', () => {
+                this.addHeaderAndFooter(doc);
+            });
+
+            // Create the first page (header and footer will be added by the pageAdded event)
+            doc.addPage();
+
+            // Start with date information
+            doc.font('Arial')
+                .text(`Santiago de Cali, ${this.formatDate(new Date())}`, 50, 180);
+
+            // Add document content with error handling
+            try {
+                this.logger.log(`Adding recipient info...`);
+                this.addRecipientInfo(doc, visitNota.visit);
+            } catch (error) {
+                this.logger.error(`Error in addRecipientInfo:`, error);
+                throw error;
+            }
+
+            try {
+                this.logger.log(`Adding subject...`);
+                this.addSubject(doc, visitNota);
+            } catch (error) {
+                this.logger.error(`Error in addSubject:`, error);
+                throw error;
+            }
+
+            try {
+                this.logger.log(`Adding main content...`);
+                this.addMainContent(doc, visitNota);
+            } catch (error) {
+                this.logger.error(`Error in addMainContent:`, error);
+                throw error;
+            }
+
+            try {
+                this.logger.log(`Adding signature...`);
+                this.addSignature(doc, visitNota);
+            } catch (error) {
+                this.logger.error(`Error in addSignature:`, error);
+                throw error;
+            }
+
+            // Finalize the PDF
+            doc.end();
+
+            // Return a promise that resolves with the PDF buffer
+            return new Promise((resolve, reject) => {
+                doc.on('end', () => {
+                    try {
+                        const pdfData = Buffer.concat(buffers);
+                        this.logger.log(`PDF buffer created successfully, size: ${pdfData.length} bytes`);
+                        resolve(pdfData);
+                    } catch (error) {
+                        this.logger.error(`Error creating PDF buffer:`, error);
+                        reject(error);
+                    }
+                });
+                
+                doc.on('error', (error) => {
+                    this.logger.error(`PDF document error:`, error);
+                    reject(error);
+                });
+            });
+        } catch (error) {
+            this.logger.error(`Error in generatePdf method:`, error);
+            this.logger.error(`Error stack: ${error.stack}`);
+            throw error;
+        }
     }
 
     private registerFonts(doc: PDFKit.PDFDocument) {
@@ -192,108 +267,158 @@ export class GenerateVisitNotaPdf {
     }
 
     private addRecipientInfo(doc: PDFKit.PDFDocument, visit: any) {
-        const startY = doc.y + 20;
+        try {
+            this.logger.log(`Starting addRecipientInfo method`);
+            
+            const startY = doc.y + 20;
 
-        doc.font('Arial')
-            .fontSize(12)
-            .text('Señor (a)', 50, startY);
+            doc.font('Arial')
+                .fontSize(12)
+                .text('Señor (a)', 50, startY);
 
-        doc.font('Arial')
-            .text(visit.prestador?.fiscalYearInformation[0]?.representante_legal || 'N/A');
+            doc.font('Arial')
+                .text(visit.prestador?.fiscalYearInformation[0]?.representante_legal || 'N/A');
 
-        doc.font('Arial')
-            .text('Representante Legal');
+            doc.font('Arial')
+                .text('Representante Legal');
 
-        doc.font('Arial')
-            .text(visit.prestador?.fiscalYearInformation[0]?.nombre_prestador || 'N/A');
+            doc.font('Arial')
+                .text(visit.prestador?.fiscalYearInformation[0]?.nombre_prestador || 'N/A');
 
-        doc.font('Arial')
-            .text(visit.prestador?.fiscalYearInformation[0]?.direccionSede || 'N/A');
+            doc.font('Arial')
+                .text(visit.prestador?.fiscalYearInformation[0]?.direccionSede || 'N/A');
 
-        doc.font('Arial')
-            .text(visit.prestador?.fiscalYearInformation[0]?.municipio.name || 'N/A');
+            doc.font('Arial')
+                .text(visit.prestador?.fiscalYearInformation[0]?.municipio.name || 'N/A');
 
-        doc.font('Arial')
-            .text(visit.prestador?.fiscalYearInformation[0]?.correoSede || 'N/A');
+            doc.font('Arial')
+                .text(visit.prestador?.fiscalYearInformation[0]?.correoSede || 'N/A');
 
-        doc.font('Arial')
-            .text(visit.prestador?.fiscalYearInformation[0]?.correoRepresentante || 'N/A');
+            doc.font('Arial')
+                .text(visit.prestador?.fiscalYearInformation[0]?.correoRepresentante || 'N/A');
+
+            this.logger.log(`addRecipientInfo completed successfully`);
+        } catch (error) {
+            this.logger.error(`Error in addRecipientInfo method:`, error);
+            this.logger.error(`Error stack: ${error.stack}`);
+            throw error;
+        }
     }
 
     private addSubject(doc: PDFKit.PDFDocument, visitNota: any) {
-        const startY = doc.y + 20;
+        try {
+            this.logger.log(`Starting addSubject method`);
+            
+            const startY = doc.y + 20;
 
-        doc.font('Arial-Bold')
-            .fontSize(12)
-            .text(`Asunto: NOTA ACLARATORIA - ${visitNota.type.toUpperCase()} No. ${visitNota.acta_number}`, 50, startY, {
-                width: 500,
-                align: 'left'
-            });
+            const type = visitNota?.type?.toUpperCase() || 'N/A';
+            const actaNumber = visitNota?.acta_number || 'N/A';
+
+            doc.font('Arial-Bold')
+                .fontSize(12)
+                .text(`Asunto: NOTA ACLARATORIA - ${type} No. ${actaNumber}`, 50, startY, {
+                    width: 500,
+                    align: 'left'
+                });
+
+            this.logger.log(`addSubject completed successfully`);
+        } catch (error) {
+            this.logger.error(`Error in addSubject method:`, error);
+            this.logger.error(`Error stack: ${error.stack}`);
+            throw error;
+        }
     }
 
     private addMainContent(doc: PDFKit.PDFDocument, visitNota: any) {
-        const startY = doc.y + 20;
+        try {
+            this.logger.log(`Starting addMainContent method`);
+            
+            const startY = doc.y + 20;
 
-        doc.font('Arial')
-            .fontSize(12)
-            .text('Cordial saludo:', 50, startY);
+            doc.font('Arial')
+                .fontSize(12)
+                .text('Cordial saludo:', 50, startY);
 
-        doc.moveDown();
+            doc.moveDown();
 
-        // Add justification
-        doc.font('Arial-Bold')
-            .text('Justificación:');
-        
-        doc.font('Arial')
-            .text(visitNota.justification, {
-                width: 500,
-                align: 'justify'
-            });
+            // Add justification
+            doc.font('Arial-Bold')
+                .text('Justificación:');
+            
+            const justification = visitNota?.justification || 'N/A';
+            doc.font('Arial')
+                .text(justification, {
+                    width: 500,
+                    align: 'justify'
+                });
 
-        doc.moveDown(2);
+            doc.moveDown(2);
 
-        // Add the main content (rich text body)
-        doc.font('Arial-Bold')
-            .text('Contenido:');
+            // Add the main content (rich text body)
+            doc.font('Arial-Bold')
+                .text('Contenido:');
 
-        doc.moveDown();
+            doc.moveDown();
 
-        // Convert HTML to plain text for PDF (basic conversion)
-        const plainTextContent = this.convertHtmlToPlainText(visitNota.body);
-        
-        doc.font('Arial')
-            .text(plainTextContent, {
-                width: 500,
-                align: 'justify'
-            });
+            // Render HTML content with formatting support
+            const htmlContent = visitNota?.body || '';
+            if (htmlContent.trim()) {
+                this.renderHtmlContent(doc, htmlContent, {
+                    width: 500,
+                    align: 'justify'
+                });
+            } else {
+                doc.font('Arial')
+                    .text('N/A', {
+                        width: 500,
+                        align: 'justify'
+                    });
+            }
+
+            this.logger.log(`addMainContent completed successfully`);
+        } catch (error) {
+            this.logger.error(`Error in addMainContent method:`, error);
+            this.logger.error(`Error stack: ${error.stack}`);
+            throw error;
+        }
     }
 
     private addSignature(doc: PDFKit.PDFDocument, visitNota: any) {
-        doc.moveDown(3);
+        try {
+            this.logger.log(`Starting addSignature method`);
+            
+            doc.moveDown(3);
 
-        doc.font('Arial')
-            .fontSize(12)
-            .text('Atentamente,');
+            doc.font('Arial')
+                .fontSize(12)
+                .text('Atentamente,');
 
-        doc.moveDown(3);
+            doc.moveDown(3);
 
-        doc.font('Arial')
-            .fontSize(12)
-            .text(visitNota.visit?.fiscalYear?.subsecretario_name || 'N/A');
+            doc.font('Arial')
+                .fontSize(12)
+                .text(visitNota.visit?.fiscalYear?.subsecretario_name || 'N/A');
 
-        doc.font('Arial')
-            .fontSize(12)
-            .text('Subsecretario de Aseguramiento y Desarrollo de Servicios de Salud');
+            doc.font('Arial')
+                .fontSize(12)
+                .text('Subsecretario de Aseguramiento y Desarrollo de Servicios de Salud');
 
-        doc.moveDown(2);
+            doc.moveDown(2);
 
-        doc.font('Arial')
-            .fontSize(7)
-            .text(`Redactó y Transcribió: ${visitNota.visit?.weekgroupVisit?.lead?.name || 'N/A'} ${visitNota.visit?.weekgroupVisit?.lead?.surname || ''} ${visitNota.visit?.weekgroupVisit?.lead?.lastname || ''} - ${visitNota.visit?.weekgroupVisit?.lead?.status || ''}`);
+            doc.font('Arial')
+                .fontSize(7)
+                .text(`Redactó y Transcribió: ${visitNota.visit?.weekgroupVisit?.lead?.name || 'N/A'} ${visitNota.visit?.weekgroupVisit?.lead?.surname || ''} ${visitNota.visit?.weekgroupVisit?.lead?.lastname || ''} - ${visitNota.visit?.weekgroupVisit?.lead?.status || ''}`);
 
-        doc.font('Arial')
-            .fontSize(7)
-            .text(`Archívese en carpeta de prestador: ${visitNota.visit?.prestador?.fiscalYearInformation[0]?.codigo_habilitacion || 'N/A'} ${visitNota.visit?.prestador?.fiscalYearInformation[0]?.nombre_prestador || 'N/A'}`);
+            doc.font('Arial')
+                .fontSize(7)
+                .text(`Archívese en carpeta de prestador: ${visitNota.visit?.prestador?.fiscalYearInformation[0]?.codigo_habilitacion || 'N/A'} ${visitNota.visit?.prestador?.fiscalYearInformation[0]?.nombre_prestador || 'N/A'}`);
+
+            this.logger.log(`addSignature completed successfully`);
+        } catch (error) {
+            this.logger.error(`Error in addSignature method:`, error);
+            this.logger.error(`Error stack: ${error.stack}`);
+            throw error;
+        }
     }
 
     private convertHtmlToPlainText(html: string): string {
@@ -314,6 +439,92 @@ export class GenerateVisitNotaPdf {
             .trim();
 
         return text;
+    }
+
+    /**
+     * Render HTML content to PDF with basic styling support
+     */
+    private renderHtmlContent(doc: PDFKit.PDFDocument, html: string, options: any = {}) {
+        if (!html) return;
+
+        const defaultOptions = {
+            width: 500,
+            align: 'justify',
+            ...options
+        };
+
+        // Split content by HTML tags to handle basic formatting
+        const parts = this.parseHtmlToParts(html);
+        
+        for (const part of parts) {
+            if (part.type === 'text' && part.content.trim()) {
+                doc.font('Arial').fontSize(12).text(part.content, defaultOptions);
+            } else if (part.type === 'bold' && part.content.trim()) {
+                doc.font('Arial-Bold').fontSize(12).text(part.content, defaultOptions);
+            } else if (part.type === 'italic' && part.content.trim()) {
+                // Since we don't have italic Arial, use regular font
+                doc.font('Arial').fontSize(12).text(part.content, defaultOptions);
+            } else if (part.type === 'break') {
+                doc.moveDown(0.5);
+            } else if (part.type === 'paragraph') {
+                doc.moveDown(1);
+            }
+        }
+    }
+
+    /**
+     * Parse HTML into parts with basic formatting information
+     */
+    private parseHtmlToParts(html: string): Array<{type: string, content: string}> {
+        const parts: Array<{type: string, content: string}> = [];
+        
+        // Clean up HTML entities first
+        let cleanHtml = html
+            .replace(/&nbsp;/g, ' ')
+            .replace(/&amp;/g, '&')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&quot;/g, '"');
+
+        // Handle line breaks
+        cleanHtml = cleanHtml.replace(/<br\s*\/?>/gi, '|||BREAK|||');
+        
+        // Handle paragraphs
+        cleanHtml = cleanHtml.replace(/<\/p>/gi, '|||PARAGRAPH|||');
+        cleanHtml = cleanHtml.replace(/<p[^>]*>/gi, '');
+
+        // Handle bold tags
+        cleanHtml = cleanHtml.replace(/<(strong|b)[^>]*>(.*?)<\/(strong|b)>/gi, '|||BOLD_START|||$2|||BOLD_END|||');
+        
+        // Handle italic tags
+        cleanHtml = cleanHtml.replace(/<(em|i)[^>]*>(.*?)<\/(em|i)>/gi, '|||ITALIC_START|||$2|||ITALIC_END|||');
+
+        // Remove remaining HTML tags
+        cleanHtml = cleanHtml.replace(/<[^>]*>/g, '');
+
+        // Split by our markers and process
+        const tokens = cleanHtml.split(/(\|\|\|[A-Z_]+\|\|\|)/);
+        let currentType = 'text';
+
+        for (const token of tokens) {
+            if (token === '|||BREAK|||') {
+                parts.push({ type: 'break', content: '' });
+            } else if (token === '|||PARAGRAPH|||') {
+                parts.push({ type: 'paragraph', content: '' });
+            } else if (token === '|||BOLD_START|||') {
+                currentType = 'bold';
+            } else if (token === '|||BOLD_END|||') {
+                currentType = 'text';
+            } else if (token === '|||ITALIC_START|||') {
+                currentType = 'italic';
+            } else if (token === '|||ITALIC_END|||') {
+                currentType = 'text';
+            } else if (token && !token.startsWith('|||')) {
+                parts.push({ type: currentType, content: token });
+            }
+        }
+
+        return parts;
     }
 
     private formatDate(date: Date | string): string {

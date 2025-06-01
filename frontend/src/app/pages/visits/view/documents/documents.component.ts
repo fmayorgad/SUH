@@ -9,6 +9,7 @@ import { ViewVisitDocumentComponent } from '@pages/visits/view/dialogs/view/view
 import { VisitsService } from '@services/visits.service';
 import { ViewCommunicationDocumentComponent } from '../dialogs/view-communication/view-communication.component';
 import { CreateNotaAclaratoriaDialogComponent } from '../dialogs/create-nota-aclaratoria/create-nota-aclaratoria.dialog.component';
+import { ViewNotaDocumentComponent } from '../dialogs/view-nota/view-nota.component';
 
 @Component({
   selector: 'app-visit-documents',
@@ -106,25 +107,13 @@ export class DocumentsComponent implements OnInit {
    * Opens a dialog to view a specific visit note
    */
   viewNota(nota: any) {
-    // For now, we'll use a simple alert to show the note content
-    // You can create a dedicated dialog component for viewing notes later
-    const noteContent = `
-      Tipo: ${nota.type || 'N/A'}
-      Acta N°: ${nota.acta_number || 'N/A'}
-      Justificación: ${nota.justification || 'N/A'}
-      Contenido: ${nota.body || 'N/A'}
-      Fecha de creación: ${nota.createdAt ? new Date(nota.createdAt).toLocaleString('es-ES') : 'N/A'}
-    `;
-    
-    alert(`Detalles de la Nota:\n\n${noteContent}`);
-    
-    // TODO: Create a proper dialog component for viewing notes
-    // this.dialog.open(ViewNotaDialogComponent, {
-    //   data: { nota },
-    //   width: '80vw',
-    //   maxWidth: '800px',
-    //   height: 'auto',
-    //   maxHeight: '90vh'
-    // });
+    this.dialog.open(ViewNotaDocumentComponent, {
+      data: { 
+        notaId: nota.id 
+      },
+      width: '90vw',
+      maxWidth: '90vw',
+      height: '90vh'
+    }).afterClosed().subscribe();
   }
 } 

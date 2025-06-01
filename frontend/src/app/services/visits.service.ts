@@ -349,6 +349,32 @@ export class VisitsService {
   }
 
   /**
+   * Gets the nota aclaratoria PDF for a specific nota
+   * @param notaId Nota ID
+   * @returns PDF buffer data
+   */
+  async getNotaPdf(notaId: string): Promise<ArrayBuffer> {
+    try {
+      const response = await this.http.get(`${this.url}/${this.mainModule}/notas/${notaId}/pdf`, {
+        responseType: 'arraybuffer',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/pdf'
+        }
+      }).toPromise();
+
+      if (!response) {
+        throw new Error('No PDF data received');
+      }
+
+      return response;
+    } catch (error) {
+      console.error('Error fetching nota PDF:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Updates visit data including SADE, representative info, etc.
    * @param id Visit ID
    * @param formData Form data to update

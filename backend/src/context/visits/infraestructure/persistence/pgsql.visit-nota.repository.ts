@@ -32,7 +32,15 @@ export class PgsqlVisitNotaRepository implements VisitNotaRepository {
   async findById(id: string): Promise<VisitNota | null> {
     return await this.visitNotaRepository.findOne({
       where: { id },
-      relations: ['visit', 'visit.prestador', 'visit.fiscalYear', 'visit.weekgroupVisit', 'visit.weekgroupVisit.lead'],
+      relations: [
+        'visit', 
+        'visit.prestador', 
+        'visit.prestador.fiscalYearInformation',
+        'visit.prestador.fiscalYearInformation.municipio',
+        'visit.fiscalYear', 
+        'visit.weekgroupVisit', 
+        'visit.weekgroupVisit.lead'
+      ],
     });
   }
 
