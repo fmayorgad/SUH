@@ -413,11 +413,6 @@ export class GenerateVisitNotaPdf {
                 .fontSize(12)
                 .text(visitNota.visit?.fiscalYear?.subsecretario_name || 'N/A');
 
-            doc.font('Arial')
-                .fontSize(12)
-                .text('Subsecretario de Aseguramiento y Desarrollo de Servicios de Salud');
-
-            doc.moveDown(2);
 
             doc.font('Arial')
                 .fontSize(7)
