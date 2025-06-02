@@ -13,6 +13,7 @@ export class FiscalYear extends BaseModel {
     end!: Date;
     realState?: WeekStates;
     subsecretario_name?: string;
+    lider_programa_name?: string;
 
     // Relations
     weeks?: Week[];

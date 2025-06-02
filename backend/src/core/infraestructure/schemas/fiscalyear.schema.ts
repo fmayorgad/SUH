@@ -29,6 +29,11 @@ export const FiscalYearSchema = new EntitySchema<FiscalYear>({
       length: 100,
       nullable: true,
     },
+    lider_programa_name: {
+      type: 'character varying',
+      length: 100,
+      nullable: true,
+    },
     realState: {
       name: 'real_state',
       type: 'enum',

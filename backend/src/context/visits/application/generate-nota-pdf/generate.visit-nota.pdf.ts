@@ -413,13 +413,13 @@ export class GenerateVisitNotaPdf {
             doc.moveDown(3);
 
             doc.font('Arial')
-                .fontSize(12)
-                .text(visitNota.visit?.fiscalYear?.subsecretario_name || 'N/A');
+            .fontSize(7)
+            .text(`Redactó y Transcribió: ${visitNota.visit?.weekgroupVisit?.lead?.name || 'N/A'} ${visitNota.visit?.weekgroupVisit?.lead?.surname || ''} ${visitNota.visit?.weekgroupVisit?.lead?.lastname || ''} - ${visitNota.visit?.weekgroupVisit?.lead?.status || ''}`);
 
 
             doc.font('Arial')
                 .fontSize(7)
-                .text(`Redactó y Transcribió: ${visitNota.visit?.weekgroupVisit?.lead?.name || 'N/A'} ${visitNota.visit?.weekgroupVisit?.lead?.surname || ''} ${visitNota.visit?.weekgroupVisit?.lead?.lastname || ''} - ${visitNota.visit?.weekgroupVisit?.lead?.status || ''}`);
+                .text(`Revisó y aprobó: ${visitNota.visit?.fiscalYear?.lider_programa_name || 'N/A'} - Líder de Programa`);
 
             doc.font('Arial')
                 .fontSize(7)
