@@ -228,7 +228,19 @@ export class UserDialogComponent implements OnInit {
         // Append all user data to FormData
         Object.keys(userData).forEach(key => {
           if (key !== 'signature' && userData[key] !== null && userData[key] !== undefined) {
-            formData.append(key, userData[key]);
+            // Handle date fields specially
+            if (key === 'birthday' && userData[key]) {
+              // Convert date to YYYY-MM-DD format to avoid timezone issues
+              const date = new Date(userData[key]);
+              if (!isNaN(date.getTime())) {
+                const formattedDate = date.getFullYear() + '-' + 
+                  String(date.getMonth() + 1).padStart(2, '0') + '-' + 
+                  String(date.getDate()).padStart(2, '0');
+                formData.append(key, formattedDate);
+              }
+            } else {
+              formData.append(key, userData[key]);
+            }
           }
         });
         

@@ -39,7 +39,6 @@ export class CreateUser {
     user.name = userData.name;
     user.surname = userData.surname;
     user.lastname = userData.lastname;
-    user.birthday = userData.birthday;
     user.gender = userData.gender;
     user.identification_type = userData.identification_type;
     user.identification_number = userData.identification_number;
@@ -50,6 +49,23 @@ export class CreateUser {
     user.phone = userData.phone;
     user.email = userData.email;
     user.signature = userData.signature;
+
+    // Handle birthday date conversion
+    if (userData.birthday) {
+      try {
+        // Convert string date to proper Date object, removing timezone info
+        const birthdayDate = new Date(userData.birthday);
+        if (isNaN(birthdayDate.getTime())) {
+          throw new Error('Invalid date format');
+        }
+        // Convert to UTC date to avoid timezone issues
+        user.birthday = new Date(birthdayDate.getFullYear(), birthdayDate.getMonth(), birthdayDate.getDate());
+      } catch (error) {
+        console.warn(`Invalid birthday date format: ${userData.birthday}`);
+        // Don't set birthday if format is invalid
+        user.birthday = null;
+      }
+    }
 
     // Set profile
     if (userData.profile_id) {

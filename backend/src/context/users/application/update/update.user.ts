@@ -66,7 +66,6 @@ export class UpdateUser {
       name: userData.name,
       surname: userData.surname,
       lastname: userData.lastname,
-      birthday: userData.birthday,
       gender: userData.gender,
       identification_type: userData.identification_type,
       identification_number: userData.identification_number,
@@ -77,6 +76,23 @@ export class UpdateUser {
       email: userData.email,
       signature: userData.signature,
     };
+
+    // Handle birthday date conversion
+    if (userData.birthday) {
+      try {
+        // Convert string date to proper Date object, removing timezone info
+        const birthdayDate = new Date(userData.birthday);
+        if (isNaN(birthdayDate.getTime())) {
+          throw new Error('Invalid date format');
+        }
+        // Convert to UTC date to avoid timezone issues
+        updateData.birthday = new Date(birthdayDate.getFullYear(), birthdayDate.getMonth(), birthdayDate.getDate());
+      } catch (error) {
+        console.warn(`Invalid birthday date format: ${userData.birthday}`);
+        // Don't update birthday if format is invalid
+        delete updateData.birthday;
+      }
+    }
 
     // Only include password if it's provided and not empty
     if (userData.password && userData.password.trim() !== '') {
