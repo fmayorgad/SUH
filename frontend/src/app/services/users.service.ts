@@ -175,6 +175,31 @@ export class UsersService {
     }
   }
 
+  async createUserWithSignature(formData: FormData): Promise<any | TrackHttpError> {
+    const controller = new AbortController();
+    try {
+      const request = await fetch(`${this.url}/${this.mainModule}/create`, {
+        method: 'POST',
+        signal: controller.signal,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          // Don't set Content-Type header for FormData - browser will set it with boundary
+        },
+        body: formData,
+      });
+      
+      const data = await request.json();
+      data.ok = request.ok;
+
+      return data;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    } finally {
+      controller.abort();
+    }
+  }
+
   async updateUser(userId: string, userData: any): Promise<any | TrackHttpError> {
     const controller = new AbortController();
     try {
@@ -186,6 +211,31 @@ export class UsersService {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
         body: JSON.stringify(userData),
+      });
+      
+      const data = await request.json();
+      data.ok = request.ok;
+
+      return data;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    } finally {
+      controller.abort();
+    }
+  }
+
+  async updateUserWithSignature(userId: string, formData: FormData): Promise<any | TrackHttpError> {
+    const controller = new AbortController();
+    try {
+      const request = await fetch(`${this.url}/${this.mainModule}/${userId}`, {
+        method: 'PUT',
+        signal: controller.signal,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          // Don't set Content-Type header for FormData - browser will set it with boundary
+        },
+        body: formData,
       });
       
       const data = await request.json();

@@ -2,6 +2,8 @@ import { BadRequestException, Inject, Injectable, NotFoundException } from '@nes
 import { UsersRepository } from '../../domain/users.repository';
 import { Users } from '@models/user.model';
 import { Profile } from '@models/profile.model';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class UpdateUser {
@@ -10,9 +12,10 @@ export class UpdateUser {
   ) {}
 
   async update(id: string, userData: any): Promise<Users> {
-    // Check if user exists
+    // Check if user exists and get current data
+    let currentUser: Users;
     try {
-      await this.repository.findById(id);
+      currentUser = await this.repository.findById(id);
     } catch (error) {
       throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
     }
@@ -45,6 +48,19 @@ export class UpdateUser {
       }
     }
 
+    // Handle signature file cleanup if a new signature is provided
+    if (userData.signature && currentUser.signature && currentUser.signature !== userData.signature) {
+      try {
+        // Use root-level signatures directory
+        const oldSignaturePath = path.join(process.cwd(), '..', currentUser.signature);
+        if (fs.existsSync(oldSignaturePath)) {
+          fs.unlinkSync(oldSignaturePath);
+        }
+      } catch (error) {
+        console.warn(`Failed to delete old signature file: ${error.message}`);
+      }
+    }
+
     // Prepare update data
     const updateData: Partial<Users> = {
       name: userData.name,
@@ -59,6 +75,7 @@ export class UpdateUser {
       planta_code: userData.planta_code,
       phone: userData.phone,
       email: userData.email,
+      signature: userData.signature,
     };
 
     // Only include password if it's provided and not empty

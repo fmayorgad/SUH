@@ -9,6 +9,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatRadioModule } from '@angular/material/radio';
+import { MatIconModule } from '@angular/material/icon';
 import { FeathericonsModule } from '../../../shared/icons/feathericons/feathericons.module';
 import { MatCardModule } from '@angular/material/card';
 import { UsersService } from '../../../services/users.service';
@@ -57,6 +58,7 @@ interface Profile {
     MatDatepickerModule,
     MatNativeDateModule,
     MatRadioModule,
+    MatIconModule,
     FeathericonsModule,
     MatCardModule
   ],
@@ -69,6 +71,11 @@ export class UserDialogComponent implements OnInit {
   readOnly: boolean;
   dialogTitle: string;
   submitting = false;
+  
+  // Signature-related properties
+  selectedSignatureFile: File | null = null;
+  signaturePreviewUrl: string | null = null;
+  currentSignatureUrl: string | null = null;
   
   genderTypes = Object.values(GenderType);
   identificationTypes = Object.values(IdentificationType);
@@ -111,7 +118,8 @@ export class UserDialogComponent implements OnInit {
       profile: [{value: '', disabled: this.readOnly}, Validators.required],
       status: [{value: 'CONTRATISTA', disabled: this.readOnly}],
       phone: [{value: '', disabled: this.readOnly}],
-      email: [{value: '', disabled: this.readOnly}, [Validators.required, Validators.email]]
+      email: [{value: '', disabled: this.readOnly}, [Validators.required, Validators.email]],
+      signature: [{value: null, disabled: this.readOnly}, this.isEdit ? [] : Validators.required] // Required for new users
     });
   }
   
@@ -135,30 +143,112 @@ export class UserDialogComponent implements OnInit {
         status: user.status || 'CONTRATISTA'
       });
       
+      // Set current signature URL if exists
+      if (user.signature) {
+        this.currentSignatureUrl = `${this.usersService.url}/users/signature/${user.signature.split('/').pop()}`;
+      }
+      
       // Don't require password for edit
       if (this.isEdit) {
         this.userForm.get('password')?.clearValidators();
         this.userForm.get('password')?.updateValueAndValidity();
+        // Make signature optional for edit
+        this.userForm.get('signature')?.clearValidators();
+        this.userForm.get('signature')?.updateValueAndValidity();
       }
     }
   }
+
+  // Method to trigger file input click
+  triggerFileInput(): void {
+    const fileInput = document.getElementById('signature-upload') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.click();
+    }
+  }
   
+  onSignatureFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      
+      // Validate file type
+      if (!file.type.match(/^image\/(jpeg|jpg|png|gif)$/)) {
+        this.snackMessage.show({
+          type: 'simple',
+          message: 'Solo se permiten archivos de imagen (JPG, JPEG, PNG, GIF)',
+          severity: 'error',
+        });
+        return;
+      }
+      
+      // Validate file size (5MB max)
+      if (file.size > 5 * 1024 * 1024) {
+        this.snackMessage.show({
+          type: 'simple',
+          message: 'El archivo no debe superar los 5MB',
+          severity: 'error',
+        });
+        return;
+      }
+      
+      this.selectedSignatureFile = file;
+      
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.signaturePreviewUrl = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+      
+      // Update form control
+      this.userForm.patchValue({ signature: file });
+    }
+  }
+  
+  removeSignature(): void {
+    this.selectedSignatureFile = null;
+    this.signaturePreviewUrl = null;
+    this.userForm.patchValue({ signature: null });
+    
+    // Reset file input
+    const fileInput = document.getElementById('signature-upload') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
+    }
+  }
+
   async onSubmit(): Promise<void> {
-    if (this.userForm.valid) {
+    if (this.userForm.valid || (this.isEdit && this.isFormValidForEdit())) {
       this.submitting = true;
       try {
-        const userData = this.userForm.getRawValue(); // Use getRawValue to get values from disabled controls
+        const formData = new FormData();
+        const userData = this.userForm.getRawValue();
         
-        // Map form field to the backend field name if they're different
-        userData.status = userData.status;
+        // Append all user data to FormData
+        Object.keys(userData).forEach(key => {
+          if (key !== 'signature' && userData[key] !== null && userData[key] !== undefined) {
+            formData.append(key, userData[key]);
+          }
+        });
+        
+        // Handle profile mapping
+        if (userData.profile) {
+          formData.append('profile_id', userData.profile);
+        }
+        
+        // Append signature file if selected
+        if (this.selectedSignatureFile) {
+          formData.append('signature', this.selectedSignatureFile);
+        }
         
         let response;
         if (this.isEdit) {
           // Update user
-          response = await this.usersService.updateUser(this.data.user.id, userData);
+          response = await this.usersService.updateUserWithSignature(this.data.user.id, formData);
         } else {
           // Create user
-          response = await this.usersService.createUser(userData);
+          response = await this.usersService.createUserWithSignature(formData);
         }
         
         if (response && response.ok) {
@@ -184,6 +274,15 @@ export class UserDialogComponent implements OnInit {
     } else {
       this.markFormGroupTouched(this.userForm);
     }
+  }
+  
+  private isFormValidForEdit(): boolean {
+    // For edit mode, we only require certain fields
+    const requiredFields = ['name', 'surname', 'identification_type', 'identification_number', 'username', 'email', 'profile'];
+    return requiredFields.every(field => {
+      const control = this.userForm.get(field);
+      return control && control.value && control.value.toString().trim() !== '';
+    });
   }
   
   onCancel(): void {

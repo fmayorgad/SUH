@@ -83,6 +83,11 @@ export const UserSchema = new EntitySchema<Users>({
 			type: "character varying",
 			length: 100,
 		},
+        signature: {
+			type: "character varying",
+			length: 500,
+			nullable: true,
+		},
 	},
 	relations: {
 		profile: {

@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  app:
+    volumes:
+      # Mount signatures directory for persistent storage
+      - ./signatures:/signatures
+      # Mount other development volumes as needed
+      # - ./backend/src:/app/src
+      # - ./frontend/src:/app/frontend/src
+    environment:
+      # Development environment variables
+      - NODE_ENV=development
+      # Add other environment variables as needed
+    ports:
+      # Expose additional ports for development if needed
+      - "3000:3000"  # Backend API
+      - "4200:4200"  # Frontend dev server (if running separately)
+
+  # Add database service if needed
+  # postgres:
+  #   image: postgres:15
+  #   environment:
+  #     POSTGRES_DB: suh_db
+  #     POSTGRES_USER: suh_user
+  #     POSTGRES_PASSWORD: suh_password
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   ports:
+  #     - "5432:5432"
+
+# volumes:
+#   postgres_data: 

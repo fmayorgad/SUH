@@ -8,6 +8,7 @@ import { UsersGetController } from './controllers/get.users.controller';
 import { PostUsersController } from './controllers/post.users.controller';
 import { PutUsersController } from './controllers/put.users.controller';
 import { PatchUsersController } from './controllers/patch.users.controller';
+import { SignatureUsersController } from './controllers/signature.users.controller';
 
 //schemas 
 import { UserSchema } from '@schemas/user.schema'
@@ -34,7 +35,7 @@ const UserRepositoryProvider = {
     ]),
     HttpModule,
   ],
-  controllers: [UsersGetController, PostUsersController, PutUsersController, PatchUsersController],
+  controllers: [UsersGetController, PostUsersController, PutUsersController, PatchUsersController, SignatureUsersController],
   providers: [UserRepositoryProvider, GetAllUsers, CreateUser, UpdateUser, ChangeStateUser],
   exports: [],
 })

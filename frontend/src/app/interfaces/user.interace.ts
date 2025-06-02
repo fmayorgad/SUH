@@ -19,5 +19,5 @@ export class Users extends BaseModel {
   profile?: Profile;
   phone?: string;
   email?: string;
-
+  signature?: string;
 }

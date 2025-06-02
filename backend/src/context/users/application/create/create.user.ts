@@ -49,6 +49,7 @@ export class CreateUser {
     user.planta_code = userData.planta_code;
     user.phone = userData.phone;
     user.email = userData.email;
+    user.signature = userData.signature;
 
     // Set profile
     if (userData.profile_id) {

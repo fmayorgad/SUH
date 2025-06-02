@@ -128,4 +128,12 @@ export class UpdateUserDto {
     @IsOptional()
     @IsEmail()
     email?: string;
+
+    @ApiProperty({
+        description: 'Signature image file (will be uploaded separately)',
+        required: false,
+    })
+    @IsOptional()
+    @IsString()
+    signature?: string;
 } 
