@@ -621,7 +621,10 @@ export class GenerateVisitNotaPdf {
                 // We're in the middle of a row, move to next row
                 currentY += rowHeight;
             }
-            doc.y = currentY + 10;
+            
+            // Ensure cursor is positioned properly below the table
+            doc.x = 50; // Reset X to left margin
+            doc.y = currentY + 15; // Add some spacing below the table
 
             this.logger.log(`addSignaturesTable completed successfully`);
         } catch (error) {
