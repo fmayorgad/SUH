@@ -143,8 +143,9 @@ export class UserDialogComponent implements OnInit {
         status: user.status || 'CONTRATISTA'
       });
       
-      // Set current signature URL if exists
-      if (user.signature) {
+      // Only show current signature URL if in read-only mode (details view)
+      // For edit mode, don't show existing signature, only show preview of new uploads
+      if (this.readOnly && user.signature) {
         this.currentSignatureUrl = `${this.usersService.url}/users/signature/${user.signature.split('/').pop()}`;
       }
       

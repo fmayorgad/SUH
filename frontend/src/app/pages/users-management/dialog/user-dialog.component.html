@@ -211,11 +211,11 @@
                                     Subir Firma
                                 </button>
                                 
-                                <div class="signature-preview mt-3" *ngIf="signaturePreviewUrl || currentSignatureUrl">
+                                <div class="signature-preview mt-3" *ngIf="signaturePreviewUrl">
                                     <h6>Vista Previa de la Firma:</h6>
                                     <div class="signature-image-container">
                                         <img 
-                                            [src]="signaturePreviewUrl || currentSignatureUrl" 
+                                            [src]="signaturePreviewUrl" 
                                             alt="Firma del usuario"
                                             class="signature-preview-image">
                                         <button 
@@ -223,8 +223,7 @@
                                             mat-icon-button 
                                             color="warn" 
                                             (click)="removeSignature()"
-                                            class="remove-signature-btn"
-                                            *ngIf="!readOnly">
+                                            class="remove-signature-btn">
                                             <mat-icon>close</mat-icon>
                                         </button>
                                     </div>
@@ -233,17 +232,6 @@
                                 <mat-error *ngIf="userForm.get('signature')?.hasError('required') && userForm.get('signature')?.touched">
                                     La firma es requerida
                                 </mat-error>
-                            </div>
-                        </div>
-
-                        <!-- Read-only signature display -->
-                        <div class="col-sm-12" *ngIf="readOnly && currentSignatureUrl">
-                            <h6>Firma Digital</h6>
-                            <div class="signature-preview">
-                                <img 
-                                    [src]="currentSignatureUrl" 
-                                    alt="Firma del usuario"
-                                    class="signature-preview-image">
                             </div>
                         </div>
 
