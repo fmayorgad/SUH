@@ -456,12 +456,12 @@ export class GenerateVisitNotaPdf {
                     identification: lead.identification_number || 'N/A',
                     signature: lead.signature || null
                 });
-            }
+            }   
 
             // Add verificadores
             if (visitNota.visit?.visitVerificadores && Array.isArray(visitNota.visit.visitVerificadores)) {
                 visitNota.visit.visitVerificadores.forEach((verificador: any, index: number) => {
-                    if (verificador.user_id) {
+                    if (verificador.user_id && verificador.user_id.id !== visitNota.visit.weekgroupVisit.lead.id) {
                         const user = verificador.user_id;
                         signatories.push({
                             name: `${user.name || ''} ${user.surname || ''} ${user.lastname || ''}`.trim(),
@@ -483,7 +483,7 @@ export class GenerateVisitNotaPdf {
             const tableWidth = 500;
             const columnWidth = tableWidth / 3; // 3 columns
             const rowHeight = 80; // Reduced from 120 to 80 for more compact layout
-            const borderWidth = 1;
+            const borderWidth = 0.2; // Reduced from 1 to 0.5 for thinner borders
 
             let currentX = tableStartX;
             let currentY = doc.y + 10;
