@@ -3,6 +3,10 @@ import * as PDFDocument from 'pdfkit';
 import * as fs from 'fs';
 import * as path from 'path';
 import { VisitNotaRepository } from '../../domain/visit-nota.repository';
+import { NotaTypesEnum } from '@enums/nota-types.enum';
+import { VisitTypesEnum } from '@enums/visit-types.enum';
+import { VisitNota } from '@models/visit-nota.model';
+import * as moment from 'moment';
 
 @Injectable()
 export class GenerateVisitNotaPdf {
@@ -330,7 +334,7 @@ export class GenerateVisitNotaPdf {
 
             doc.font('Arial-Bold')
                 .fontSize(12)
-                .text(`Asunto: NOTA ACLARATORIA - ${type} No. ${actaNumber}`, 50, startY, {
+                .text(`Asunto: NOTA ACLARATORIA AL ${NotaTypesEnum[type]} No. ${actaNumber}`, 50, startY, {
                     width: 500,
                     align: 'left'
                 });
@@ -351,26 +355,19 @@ export class GenerateVisitNotaPdf {
 
             doc.font('Arial')
                 .fontSize(12)
-                .text('Cordial saludo:', 50, startY);
+                .text('Cordial saludo,', 50, startY);
 
             doc.moveDown();
 
             // Add justification
-            doc.font('Arial-Bold')
-                .text('Justificación:');
-            
-            const justification = visitNota?.justification || 'N/A';
             doc.font('Arial')
-                .text(justification, {
-                    width: 500,
-                    align: 'justify'
-                });
-
-            doc.moveDown(2);
+                .text(`El ${moment(visitNota?.visit.date).format('DD/MM/YYYY')} se realizó visita de ${VisitTypesEnum[visitNota?.visit?.weekgroupVisit.visitType]} al prestador en referencia con sede denominada ${visitNota?.visit?.prestador?.fiscalYearInformation[0]?.nombre_prestador} y con código de habilitacion ${visitNota?.visit?.prestador?.fiscalYearInformation[0]?.codigo_habilitacion} ubicada en la dirección ${visitNota?.visit?.prestador?.fiscalYearInformation[0]?.direccionSede} del municipio de ${visitNota?.visit?.prestador?.fiscalYearInformation[0]?.municipio.name}, mediante acta No. ${visitNota?.acta_number}`);
+            
+            doc.moveDown(1);
 
             // Add the main content (rich text body)
-            doc.font('Arial-Bold')
-                .text('Contenido:');
+            doc.font('Arial')
+                .text('Se aclara que:');
 
             doc.moveDown();
 
@@ -400,12 +397,18 @@ export class GenerateVisitNotaPdf {
     private addSignature(doc: PDFKit.PDFDocument, visitNota: any) {
         try {
             this.logger.log(`Starting addSignature method`);
-            
-            doc.moveDown(3);
+
+            doc.moveDown(2);
 
             doc.font('Arial')
                 .fontSize(12)
-                .text('Atentamente,');
+                .text(`Por tal razón se adjunta la presente nota aclaratoria al ${NotaTypesEnum[visitNota?.type]} No. ${visitNota?.acta_number}`);
+            
+            doc.moveDown(2);
+
+            doc.font('Arial')
+                .fontSize(12)
+                .text('Firman los miembros de la Comisión Técnica de la Secretaría Departamental de Salud');
 
             doc.moveDown(3);
 
