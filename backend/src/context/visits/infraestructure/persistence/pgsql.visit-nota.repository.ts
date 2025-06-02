@@ -39,7 +39,9 @@ export class PgsqlVisitNotaRepository implements VisitNotaRepository {
         'visit.prestador.fiscalYearInformation.municipio',
         'visit.fiscalYear', 
         'visit.weekgroupVisit', 
-        'visit.weekgroupVisit.lead'
+        'visit.weekgroupVisit.lead',
+        'visit.visitVerificadores',
+        'visit.visitVerificadores.user_id',
       ],
     });
   }

@@ -410,6 +410,11 @@ export class GenerateVisitNotaPdf {
                 .fontSize(12)
                 .text('Firman los miembros de la Comisión Técnica de la Secretaría Departamental de Salud');
 
+            doc.moveDown(1);
+
+            // Add signatures table
+            this.addSignaturesTable(doc, visitNota);
+
             doc.moveDown(3);
 
             doc.font('Arial')
@@ -428,6 +433,199 @@ export class GenerateVisitNotaPdf {
             this.logger.log(`addSignature completed successfully`);
         } catch (error) {
             this.logger.error(`Error in addSignature method:`, error);
+            this.logger.error(`Error stack: ${error.stack}`);
+            throw error;
+        }
+    }
+
+    private addSignaturesTable(doc: PDFKit.PDFDocument, visitNota: any) {
+        try {
+            this.logger.log(`Starting addSignaturesTable method`);
+
+            console.log("visitNota", visitNota);
+
+            // Collect all signatories (lead + verificadores)
+            const signatories: any[] = [];
+
+            // Add the lead
+            if (visitNota.visit?.weekgroupVisit?.lead) {
+                const lead = visitNota.visit.weekgroupVisit.lead;
+                signatories.push({
+                    name: `${lead.name || ''} ${lead.surname || ''} ${lead.lastname || ''}`.trim(),
+                    role: 'Líder de visita',
+                    identification: lead.identification_number || 'N/A',
+                    signature: lead.signature || null
+                });
+            }
+
+            // Add verificadores
+            if (visitNota.visit?.visitVerificadores && Array.isArray(visitNota.visit.visitVerificadores)) {
+                visitNota.visit.visitVerificadores.forEach((verificador: any, index: number) => {
+                    if (verificador.user_id) {
+                        const user = verificador.user_id;
+                        signatories.push({
+                            name: `${user.name || ''} ${user.surname || ''} ${user.lastname || ''}`.trim(),
+                            role: `verificador_${index + 2}`,
+                            identification: user.identification_number || 'N/A',
+                            signature: user.signature || null
+                        });
+                    }
+                });
+            }
+
+            if (signatories.length === 0) {
+                this.logger.warn('No signatories found for signatures table');
+                return;
+            }
+
+            // Table configuration - more compact like the first image
+            const tableStartX = 50;
+            const tableWidth = 500;
+            const columnWidth = tableWidth / 3; // 3 columns
+            const rowHeight = 80; // Reduced from 120 to 80 for more compact layout
+            const borderWidth = 1;
+
+            let currentX = tableStartX;
+            let currentY = doc.y + 10;
+            let currentColumn = 0;
+
+            // Check if we need a new page for the table
+            const estimatedTableHeight = Math.ceil(signatories.length / 3) * rowHeight + 50;
+            if (currentY + estimatedTableHeight > 700) {
+                doc.addPage();
+                currentY = doc.y + 10;
+            }
+
+            for (let i = 0; i < signatories.length; i++) {
+                const signatory = signatories[i];
+
+                // Calculate position
+                currentX = tableStartX + (currentColumn * columnWidth);
+
+                // Draw cell border
+                doc.lineWidth(borderWidth)
+                   .strokeColor('#000000')
+                   .rect(currentX, currentY, columnWidth, rowHeight)
+                   .stroke();
+
+                // Add "Firma:" label - smaller font
+                doc.font('Arial-Bold')
+                   .fontSize(8) // Reduced from 9 to 8
+                   .fillColor('#000000')
+                   .text('Firma:', currentX + 3, currentY + 3); // Reduced margins
+
+                // Add signature or placeholder - more compact area
+                const signatureY = currentY + 15; // Reduced from 20 to 15
+                const signatureHeight = 30; // Reduced from 50 to 30
+                const signatureWidth = columnWidth - 6; // Reduced margin
+
+                if (signatory.signature) {
+                    try {
+                        // Build signature file path
+                        const signaturePath = path.join(process.cwd(), '..', signatory.signature);
+                        if (fs.existsSync(signaturePath)) {
+                            // Add signature image
+                            doc.image(signaturePath, currentX + 3, signatureY, {
+                                width: signatureWidth,
+                                height: signatureHeight,
+                                fit: [signatureWidth, signatureHeight],
+                                align: 'center'
+                            });
+                        } else {
+                            // Signature file not found, show placeholder
+                            doc.font('Arial')
+                               .fontSize(7) // Reduced font size
+                               .fillColor('#666666')
+                               .text('Firma no disponible', currentX + 3, signatureY + 10, {
+                                   width: signatureWidth,
+                                   align: 'center'
+                               });
+                        }
+                    } catch (error) {
+                        this.logger.error(`Error loading signature for ${signatory.name}:`, error);
+                        // Show placeholder on error
+                        doc.font('Arial')
+                           .fontSize(7) // Reduced font size
+                           .fillColor('#666666')
+                           .text('Error al cargar firma', currentX + 3, signatureY + 10, {
+                               width: signatureWidth,
+                               align: 'center'
+                           });
+                    }
+                } else {
+                    // No signature available
+                    doc.font('Arial')
+                       .fontSize(7) // Reduced font size
+                       .fillColor('#666666')
+                       .text('Sin firma registrada', currentX + 3, signatureY + 10, {
+                           width: signatureWidth,
+                           align: 'center'
+                       });
+                }
+
+                // Add name - more compact positioning
+                const nameY = currentY + 48; // Adjusted for new layout
+                doc.font('Arial-Bold') // Make name bold
+                   .fontSize(7) // Reduced font size
+                   .fillColor('#000000')
+                   .text(`Nombre`, currentX + 3, nameY, {
+                       width: signatureWidth,
+                       align: 'left'
+                   });
+
+                // Add actual name value on next line
+                doc.font('Arial') // Regular font for value
+                   .fontSize(7)
+                   .fillColor('#000000')
+                   .text(`${signatory.name}`, currentX + 3, nameY + 8, {
+                       width: signatureWidth,
+                       align: 'left'
+                   });
+
+                // Add identification - more compact positioning
+                const idY = nameY + 16; // Tighter spacing
+                doc.font('Arial-Bold') // Make label bold
+                   .fontSize(7)
+                   .fillColor('#000000')
+                   .text(`Cédula`, currentX + 3, idY, {
+                       width: signatureWidth,
+                       align: 'left'
+                   });
+
+                // Add actual cédula value on next line
+                doc.font('Arial') // Regular font for value
+                   .fontSize(7)
+                   .fillColor('#000000')
+                   .text(`${signatory.identification}`, currentX + 3, idY + 8, {
+                       width: signatureWidth,
+                       align: 'left'
+                   });
+
+                // Update position for next cell
+                currentColumn++;
+                if (currentColumn >= 3) {
+                    // Move to next row
+                    currentColumn = 0;
+                    currentY += rowHeight;
+                    
+                    // Check if we need a new page
+                    if (currentY + rowHeight > 700 && i < signatories.length - 1) {
+                        doc.addPage();
+                        currentY = doc.y + 10;
+                    }
+                }
+            }
+
+            // Update document cursor position
+            if (currentColumn > 0) {
+                // We're in the middle of a row, move to next row
+                currentY += rowHeight;
+            }
+            doc.y = currentY + 10;
+
+            this.logger.log(`addSignaturesTable completed successfully`);
+        } catch (error) {
+            this.logger.error(`Error in addSignaturesTable method:`, error);
             this.logger.error(`Error stack: ${error.stack}`);
             throw error;
         }
